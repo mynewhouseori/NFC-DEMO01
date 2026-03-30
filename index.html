@@ -1,61 +1,422 @@
-<body style="margin:0; font-family:Arial, sans-serif;">
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC Safety Demo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<div style="
-  position:relative;
-  height:100vh;
-  background:url('background.jpg') center/cover no-repeat;
-">
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      background: #888;
+    }
 
-  <!-- שכבת כהות -->
-  <div style="
-    position:absolute;
-    top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.45);
-  "></div>
+    body {
+      background: url('background.jpg') center center / cover no-repeat;
+      position: relative;
+    }
 
-  <!-- תוכן -->
-  <div style="
-    position:relative;
-    z-index:2;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    gap:20px;
-  ">
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+    }
 
-    <!-- בדיקה -->
-    <button onclick="setMode('scan')" style="
-      width:85%;
-      max-width:320px;
-      padding:22px;
-      font-size:22px;
-      border:none;
-      border-radius:14px;
-      background:#0f766e;
-      color:white;
-      font-weight:bold;
-    ">
-      🔍 בדיקת ציוד
-    </button>
+    .home-screen {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
 
-    <!-- קליטה -->
-    <button onclick="setMode('register')" style="
-      width:85%;
-      max-width:320px;
-      padding:22px;
-      font-size:22px;
-      border:none;
-      border-radius:14px;
-      background:#e5e7eb;
-      color:#111;
-      font-weight:bold;
-    ">
-      ➕ קליטת ציוד
-    </button>
+    .actions {
+      width: 100%;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
 
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      padding: 22px 18px;
+      font-size: 28px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    }
+
+    .btn-check {
+      background: #0f766e;
+      color: white;
+    }
+
+    .btn-register {
+      background: #ececf1;
+      color: #111827;
+    }
+
+    .btn:active {
+      transform: scale(0.99);
+    }
+
+    .screen {
+      display: none;
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      background: rgba(245, 247, 250, 0.96);
+      padding: 18px;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .back-btn {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      background: #e5e7eb;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .card {
+      max-width: 760px;
+      margin: 0 auto 16px;
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+    }
+
+    h1, h2, h3 {
+      margin: 0 0 14px;
+      color: #1f2937;
+    }
+
+    .main-action {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 22px;
+      font-weight: 700;
+      background: #0f766e;
+      color: white;
+      cursor: pointer;
+      margin-bottom: 14px;
+    }
+
+    .status {
+      margin-top: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    .muted {
+      color: #6b7280;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      font-weight: 700;
+      color: #374151;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 16px;
+      background: white;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        font-size: 24px;
+        padding: 20px 16px;
+      }
+    }
+
+    .preview-wrap {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .preview-box {
+      width: 92px;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #d1d5db;
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .save-btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 20px;
+      font-weight: 700;
+      background: #0f766e;
+      color: white;
+      cursor: pointer;
+      margin-top: 14px;
+    }
+
+    .result-card {
+      display: none;
+      margin-top: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .result-card.active {
+      display: block;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 600px) {
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .thumb {
+      width: 110px;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #d1d5db;
+      background: white;
+      margin-inline: auto;
+    }
+
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .mono {
+      font-family: monospace;
+      direction: ltr;
+      display: inline-block;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <!-- מסך פתיחה -->
+  <div id="homeScreen" class="home-screen">
+    <div class="actions">
+      <button class="btn btn-check" onclick="openScreen('scanScreen')">🔍 בדיקת ציוד</button>
+      <button class="btn btn-register" onclick="openScreen('registerScreen')">➕ קליטת ציוד</button>
+    </div>
   </div>
-</div>
 
-</body>
+  <!-- מסך בדיקה -->
+  <div id="scanScreen" class="screen">
+    <div class="topbar card">
+      <button class="back-btn" onclick="goHome()">חזרה</button>
+      <h2>בדיקת ציוד</h2>
+    </div>
+
+    <div class="card">
+      <button class="main-action" onclick="startScan('scan')">סרוק עכשיו</button>
+      <div id="scanStatus" class="status muted">ממתין לסריקה.</div>
+
+      <div id="scanResult" class="result-card">
+        <div class="result-grid">
+          <div class="thumb">
+            <img id="scanItemImage" src="" alt="תמונת פריט">
+          </div>
+          <div>
+            <h3 id="scanItemType">פריט</h3>
+            <div>Tag ID: <span id="scanTagId" class="mono"></span></div>
+            <div>תיאור: <span id="scanDescription"></span></div>
+            <div>מספר סידורי: <span id="scanSerial"></span></div>
+            <div>עומס מותר: <span id="scanWll"></span></div>
+            <div>בדיקה הבאה: <span id="scanNextInspection"></span></div>
+            <div>סטטוס: <span id="scanItemStatus"></span></div>
+            <div>הערות: <span id="scanNotes"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- מסך קליטה -->
+  <div id="registerScreen" class="screen">
+    <div class="topbar card">
+      <button class="back-btn" onclick="goHome()">חזרה</button>
+      <h2>קליטת ציוד</h2>
+    </div>
+
+    <div class="card">
+      <button class="main-action" onclick="startScan('register')">סרוק תג חדש</button>
+      <div id="registerStatus" class="status muted">ממתין לסריקה.</div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div>
+          <label for="tagId">Tag ID</label>
+          <input id="tagId" placeholder="יתמלא אחרי סריקה או ידנית">
+        </div>
+
+        <div>
+          <div class="preview-wrap">
+            <div style="flex:1;">
+              <label for="itemType">סוג פריט</label>
+              <select id="itemType">
+                <option value="שאקל">שאקל</option>
+                <option value="רצועה">רצועה</option>
+                <option value="שרשרת">שרשרת</option>
+                <option value="טבעת">טבעת</option>
+                <option value="וו">וו</option>
+                <option value="אחר">אחר</option>
+              </select>
+            </div>
+
+            <div>
+              <label>תמונה</label>
+              <div class="preview-box">
+                <img id="selectedImagePreview" src="" alt="תמונה">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="description">תיאור</label>
+          <input id="description" placeholder="למשל: Shackle 3/4">
+        </div>
+        <div>
+          <label for="serialNumber">מספר סידורי</label>
+          <input id="serialNumber" placeholder="למשל: GP-77421">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="wll">עומס מותר (WLL)</label>
+          <input id="wll" placeholder="למשל: 4.75T">
+        </div>
+        <div>
+          <label for="nextInspection">בדיקה הבאה</label>
+          <input id="nextInspection" type="date">
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label for="itemStatus">סטטוס</label>
+          <select id="itemStatus">
+            <option value="תקין">תקין</option>
+            <option value="לבדיקה">לבדיקה</option>
+            <option value="מושבת">מושבת</option>
+          </select>
+        </div>
+        <div>
+          <label for="notes">הערות</label>
+          <input id="notes" placeholder="אופציונלי">
+        </div>
+      </div>
+
+      <button class="save-btn" onclick="saveItem()">שמור פריט</button>
+      <div id="saveStatus" class="status muted"></div>
+    </div>
+  </div>
+
+  <script>
+    const ITEMS_KEY = 'nfc_items_v40';
+
+    const IMAGE_LIBRARY = {
+      "שאקל": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%F0%9F%94%97%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%A9%D7%90%D7%A7%D7%9C%3C/text%3E%3C/svg%3E",
+      "רצועה": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%F0%9F%AA%A2%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%A8%D7%A6%D7%95%D7%A2%D7%94%3C/text%3E%3C/svg%3E",
+      "שרשרת": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%E2%9B%93%EF%B8%8F%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%A9%D7%A8%D7%A9%D7%A8%D7%AA%3C/text%3E%3C/svg%3E",
+      "טבעת": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%E2%AD%95%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%98%D7%91%D7%A2%D7%AA%3C/text%3E%3C/svg%3E",
+      "וו": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%F0%9F%AA%9D%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%95%D7%95%3C/text%3E%3C/svg%3E",
+      "אחר": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20400%20400%27%3E%3Crect%20width%3D%27400%27%20height%3D%27400%27%20rx%3D%2732%27%20fill%3D%27%23f8fafc%27/%3E%3Crect%20x%3D%2724%27%20y%3D%2724%27%20width%3D%27352%27%20height%3D%27352%27%20rx%3D%2728%27%20fill%3D%27white%27%20stroke%3D%27%23dbe4ea%27%20stroke-width%3D%276%27/%3E%3Ccircle%20cx%3D%27200%27%20cy%3D%27150%27%20r%3D%2772%27%20fill%3D%27%23ecfeff%27%20stroke%3D%27%230f766e%27%20stroke-width%3D%276%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27170%27%20font-size%3D%2782%27%20text-anchor%3D%27middle%27%3E%F0%9F%93%A6%3C/text%3E%3Crect%20x%3D%2770%27%20y%3D%27258%27%20width%3D%27260%27%20height%3D%2758%27%20rx%3D%2716%27%20fill%3D%27%230f766e%27%20opacity%3D%270.12%27/%3E%3Ctext%20x%3D%27200%27%20y%3D%27296%27%20font-size%3D%2734%27%20text-anchor%3D%27middle%27%20fill%3D%27%231f2937%27%20font-family%3D%27Arial%2C%20sans-serif%27%3E%D7%A4%D7%A8%D7%99%D7%98%3C/text%3E%3C/svg%3E"
+    };
+
+    let currentMode = '';
+
+    const el = (id) => document.getElementById(id);
+
+    function getItems() {
+      return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]');
+    }
+
+    function setItems(items) {
+      localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+    }
+
+    function openScreen(screen
