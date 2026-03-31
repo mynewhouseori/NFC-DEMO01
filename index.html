@@ -13,6 +13,10 @@
       --muted:#6b7280;
       --line:#d1d5db;
       --danger:#b91c1c;
+      --ok:#15803d;
+      --warn:#d97706;
+      --bad:#dc2626;
+      --tab:#e5e7eb;
     }
 
     html, body {
@@ -164,16 +168,25 @@
 
     h2, h3 { margin:0 0 12px; }
 
-    .main-action, .save-btn, .password-btn {
+    .main-action, .save-btn, .password-btn, .secondary-btn {
       width:100%;
       border:none;
       border-radius:14px;
       padding:16px;
-      font-size:20px;
+      font-size:18px;
       font-weight:700;
+      cursor:pointer;
+    }
+
+    .main-action, .save-btn, .password-btn {
       background:var(--accent);
       color:#fff;
-      cursor:pointer;
+    }
+
+    .secondary-btn {
+      background:#9ca3af;
+      color:#fff;
+      margin-top:10px;
     }
 
     .status {
@@ -264,6 +277,74 @@
       direction:ltr;
       display:inline-block;
     }
+
+    .status-ok { color: var(--ok); font-weight:700; }
+    .status-warn { color: var(--warn); font-weight:700; }
+    .status-bad { color: var(--bad); font-weight:700; }
+
+    .tabs {
+      display:flex;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .tab-btn {
+      flex:1;
+      border:none;
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+      background:var(--tab);
+      color:#111827;
+    }
+
+    .tab-btn.active {
+      background:var(--accent);
+      color:#fff;
+    }
+
+    .tab-pane {
+      display:none;
+    }
+
+    .tab-pane.active {
+      display:block;
+    }
+
+    .log-list {
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    .log-item {
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      padding:12px;
+      background:#fff;
+    }
+
+    .log-top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:6px;
+      font-weight:700;
+    }
+
+    .log-time {
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .empty-text {
+      color:var(--muted);
+      text-align:center;
+      padding:16px 0;
+    }
   </style>
 </head>
 <body>
@@ -308,6 +389,7 @@
     <div class="card">
       <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
       <div id="scanStatus" class="status muted"></div>
+
       <div id="scanResult" class="result-card">
         <div class="result-grid">
           <div class="thumb"><img id="scanItemImage" src="" alt="Item image"></div>
@@ -333,71 +415,82 @@
     </div>
 
     <div class="card">
-      <button class="main-action" onclick="startScan('register')" id="scanNewTagBtn"></button>
-      <div id="registerStatus" class="status muted"></div>
-    </div>
+      <div class="tabs">
+        <button class="tab-btn active" id="tabRegisterBtn" onclick="openRegisterTab('registerPane')"></button>
+        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane'); renderScanLogs()"></button>
+      </div>
 
-    <div class="card">
-      <div class="row">
-        <div>
-          <label for="tagId" id="tagIdLabel"></label>
-          <input id="tagId">
-        </div>
-        <div>
-          <div class="preview-wrap">
-            <div style="flex:1;">
-              <label for="itemType" id="itemTypeLabel"></label>
-              <select id="itemType"></select>
-            </div>
-            <div>
-              <label id="imageLabel"></label>
-              <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
+      <div id="registerPane" class="tab-pane active">
+        <button class="main-action" onclick="startScan('register')" id="scanNewTagBtn"></button>
+        <div id="registerStatus" class="status muted"></div>
+
+        <div class="row">
+          <div>
+            <label for="tagId" id="tagIdLabel"></label>
+            <input id="tagId">
+          </div>
+          <div>
+            <div class="preview-wrap">
+              <div style="flex:1;">
+                <label for="itemType" id="itemTypeLabel"></label>
+                <select id="itemType"></select>
+              </div>
+              <div>
+                <label id="imageLabel"></label>
+                <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
+              </div>
             </div>
           </div>
         </div>
+
+        <div class="row">
+          <div>
+            <label for="description" id="descriptionLabel"></label>
+            <input id="description">
+          </div>
+          <div>
+            <label for="serialNumber" id="serialLabel"></label>
+            <input id="serialNumber">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="wll" id="wllLabel"></label>
+            <input id="wll">
+          </div>
+          <div>
+            <label for="nextInspection" id="nextInspectionLabel"></label>
+            <input id="nextInspection" type="date">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="itemStatus" id="itemStatusLabel"></label>
+            <select id="itemStatus"></select>
+          </div>
+          <div>
+            <label for="notes" id="notesLabel"></label>
+            <input id="notes">
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="saveItem()" id="saveBtn"></button>
+        <button class="secondary-btn" onclick="clearForm()" id="clearFormBtn"></button>
+        <div id="saveStatus" class="status muted"></div>
       </div>
 
-      <div class="row">
-        <div>
-          <label for="description" id="descriptionLabel"></label>
-          <input id="description">
-        </div>
-        <div>
-          <label for="serialNumber" id="serialLabel"></label>
-          <input id="serialNumber">
-        </div>
+      <div id="logsPane" class="tab-pane">
+        <div id="logsList" class="log-list"></div>
       </div>
-
-      <div class="row">
-        <div>
-          <label for="wll" id="wllLabel"></label>
-          <input id="wll">
-        </div>
-        <div>
-          <label for="nextInspection" id="nextInspectionLabel"></label>
-          <input id="nextInspection" type="date">
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="itemStatus" id="itemStatusLabel"></label>
-          <select id="itemStatus"></select>
-        </div>
-        <div>
-          <label for="notes" id="notesLabel"></label>
-          <input id="notes">
-        </div>
-      </div>
-
-      <button class="save-btn" onclick="saveItem()" id="saveBtn"></button>
-      <div id="saveStatus" class="status muted"></div>
     </div>
   </div>
 
   <script>
     const ITEMS_KEY = 'nfc_items_v40';
     const PASSWORD_VALUE = '1234';
+    const SCAN_LOG_KEY = 'nfc_scan_log_v1';
 
     const LANG = {
       he: {
@@ -413,7 +506,10 @@
         scanTitle: 'בדיקת ציוד',
         scanNow: 'סרוק עכשיו',
         registerTitle: 'קליטת ציוד',
+        tabRegister: 'קליטה',
+        tabLogs: 'לוג',
         scanNewTag: 'סרוק תג חדש',
+        clearForm: 'נקה טופס',
         waitingForScan: 'ממתין לסריקה.',
         waitingForNfcTag: 'ממתין להצמדת תג NFC...',
         scanReadError: 'התג זוהה, אבל הקריאה נכשלה.',
@@ -450,7 +546,12 @@
         status_ok: 'תקין',
         status_review: 'לבדיקה',
         status_disabled: 'מושבת',
-        scanItemDefault: 'פריט'
+        scanItemDefault: 'פריט',
+        logTitleEmpty: 'אין סריקות עדיין',
+        logFound: 'נמצא',
+        logNotFound: 'לא נמצא',
+        logTime: 'זמן',
+        logTag: 'תג'
       },
       en: {
         dir: 'ltr',
@@ -465,7 +566,10 @@
         scanTitle: 'Equipment Check',
         scanNow: 'Scan Now',
         registerTitle: 'Register Equipment',
+        tabRegister: 'Register',
+        tabLogs: 'Logs',
         scanNewTag: 'Scan New Tag',
+        clearForm: 'Clear Form',
         waitingForScan: 'Waiting for scan.',
         waitingForNfcTag: 'Waiting for NFC tag...',
         scanReadError: 'The tag was detected, but reading failed.',
@@ -502,7 +606,12 @@
         status_ok: 'OK',
         status_review: 'Needs Review',
         status_disabled: 'Disabled',
-        scanItemDefault: 'Item'
+        scanItemDefault: 'Item',
+        logTitleEmpty: 'No scans yet',
+        logFound: 'Found',
+        logNotFound: 'Not Found',
+        logTime: 'Time',
+        logTag: 'Tag'
       }
     };
 
@@ -522,6 +631,16 @@
       return LANG[currentLang][key] || key;
     }
 
+    function translateType(type){
+      if(type === 'שאקל') return t('type_shackle');
+      if(type === 'רצועה') return t('type_strap');
+      if(type === 'שרשרת') return t('type_chain');
+      if(type === 'טבעת') return t('type_ring');
+      if(type === 'וו') return t('type_hook');
+      if(type === 'אחר') return t('type_other');
+      return type || t('scanItemDefault');
+    }
+
     function translateStatus(status){
       if(status === 'תקין') return t('status_ok');
       if(status === 'לבדיקה') return t('status_review');
@@ -529,15 +648,29 @@
       return status || '-';
     }
 
+    function applyStatusColor(node, status){
+      node.classList.remove('status-ok', 'status-warn', 'status-bad');
+      if(status === 'תקין'){
+        node.classList.add('status-ok');
+      } else if(status === 'לבדיקה'){
+        node.classList.add('status-warn');
+      } else if(status === 'מושבת'){
+        node.classList.add('status-bad');
+      }
+    }
+
     function updateStatusOptions(){
+      const current = el('itemStatus').value || 'תקין';
       el('itemStatus').innerHTML = `
         <option value="תקין">${t('status_ok')}</option>
         <option value="לבדיקה">${t('status_review')}</option>
         <option value="מושבת">${t('status_disabled')}</option>
       `;
+      el('itemStatus').value = current;
     }
 
     function updateTypeOptions(){
+      const current = el('itemType').value || 'שאקל';
       el('itemType').innerHTML = `
         <option value="שאקל">${t('type_shackle')}</option>
         <option value="רצועה">${t('type_strap')}</option>
@@ -546,6 +679,7 @@
         <option value="וו">${t('type_hook')}</option>
         <option value="אחר">${t('type_other')}</option>
       `;
+      el('itemType').value = current;
     }
 
     function setLang(lang){
@@ -569,7 +703,10 @@
 
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = t('registerTitle');
+      el('tabRegisterBtn').textContent = t('tabRegister');
+      el('tabLogsBtn').textContent = t('tabLogs');
       el('scanNewTagBtn').textContent = t('scanNewTag');
+      el('clearFormBtn').textContent = t('clearForm');
 
       el('tagIdLabel').textContent = t('tagId');
       el('itemTypeLabel').textContent = t('itemType');
@@ -599,13 +736,10 @@
       updateTypeOptions();
       updateStatusOptions();
       selectImageByType();
+      renderScanLogs();
 
-      if(el('scanStatus').textContent.trim() === '' || el('scanStatus').textContent === LANG.he.waitingForScan || el('scanStatus').textContent === LANG.en.waitingForScan){
-        el('scanStatus').textContent = t('waitingForScan');
-      }
-      if(el('registerStatus').textContent.trim() === '' || el('registerStatus').textContent === LANG.he.waitingForScan || el('registerStatus').textContent === LANG.en.waitingForScan){
-        el('registerStatus').textContent = t('waitingForScan');
-      }
+      if(!el('scanStatus').textContent.trim()) el('scanStatus').textContent = t('waitingForScan');
+      if(!el('registerStatus').textContent.trim()) el('registerStatus').textContent = t('waitingForScan');
     }
 
     function getItems(){
@@ -614,6 +748,48 @@
 
     function setItems(items){
       localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+    }
+
+    function getLogs(){
+      return JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
+    }
+
+    function setLogs(logs){
+      localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(logs));
+    }
+
+    function saveScanLog(tagId, found){
+      const logs = getLogs();
+      logs.unshift({
+        tagId,
+        found,
+        time: new Date().toLocaleString()
+      });
+      setLogs(logs.slice(0, 100));
+    }
+
+    function renderScanLogs(){
+      const container = el('logsList');
+      const logs = getLogs();
+
+      if(!logs.length){
+        container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
+        return;
+      }
+
+      container.innerHTML = logs.map(log => {
+        const stateClass = log.found ? 'status-ok' : 'status-bad';
+        const stateText = log.found ? t('logFound') : t('logNotFound');
+        return `
+          <div class="log-item">
+            <div class="log-top">
+              <span class="${stateClass}">${stateText}</span>
+              <span class="log-time">${log.time}</span>
+            </div>
+            <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
+          </div>
+        `;
+      }).join('');
     }
 
     function openScreen(screenId){
@@ -653,8 +829,21 @@
         el('passwordInput').value = '';
         el('passwordStatus').textContent = '';
         openScreen('registerScreen');
+        openRegisterTab('registerPane');
       } else {
         el('passwordStatus').textContent = t('passwordWrong');
+      }
+    }
+
+    function openRegisterTab(tabId){
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      el(tabId).classList.add('active');
+
+      if(tabId === 'registerPane'){
+        el('tabRegisterBtn').classList.add('active');
+      } else {
+        el('tabLogsBtn').classList.add('active');
       }
     }
 
@@ -679,21 +868,14 @@
 
     function fillScanCard(item){
       el('scanItemImage').src = item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['אחר'];
-      el('scanItemType').textContent = item.itemType ? (
-        item.itemType === 'שאקל' ? t('type_shackle') :
-        item.itemType === 'רצועה' ? t('type_strap') :
-        item.itemType === 'שרשרת' ? t('type_chain') :
-        item.itemType === 'טבעת' ? t('type_ring') :
-        item.itemType === 'וו' ? t('type_hook') :
-        t('type_other')
-      ) : t('scanItemDefault');
-
+      el('scanItemType').textContent = translateType(item.itemType);
       el('scanTagId').textContent = item.tagId || '-';
       el('scanDescription').textContent = item.description || '-';
       el('scanSerial').textContent = item.serialNumber || '-';
       el('scanWll').textContent = item.wll || '-';
       el('scanNextInspection').textContent = item.nextInspection || '-';
       el('scanItemStatus').textContent = translateStatus(item.status);
+      applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
       el('scanResult').classList.add('active');
     }
@@ -766,6 +948,8 @@
           const items = getItems();
           const found = items.find(x => x.tagId === tagId);
 
+          saveScanLog(tagId, !!found);
+
           if(mode === 'scan'){
             if(found){
               statusEl.textContent = t('itemFound');
@@ -794,6 +978,7 @@
     setLang(currentLang);
     clearStatuses();
     selectImageByType();
+    renderScanLogs();
   </script>
 </body>
 </html>
