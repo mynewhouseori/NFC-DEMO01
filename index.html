@@ -362,7 +362,9 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el(screenId).classList.add('active');
       clearStatuses();
-      if(screenId==='scanScreen'){ el('scanResult').classList.remove('active'); }
+      if(screenId === 'scanScreen'){
+        el('scanResult').classList.remove('active');
+      }
     }
 
     function goHome(){
@@ -372,9 +374,21 @@
     }
 
     function clearStatuses(){
-      el('scanStatus').textContent='ממתין לסריקה.';
-      el('registerStatus').textContent='ממתין לסריקה.';
-      el('saveStatus').textContent='';
+      el('scanStatus').textContent = 'ממתין לסריקה.';
+      el('registerStatus').textContent = 'ממתין לסריקה.';
+      el('saveStatus').textContent = '';
+    }
+
+    function clearForm(){
+      el('tagId').value = '';
+      el('itemType').value = 'שאקל';
+      el('description').value = '';
+      el('serialNumber').value = '';
+      el('wll').value = '';
+      el('nextInspection').value = '';
+      el('itemStatus').value = 'תקין';
+      el('notes').value = '';
+      selectImageByType();
     }
 
     function selectImageByType(){
@@ -437,6 +451,7 @@
       }
 
       setItems(items);
+      clearForm();
       setTimeout(() => goHome(), 700);
     }
 
