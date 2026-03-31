@@ -388,6 +388,7 @@
     </div>
     <div class="card">
       <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
+      <button class="secondary-btn" onclick="demoScan()" id="demoScanBtn"></button>
       <div id="scanStatus" class="status muted"></div>
 
       <div id="scanResult" class="result-card">
@@ -505,6 +506,7 @@
         passwordWrong: 'סיסמה שגויה',
         scanTitle: 'בדיקת ציוד',
         scanNow: 'סרוק עכשיו',
+        demoScan: 'הדמיית סריקה',
         registerTitle: 'קליטת ציוד',
         tabRegister: 'קליטה',
         tabLogs: 'לוג',
@@ -522,6 +524,8 @@
         needTag: 'חייבים לסרוק או להזין Tag ID.',
         itemUpdated: 'הפריט עודכן בהצלחה.',
         itemSaved: 'הפריט נשמר בהצלחה.',
+        noItemsForDemo: 'אין פריטים במערכת',
+        demoMode: 'סריקה לדמו',
         tagId: 'Tag ID',
         itemType: 'סוג פריט',
         image: 'תמונה',
@@ -550,7 +554,6 @@
         logTitleEmpty: 'אין סריקות עדיין',
         logFound: 'נמצא',
         logNotFound: 'לא נמצא',
-        logTime: 'זמן',
         logTag: 'תג'
       },
       en: {
@@ -565,6 +568,7 @@
         passwordWrong: 'Wrong password',
         scanTitle: 'Equipment Check',
         scanNow: 'Scan Now',
+        demoScan: 'Demo Scan',
         registerTitle: 'Register Equipment',
         tabRegister: 'Register',
         tabLogs: 'Logs',
@@ -582,6 +586,8 @@
         needTag: 'You must scan or enter a Tag ID.',
         itemUpdated: 'Item updated successfully.',
         itemSaved: 'Item saved successfully.',
+        noItemsForDemo: 'No items in the system',
+        demoMode: 'Demo scan',
         tagId: 'Tag ID',
         itemType: 'Item Type',
         image: 'Image',
@@ -610,7 +616,6 @@
         logTitleEmpty: 'No scans yet',
         logFound: 'Found',
         logNotFound: 'Not Found',
-        logTime: 'Time',
         logTag: 'Tag'
       }
     };
@@ -667,6 +672,7 @@
         <option value="מושבת">${t('status_disabled')}</option>
       `;
       el('itemStatus').value = current;
+      updateStatusColorSelect();
     }
 
     function updateTypeOptions(){
@@ -700,6 +706,7 @@
       el('scanBackBtn').textContent = t('back');
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
+      el('demoScanBtn').textContent = t('demoScan');
 
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = t('registerTitle');
@@ -857,6 +864,7 @@
       el('itemStatus').value = 'תקין';
       el('notes').value = '';
       selectImageByType();
+      updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
     }
@@ -864,6 +872,19 @@
     function selectImageByType(){
       const type = el('itemType').value || 'אחר';
       el('selectedImagePreview').src = IMAGE_LIBRARY[type] || IMAGE_LIBRARY['אחר'];
+    }
+
+    function updateStatusColorSelect(){
+      const select = el('itemStatus');
+      select.classList.remove('status-ok','status-warn','status-bad');
+
+      if(select.value === 'תקין'){
+        select.classList.add('status-ok');
+      } else if(select.value === 'לבדיקה'){
+        select.classList.add('status-warn');
+      } else if(select.value === 'מושבת'){
+        select.classList.add('status-bad');
+      }
     }
 
     function fillScanCard(item){
@@ -890,6 +911,7 @@
       el('itemStatus').value = item.status || 'תקין';
       el('notes').value = item.notes || '';
       selectImageByType();
+      updateStatusColorSelect();
     }
 
     function saveItem(){
@@ -924,6 +946,21 @@
       setItems(items);
       clearForm();
       setTimeout(() => goHome(), 700);
+    }
+
+    function demoScan(){
+      const items = getItems();
+
+      if(!items.length){
+        el('scanResult').classList.remove('active');
+        el('scanStatus').textContent = t('noItemsForDemo');
+        return;
+      }
+
+      const item = items[0];
+      saveScanLog(item.tagId, true);
+      el('scanStatus').textContent = t('demoMode');
+      fillScanCard(item);
     }
 
     async function startScan(mode){
@@ -965,6 +1002,7 @@
               fillRegisterForm(found);
             } else {
               statusEl.textContent = t('newTag');
+              updateStatusColorSelect();
             }
           }
         };
@@ -974,10 +1012,12 @@
     }
 
     el('itemType').addEventListener('change', selectImageByType);
+    el('itemStatus').addEventListener('change', updateStatusColorSelect);
 
     setLang(currentLang);
     clearStatuses();
     selectImageByType();
+    updateStatusColorSelect();
     renderScanLogs();
   </script>
 </body>
