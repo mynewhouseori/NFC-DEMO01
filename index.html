@@ -1,556 +1,267 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Safety Demo v40</title>
-  <style>
-    * { box-sizing: border-box; }
-    :root{
-      --accent:#0f766e;
-      --text:#111827;
-      --muted:#6b7280;
-      --line:#d1d5db;
-      --danger:#b91c1c;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFC Safety Demo</title>
 
-    html, body {
-      margin:0;
-      padding:0;
-      width:100%;
-      height:100%;
-      font-family:Arial,sans-serif;
-      background:#666;
-      color:var(--text);
-    }
+<style>
+*{box-sizing:border-box}
+:root{--accent:#0f766e}
+body{margin:0;font-family:Arial;background:#666}
 
-    body {
-      position:relative;
-      min-height:100vh;
-    }
+/* FLAGS */
+.lang-switch{
+  position:absolute;
+  top:15px;
+  right:15px;
+  z-index:10;
+  display:flex;
+  gap:10px;
+}
+.flag{
+  font-size:22px;
+  cursor:pointer;
+}
 
-    .overlay {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,.42);
-      z-index:0;
-      pointer-events:none;
-    }
+/* HOME */
+.home-screen{
+  min-height:100vh;
+  background:url('background.jpeg') center/cover no-repeat;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:24px;
+  position:relative;
+}
 
-    .home-screen {
-      position:relative;
-      z-index:2;
-      width:100%;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      justify-content:flex-end;
-      padding:24px;
-      background:url('background.jpeg') center center / cover no-repeat;
-    }
+.actions{max-width:300px;margin:auto;display:flex;flex-direction:column;gap:16px}
 
-    .actions {
-      width:100%;
-      max-width:290px;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      margin-inline:auto;
-      margin-bottom:18px;
-    }
+.demo-badge-bottom{
+  position:absolute;
+  left:20px;
+  bottom:20px;
+  color:white;
+  background:rgba(0,0,0,0.4);
+  padding:6px 10px;
+  border-radius:10px;
+}
 
-    .demo-badge-bottom {
-      position:absolute;
-      left:20px;
-      bottom:20px;
-      color:#fff;
-      font-weight:700;
-      font-size:14px;
-      background:rgba(0,0,0,.35);
-      padding:6px 10px;
-      border-radius:10px;
-      z-index:3;
-    }
+.btn{padding:18px;border:none;border-radius:15px;font-size:18px;font-weight:bold;cursor:pointer}
+.btn-check{background:var(--accent);color:white}
+.btn-register{background:#eee}
 
-    .btn {
-      width:100%;
-      border:none;
-      border-radius:18px;
-      padding:18px 16px;
-      font-size:18px;
-      font-weight:700;
-      cursor:pointer;
-      box-shadow:0 10px 28px rgba(0,0,0,.22);
-      transition:transform .12s ease;
-    }
+/* SCREENS */
+.screen{display:none;min-height:100vh;padding:16px;background:#f5f5f5}
+.screen.active{display:block}
 
-    .btn:active { transform:scale(.98); }
+.card{background:white;padding:16px;border-radius:16px;margin-bottom:12px}
 
-    .btn-check { background:var(--accent); color:#fff; }
-    .btn-register { background:#f0f1f4; color:var(--text); }
+input,select{width:100%;padding:12px;margin-bottom:10px}
 
-    .btn-inner {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-    }
+.save-btn,.main-btn{width:100%;padding:16px;background:var(--accent);color:white;border:none;border-radius:12px}
 
-    .icon {
-      font-size:21px;
-      line-height:1;
-    }
-
-    .screen {
-      display:none;
-      position:relative;
-      z-index:3;
-      min-height:100vh;
-      background:rgba(245,247,250,.97);
-      padding:16px;
-    }
-
-    .screen.active { display:block; }
-
-    .card {
-      max-width:760px;
-      margin:0 auto 14px;
-      background:#fff;
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 4px 18px rgba(0,0,0,.08);
-    }
-
-    .topbar {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-
-    .back-btn {
-      border:none;
-      background:#e5e7eb;
-      color:#111827;
-      border-radius:12px;
-      padding:11px 16px;
-      font-size:15px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    h2, h3 { margin:0 0 12px; }
-
-    .main-action, .save-btn, .password-btn {
-      width:100%;
-      border:none;
-      border-radius:14px;
-      padding:16px;
-      font-size:20px;
-      font-weight:700;
-      background:var(--accent);
-      color:#fff;
-      cursor:pointer;
-    }
-
-    .status {
-      margin-top:12px;
-      font-size:15px;
-      font-weight:700;
-      min-height:22px;
-      color:#374151;
-    }
-
-    .muted { color:var(--muted); }
-    .error-text { color:var(--danger); }
-
-    label {
-      display:block;
-      margin:10px 0 6px;
-      font-weight:700;
-    }
-
-    input, select {
-      width:100%;
-      padding:12px;
-      border-radius:12px;
-      border:1px solid #cbd5e1;
-      background:#fff;
-      font-size:16px;
-    }
-
-    .row {
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    @media (max-width:700px){
-      .row { grid-template-columns:1fr; }
-    }
-
-    .preview-wrap {
-      display:flex;
-      align-items:end;
-      gap:12px;
-    }
-
-    .preview-box, .thumb {
-      aspect-ratio:1/1;
-      border-radius:14px;
-      overflow:hidden;
-      border:1px solid var(--line);
-      background:#fff;
-      flex-shrink:0;
-    }
-
-    .preview-box { width:92px; }
-    .thumb { width:110px; margin-inline:auto; }
-
-    .preview-box img, .thumb img {
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    .result-card {
-      display:none;
-      margin-top:14px;
-      border:1px solid #e5e7eb;
-      border-radius:16px;
-      padding:14px;
-      background:#fff;
-    }
-
-    .result-card.active { display:block; }
-
-    .result-grid {
-      display:grid;
-      grid-template-columns:110px 1fr;
-      gap:14px;
-      align-items:start;
-    }
-
-    @media (max-width:600px){
-      .result-grid { grid-template-columns:1fr; }
-    }
-
-    .mono {
-      font-family:monospace;
-      direction:ltr;
-      display:inline-block;
-    }
-  </style>
+.error{color:red}
+</style>
 </head>
+
 <body>
-  <div class="overlay"></div>
 
-  <div id="homeScreen" class="home-screen">
-    <div class="actions">
-      <button class="btn btn-check" onclick="openScreen('scanScreen')">
-        <span class="btn-inner"><span>בדיקת ציוד</span><span class="icon">🔍</span></span>
-      </button>
-      <button class="btn btn-register" onclick="openPasswordScreen()">
-        <span class="btn-inner"><span>קליטת ציוד</span><span class="icon">➕</span></span>
-      </button>
-    </div>
+<!-- FLAGS -->
+<div class="lang-switch">
+  <span class="flag" onclick="setLang('he')">🇮🇱</span>
+  <span class="flag" onclick="setLang('en')">🇺🇸</span>
+</div>
 
-    <div class="demo-badge-bottom">DEMO®</div>
+<!-- HOME -->
+<div id="homeScreen" class="home-screen">
+  <div class="actions">
+    <button class="btn btn-check" id="btnCheck" onclick="openScreen('scanScreen')"></button>
+    <button class="btn btn-register" id="btnRegister" onclick="openPasswordScreen()"></button>
   </div>
+  <div class="demo-badge-bottom">DEMO®</div>
+</div>
 
-  <div id="passwordScreen" class="screen">
-    <div class="card topbar">
-      <button class="back-btn" onclick="goHome()">חזרה</button>
-      <h2>כניסה לקליטת ציוד</h2>
-    </div>
-    <div class="card">
-      <label for="passwordInput">סיסמה (1234)</label>
-      <input id="passwordInput" type="password" placeholder="הקלד סיסמה">
-      <button class="password-btn" onclick="checkPassword()">כניסה</button>
-      <div id="passwordStatus" class="status error-text"></div>
-    </div>
+<!-- PASSWORD -->
+<div id="passwordScreen" class="screen">
+  <div class="card">
+    <h2 id="passTitle"></h2>
+    <label id="passLabel"></label>
+    <input id="passwordInput" type="password">
+    <button class="main-btn" onclick="checkPassword()" id="passBtn"></button>
+    <div id="passwordError" class="error"></div>
   </div>
+</div>
 
-  <div id="scanScreen" class="screen">
-    <div class="card topbar">
-      <button class="back-btn" onclick="goHome()">חזרה</button>
-      <h2>בדיקת ציוד</h2>
-    </div>
-    <div class="card">
-      <button class="main-action" onclick="startScan('scan')">סרוק עכשיו</button>
-      <div id="scanStatus" class="status muted">ממתין לסריקה.</div>
-      <div id="scanResult" class="result-card">
-        <div class="result-grid">
-          <div class="thumb"><img id="scanItemImage" src="" alt="תמונת פריט"></div>
-          <div>
-            <h3 id="scanItemType">פריט</h3>
-            <div>Tag ID: <span id="scanTagId" class="mono"></span></div>
-            <div>תיאור: <span id="scanDescription"></span></div>
-            <div>מספר סידורי: <span id="scanSerial"></span></div>
-            <div>עומס מותר: <span id="scanWll"></span></div>
-            <div>בדיקה הבאה: <span id="scanNextInspection"></span></div>
-            <div>סטטוס: <span id="scanItemStatus"></span></div>
-            <div>הערות: <span id="scanNotes"></span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- SCAN -->
+<div id="scanScreen" class="screen">
+  <button onclick="goHome()" id="back1"></button>
+  <h2 id="scanTitle"></h2>
+  <button onclick="startScan('scan')" id="scanBtn"></button>
+  <div id="scanStatus"></div>
+</div>
 
-  <div id="registerScreen" class="screen">
-    <div class="card topbar">
-      <button class="back-btn" onclick="goHome()">חזרה</button>
-      <h2>קליטת ציוד</h2>
-    </div>
-    <div class="card">
-      <button class="main-action" onclick="startScan('register')">סרוק תג חדש</button>
-      <div id="registerStatus" class="status muted">ממתין לסריקה.</div>
-    </div>
-    <div class="card">
-      <div class="row">
-        <div>
-          <label for="tagId">Tag ID</label>
-          <input id="tagId" placeholder="יתמלא אחרי סריקה או ידנית">
-        </div>
-        <div>
-          <div class="preview-wrap">
-            <div style="flex:1;">
-              <label for="itemType">סוג פריט</label>
-              <select id="itemType">
-                <option value="שאקל">שאקל</option>
-                <option value="רצועה">רצועה</option>
-                <option value="שרשרת">שרשרת</option>
-                <option value="טבעת">טבעת</option>
-                <option value="וו">וו</option>
-                <option value="אחר">אחר</option>
-              </select>
-            </div>
-            <div>
-              <label>תמונה</label>
-              <div class="preview-box"><img id="selectedImagePreview" src="" alt="תמונה"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+<!-- REGISTER -->
+<div id="registerScreen" class="screen">
+  <button onclick="goHome()" id="back2"></button>
+  <h2 id="regTitle"></h2>
 
-      <div class="row">
-        <div><label for="description">תיאור</label><input id="description" placeholder="למשל: Shackle 3/4"></div>
-        <div><label for="serialNumber">מספר סידורי</label><input id="serialNumber" placeholder="למשל: GP-77421"></div>
-      </div>
+  <button onclick="startScan('register')" id="scanTagBtn"></button>
+  <div id="registerStatus"></div>
 
-      <div class="row">
-        <div><label for="wll">עומס מותר (WLL)</label><input id="wll" placeholder="למשל: 4.75T"></div>
-        <div><label for="nextInspection">בדיקה הבאה</label><input id="nextInspection" type="date"></div>
-      </div>
+  <input id="tagId" placeholder="Tag ID">
+  <input id="description" placeholder="Description">
+  <input id="serialNumber" placeholder="Serial Number">
+  <input id="wll" placeholder="WLL">
+  <input id="nextInspection" type="date">
 
-      <div class="row">
-        <div>
-          <label for="itemStatus">סטטוס</label>
-          <select id="itemStatus">
-            <option value="תקין">תקין</option>
-            <option value="לבדיקה">לבדיקה</option>
-            <option value="מושבת">מושבת</option>
-          </select>
-        </div>
-        <div><label for="notes">הערות</label><input id="notes" placeholder="אופציונלי"></div>
-      </div>
+  <select id="itemStatus">
+    <option>תקין</option>
+    <option>לבדיקה</option>
+    <option>מושבת</option>
+  </select>
 
-      <button class="save-btn" onclick="saveItem()">שמור פריט</button>
-      <div id="saveStatus" class="status muted"></div>
-    </div>
-  </div>
+  <input id="notes" placeholder="Notes">
 
-  <script>
-    const ITEMS_KEY = 'nfc_items_v40';
-    const PASSWORD_VALUE = '1234';
+  <button class="save-btn" onclick="saveItem()" id="saveBtn"></button>
+  <div id="saveStatus"></div>
+</div>
 
-    const IMAGE_LIBRARY = {
-      "שאקל":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E🔗%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eשאקל%3C/text%3E%3C/svg%3E",
-      "רצועה":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E🪢%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eרצועה%3C/text%3E%3C/svg%3E",
-      "שרשרת":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E⛓️%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eשרשרת%3C/text%3E%3C/svg%3E",
-      "טבעת":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E⭕%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eטבעת%3C/text%3E%3C/svg%3E",
-      "וו":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E🪝%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eוו%3C/text%3E%3C/svg%3E",
-      "אחר":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E📦%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eפריט%3C/text%3E%3C/svg%3E"
-    };
+<script>
 
-    const el = (id) => document.getElementById(id);
+const LANG = {
+  he:{
+    check:"בדיקת ציוד",
+    register:"קליטת ציוד",
+    passwordTitle:"כניסה לקליטת ציוד",
+    passwordLabel:"סיסמה (1234)",
+    enter:"כניסה",
+    wrong:"סיסמה שגויה",
+    back:"חזרה",
+    scan:"סרוק עכשיו",
+    scanTitle:"בדיקת ציוד",
+    regTitle:"קליטת ציוד",
+    scanTag:"סרוק תג",
+    save:"שמור פריט"
+  },
+  en:{
+    check:"Equipment Check",
+    register:"Register Equipment",
+    passwordTitle:"Access Register",
+    passwordLabel:"Password (1234)",
+    enter:"Enter",
+    wrong:"Wrong password",
+    back:"Back",
+    scan:"Scan Now",
+    scanTitle:"Equipment Check",
+    regTitle:"Register Equipment",
+    scanTag:"Scan Tag",
+    save:"Save Item"
+  }
+};
 
-    function getItems(){
-      return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]');
+let currentLang = localStorage.getItem("lang") || "he";
+
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem("lang", lang);
+
+  document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
+
+  const t = LANG[lang];
+
+  btnCheck.textContent = t.check;
+  btnRegister.textContent = t.register;
+  passTitle.textContent = t.passwordTitle;
+  passLabel.textContent = t.passwordLabel;
+  passBtn.textContent = t.enter;
+  back1.textContent = t.back;
+  back2.textContent = t.back;
+  scanBtn.textContent = t.scan;
+  scanTitle.textContent = t.scanTitle;
+  regTitle.textContent = t.regTitle;
+  scanTagBtn.textContent = t.scanTag;
+  saveBtn.textContent = t.save;
+}
+
+setLang(currentLang);
+
+/* NAV */
+function openScreen(id){
+  homeScreen.style.display="none";
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function goHome(){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  homeScreen.style.display="flex";
+}
+
+/* PASSWORD */
+function openPasswordScreen(){
+  openScreen("passwordScreen");
+  passwordInput.value="";
+  passwordError.textContent="";
+}
+
+function checkPassword(){
+  if(passwordInput.value === "1234"){
+    openScreen("registerScreen");
+  } else {
+    passwordError.textContent = LANG[currentLang].wrong;
+  }
+}
+
+/* STORAGE */
+function getItems(){ return JSON.parse(localStorage.getItem("items")||"[]"); }
+function setItems(items){ localStorage.setItem("items",JSON.stringify(items)); }
+
+/* CLEAR */
+function clearForm(){
+  tagId.value="";
+  description.value="";
+  serialNumber.value="";
+  wll.value="";
+  nextInspection.value="";
+  notes.value="";
+  itemStatus.value="תקין";
+}
+
+/* SAVE */
+function saveItem(){
+  const item={tagId:tagId.value,description:description.value};
+
+  if(!item.tagId){ saveStatus.textContent="Tag ID required"; return; }
+
+  const items=getItems();
+  items.unshift(item);
+  setItems(items);
+
+  saveStatus.textContent="Saved";
+
+  clearForm();
+  setTimeout(()=>goHome(),500);
+}
+
+/* NFC */
+async function startScan(mode){
+  const status = mode==="scan"?scanStatus:registerStatus;
+
+  if(!("NDEFReader" in window)){ status.textContent="No NFC"; return; }
+
+  const reader=new NDEFReader();
+  await reader.scan();
+
+  reader.onreading=e=>{
+    if(mode==="register"){
+      tagId.value=e.serialNumber;
+    } else {
+      status.textContent=e.serialNumber;
     }
+  };
+}
 
-    function setItems(items){
-      localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
-    }
-
-    function openScreen(screenId){
-      el('homeScreen').style.display = 'none';
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      el(screenId).classList.add('active');
-      clearStatuses();
-
-      if(screenId === 'scanScreen'){
-        el('scanResult').classList.remove('active');
-      }
-    }
-
-    function goHome(){
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      el('homeScreen').style.display = 'flex';
-      clearStatuses();
-    }
-
-    function clearStatuses(){
-      el('scanStatus').textContent = 'ממתין לסריקה.';
-      el('registerStatus').textContent = 'ממתין לסריקה.';
-      el('saveStatus').textContent = '';
-      el('passwordStatus').textContent = '';
-    }
-
-    function openPasswordScreen(){
-      openScreen('passwordScreen');
-      el('passwordInput').value = '';
-      el('passwordStatus').textContent = '';
-    }
-
-    function checkPassword(){
-      const password = String(el('passwordInput').value || '').trim();
-
-      if(password === PASSWORD_VALUE){
-        el('passwordInput').value = '';
-        el('passwordStatus').textContent = '';
-        openScreen('registerScreen');
-      } else {
-        el('passwordStatus').textContent = 'סיסמה שגויה';
-      }
-    }
-
-    function clearForm(){
-      el('tagId').value = '';
-      el('itemType').value = 'שאקל';
-      el('description').value = '';
-      el('serialNumber').value = '';
-      el('wll').value = '';
-      el('nextInspection').value = '';
-      el('itemStatus').value = 'תקין';
-      el('notes').value = '';
-      selectImageByType();
-      el('registerStatus').textContent = 'ממתין לסריקה.';
-      el('saveStatus').textContent = '';
-    }
-
-    function selectImageByType(){
-      const type = el('itemType').value || 'אחר';
-      el('selectedImagePreview').src = IMAGE_LIBRARY[type] || IMAGE_LIBRARY['אחר'];
-    }
-
-    function fillScanCard(item){
-      el('scanItemImage').src = item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['אחר'];
-      el('scanItemType').textContent = item.itemType || '-';
-      el('scanTagId').textContent = item.tagId || '-';
-      el('scanDescription').textContent = item.description || '-';
-      el('scanSerial').textContent = item.serialNumber || '-';
-      el('scanWll').textContent = item.wll || '-';
-      el('scanNextInspection').textContent = item.nextInspection || '-';
-      el('scanItemStatus').textContent = item.status || '-';
-      el('scanNotes').textContent = item.notes || '-';
-      el('scanResult').classList.add('active');
-    }
-
-    function fillRegisterForm(item){
-      el('tagId').value = item.tagId || '';
-      el('itemType').value = item.itemType || 'שאקל';
-      el('description').value = item.description || '';
-      el('serialNumber').value = item.serialNumber || '';
-      el('wll').value = item.wll || '';
-      el('nextInspection').value = item.nextInspection || '';
-      el('itemStatus').value = item.status || 'תקין';
-      el('notes').value = item.notes || '';
-      selectImageByType();
-    }
-
-    function saveItem(){
-      const item = {
-        tagId: String(el('tagId').value || '').trim(),
-        itemType: el('itemType').value,
-        description: el('description').value.trim(),
-        serialNumber: el('serialNumber').value.trim(),
-        wll: el('wll').value.trim(),
-        nextInspection: el('nextInspection').value,
-        status: el('itemStatus').value,
-        notes: el('notes').value.trim(),
-        imageSrc: IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['אחר']
-      };
-
-      if(!item.tagId){
-        el('saveStatus').textContent = 'חייבים לסרוק או להזין Tag ID.';
-        return;
-      }
-
-      const items = getItems();
-      const idx = items.findIndex(x => x.tagId === item.tagId);
-
-      if(idx >= 0){
-        items[idx] = item;
-        el('saveStatus').textContent = 'הפריט עודכן בהצלחה.';
-      } else {
-        items.unshift(item);
-        el('saveStatus').textContent = 'הפריט נשמר בהצלחה.';
-      }
-
-      setItems(items);
-      clearForm();
-      setTimeout(() => goHome(), 700);
-    }
-
-    async function startScan(mode){
-      const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
-
-      if(!('NDEFReader' in window)){
-        statusEl.textContent = 'המכשיר או הדפדפן לא תומכים ב-Web NFC.';
-        return;
-      }
-
-      try{
-        const ndef = new NDEFReader();
-        await ndef.scan();
-        statusEl.textContent = 'ממתין להצמדת תג NFC...';
-
-        ndef.onreadingerror = () => {
-          statusEl.textContent = 'התג זוהה, אבל הקריאה נכשלה.';
-        };
-
-        ndef.onreading = ({ serialNumber }) => {
-          const tagId = String(serialNumber || '').trim() || 'NFC-UNKNOWN';
-          const items = getItems();
-          const found = items.find(x => x.tagId === tagId);
-
-          if(mode === 'scan'){
-            if(found){
-              statusEl.textContent = 'הפריט זוהה בהצלחה.';
-              fillScanCard(found);
-            } else {
-              el('scanResult').classList.remove('active');
-              statusEl.textContent = 'הפריט לא קיים במערכת.';
-            }
-          } else {
-            el('tagId').value = tagId;
-            if(found){
-              statusEl.textContent = 'התג כבר קיים, אפשר לעדכן את הפריט.';
-              fillRegisterForm(found);
-            } else {
-              statusEl.textContent = 'תג חדש זוהה, אפשר למלא ולשמור.';
-            }
-          }
-        };
-      } catch(err){
-        statusEl.textContent = 'לא ניתן להתחיל סריקה במכשיר הזה או שההרשאה נדחתה.';
-      }
-    }
-
-    el('itemType').addEventListener('change', selectImageByType);
-    selectImageByType();
-  </script>
+</script>
 </body>
 </html>
