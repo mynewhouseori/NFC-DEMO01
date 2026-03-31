@@ -14,25 +14,25 @@ body {
   background:#666;
 }
 
-/* ===== מסך ראשי ===== */
+/* ===== HOME ===== */
 .home-screen {
   position:relative;
   min-height:100vh;
   background:url('background.jpeg') center/cover no-repeat;
   display:flex;
   flex-direction:column;
-  justify-content:space-between;
+  justify-content:flex-end;
   padding:20px;
 }
 
-/* DEMO */
-.demo-badge {
+/* DEMO למטה */
+.demo-badge-bottom {
   position:absolute;
-  top:20px;
+  bottom:20px;
   left:20px;
   color:white;
   font-weight:bold;
-  font-size:18px;
+  font-size:14px;
   background:rgba(0,0,0,0.4);
   padding:6px 12px;
   border-radius:10px;
@@ -43,7 +43,6 @@ body {
   display:flex;
   flex-direction:column;
   gap:15px;
-  margin-bottom:20px;
 }
 
 .btn {
@@ -58,7 +57,7 @@ body {
 .btn-check { background:#0f766e; color:white; }
 .btn-register { background:#eee; }
 
-/* ===== מסכים ===== */
+/* ===== SCREENS ===== */
 .screen {
   display:none;
   min-height:100vh;
@@ -104,6 +103,8 @@ body {
     <button class="btn btn-register" onclick="openScreen('registerScreen')">קליטת ציוד</button>
   </div>
 
+  <div class="demo-badge-bottom">DEMO®</div>
+
 </div>
 
 <!-- ===== SCAN ===== -->
@@ -111,8 +112,8 @@ body {
   <button class="back-btn" onclick="goHome()">חזרה</button>
   <h2>בדיקת ציוד</h2>
 
-  <button class="main-action" onclick="startScan()">סרוק עכשיו</button>
-  <div id="scanStatus" class="status"></div>
+  <button class="main-action" onclick="startScan('scan')">סרוק עכשיו</button>
+  <div id="scanStatus" class="status">ממתין לסריקה</div>
 </div>
 
 <!-- ===== REGISTER ===== -->
@@ -120,12 +121,13 @@ body {
   <button class="back-btn" onclick="goHome()">חזרה</button>
   <h2>קליטת ציוד</h2>
 
-  <button class="main-action" onclick="startScan()">סרוק תג</button>
-  <div id="registerStatus" class="status"></div>
+  <button class="main-action" onclick="startScan('register')">סרוק תג</button>
+  <div id="registerStatus" class="status">ממתין לסריקה</div>
 </div>
 
 <script>
 
+/* ניווט */
 function openScreen(id){
   document.getElementById("homeScreen").style.display="none";
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -138,9 +140,14 @@ function goHome(){
 }
 
 /* NFC */
-async function startScan(){
+async function startScan(mode){
+
+  const statusEl = mode === 'scan'
+    ? document.getElementById("scanStatus")
+    : document.getElementById("registerStatus");
+
   if(!("NDEFReader" in window)){
-    alert("אין NFC במכשיר הזה");
+    statusEl.textContent = "אין תמיכה ב-NFC במכשיר הזה";
     return;
   }
 
@@ -148,12 +155,14 @@ async function startScan(){
     const reader = new NDEFReader();
     await reader.scan();
 
+    statusEl.textContent = "ממתין להצמדת תג...";
+
     reader.onreading = event => {
-      alert("נקרא תג: " + event.serialNumber);
+      statusEl.textContent = "נקרא תג: " + event.serialNumber;
     };
 
   } catch(e){
-    alert("שגיאה בסריקה");
+    statusEl.textContent = "שגיאה בהפעלת NFC";
   }
 }
 
