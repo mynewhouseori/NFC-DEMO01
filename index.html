@@ -6,7 +6,13 @@
   <title>NFC Safety Demo v40</title>
   <style>
     * { box-sizing: border-box; }
-    :root{ --accent:#0f766e; --text:#111827; --muted:#6b7280; --line:#d1d5db; }
+    :root{
+      --accent:#0f766e;
+      --text:#111827;
+      --muted:#6b7280;
+      --line:#d1d5db;
+      --danger:#b91c1c;
+    }
 
     html, body {
       margin:0;
@@ -135,7 +141,7 @@
 
     h2, h3 { margin:0 0 12px; }
 
-    .main-action, .save-btn {
+    .main-action, .save-btn, .password-btn {
       width:100%;
       border:none;
       border-radius:14px;
@@ -156,6 +162,7 @@
     }
 
     .muted { color:var(--muted); }
+    .error-text { color:var(--danger); }
 
     label {
       display:block;
@@ -244,12 +251,25 @@
       <button class="btn btn-check" onclick="openScreen('scanScreen')">
         <span class="btn-inner"><span>בדיקת ציוד</span><span class="icon">🔍</span></span>
       </button>
-      <button class="btn btn-register" onclick="openScreen('registerScreen')">
+      <button class="btn btn-register" onclick="openPasswordScreen()">
         <span class="btn-inner"><span>קליטת ציוד</span><span class="icon">➕</span></span>
       </button>
     </div>
 
     <div class="demo-badge-bottom">DEMO®</div>
+  </div>
+
+  <div id="passwordScreen" class="screen">
+    <div class="card topbar">
+      <button class="back-btn" onclick="goHome()">חזרה</button>
+      <h2>כניסה לקליטת ציוד</h2>
+    </div>
+    <div class="card">
+      <label for="passwordInput">סיסמה (1234)</label>
+      <input id="passwordInput" type="password" placeholder="הקלד סיסמה">
+      <button class="password-btn" onclick="checkPassword()">כניסה</button>
+      <div id="passwordStatus" class="status error-text"></div>
+    </div>
   </div>
 
   <div id="scanScreen" class="screen">
@@ -343,6 +363,8 @@
 
   <script>
     const ITEMS_KEY = 'nfc_items_v40';
+    const PASSWORD_VALUE = '1234';
+
     const IMAGE_LIBRARY = {
       "שאקל":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E🔗%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eשאקל%3C/text%3E%3C/svg%3E",
       "רצועה":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3E🪢%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3Eרצועה%3C/text%3E%3C/svg%3E",
@@ -354,14 +376,20 @@
 
     const el = (id) => document.getElementById(id);
 
-    function getItems(){ return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]'); }
-    function setItems(items){ localStorage.setItem(ITEMS_KEY, JSON.stringify(items)); }
+    function getItems(){
+      return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]');
+    }
+
+    function setItems(items){
+      localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+    }
 
     function openScreen(screenId){
-      el('homeScreen').style.display='none';
+      el('homeScreen').style.display = 'none';
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el(screenId).classList.add('active');
       clearStatuses();
+
       if(screenId === 'scanScreen'){
         el('scanResult').classList.remove('active');
       }
@@ -369,7 +397,7 @@
 
     function goHome(){
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      el('homeScreen').style.display='flex';
+      el('homeScreen').style.display = 'flex';
       clearStatuses();
     }
 
@@ -377,6 +405,25 @@
       el('scanStatus').textContent = 'ממתין לסריקה.';
       el('registerStatus').textContent = 'ממתין לסריקה.';
       el('saveStatus').textContent = '';
+      el('passwordStatus').textContent = '';
+    }
+
+    function openPasswordScreen(){
+      openScreen('passwordScreen');
+      el('passwordInput').value = '';
+      el('passwordStatus').textContent = '';
+    }
+
+    function checkPassword(){
+      const password = String(el('passwordInput').value || '').trim();
+
+      if(password === PASSWORD_VALUE){
+        el('passwordInput').value = '';
+        el('passwordStatus').textContent = '';
+        openScreen('registerScreen');
+      } else {
+        el('passwordStatus').textContent = 'סיסמה שגויה';
+      }
     }
 
     function clearForm(){
@@ -389,6 +436,8 @@
       el('itemStatus').value = 'תקין';
       el('notes').value = '';
       selectImageByType();
+      el('registerStatus').textContent = 'ממתין לסריקה.';
+      el('saveStatus').textContent = '';
     }
 
     function selectImageByType(){
