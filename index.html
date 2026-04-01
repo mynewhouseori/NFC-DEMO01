@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Safety Demo v40</title>
+  <title>NFC Safety Demo v41 Cloud</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -195,6 +196,7 @@
       font-weight:700;
       min-height:22px;
       color:#374151;
+      white-space:pre-line;
     }
 
     .muted { color:var(--muted); }
@@ -345,6 +347,11 @@
       text-align:center;
       padding:16px 0;
     }
+
+    .loading {
+      opacity:.7;
+      pointer-events:none;
+    }
   </style>
 </head>
 <body>
@@ -488,10 +495,35 @@
     </div>
   </div>
 
-  <script>
-    const ITEMS_KEY = 'nfc_items_v40';
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      setDoc,
+      getDoc,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      orderBy,
+      limit,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCba5FEsy3WlrrkzjXFPZrKyW9nXsdZ5l4",
+      authDomain: "nfc-demo-91f72.firebaseapp.com",
+      projectId: "nfc-demo-91f72",
+      storageBucket: "nfc-demo-91f72.firebasestorage.app",
+      messagingSenderId: "1097334929129",
+      appId: "1:1097334929129:web:73ee3cc80f0b86572d2278"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const PASSWORD_VALUE = '1234';
-    const SCAN_LOG_KEY = 'nfc_scan_log_v1';
 
     const LANG = {
       he: {
@@ -554,7 +586,12 @@
         logTitleEmpty: 'אין סריקות עדיין',
         logFound: 'נמצא',
         logNotFound: 'לא נמצא',
-        logTag: 'תג'
+        logTag: 'תג',
+        chooseItemForLogs: 'אין Tag ID להצגת לוגים',
+        cloudSaveError: 'שגיאה בשמירה לענן',
+        cloudLoadError: 'שגיאה בטעינה מהענן',
+        cloudLogsError: 'שגיאה בטעינת הלוגים',
+        loading: 'טוען...'
       },
       en: {
         dir: 'ltr',
@@ -616,7 +653,12 @@
         logTitleEmpty: 'No scans yet',
         logFound: 'Found',
         logNotFound: 'Not Found',
-        logTag: 'Tag'
+        logTag: 'Tag',
+        chooseItemForLogs: 'No Tag ID selected for logs',
+        cloudSaveError: 'Error saving to cloud',
+        cloudLoadError: 'Error loading from cloud',
+        cloudLogsError: 'Error loading logs',
+        loading: 'Loading...'
       }
     };
 
@@ -631,6 +673,8 @@
 
     const el = (id) => document.getElementById(id);
     let currentLang = localStorage.getItem('lang') || 'he';
+    let currentLogTagId = '';
+    let activeNdefReader = null;
 
     function t(key){
       return LANG[currentLang][key] || key;
@@ -671,7 +715,7 @@
         <option value="לבדיקה">${t('status_review')}</option>
         <option value="מושבת">${t('status_disabled')}</option>
       `;
-      el('itemStatus').value = current;
+      el('itemStatus').value = ['תקין','לבדיקה','מושבת'].includes(current) ? current : 'תקין';
       updateStatusColorSelect();
     }
 
@@ -685,7 +729,7 @@
         <option value="וו">${t('type_hook')}</option>
         <option value="אחר">${t('type_other')}</option>
       `;
-      el('itemType').value = current;
+      el('itemType').value = ['שאקל','רצועה','שרשרת','טבעת','וו','אחר'].includes(current) ? current : 'שאקל';
     }
 
     function setLang(lang){
@@ -743,63 +787,31 @@
       updateTypeOptions();
       updateStatusOptions();
       selectImageByType();
-      renderScanLogs();
 
       if(!el('scanStatus').textContent.trim()) el('scanStatus').textContent = t('waitingForScan');
       if(!el('registerStatus').textContent.trim()) el('registerStatus').textContent = t('waitingForScan');
-    }
 
-    function getItems(){
-      return JSON.parse(localStorage.getItem(ITEMS_KEY) || '[]');
-    }
-
-    function setItems(items){
-      localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
-    }
-
-    function getLogs(){
-      return JSON.parse(localStorage.getItem(SCAN_LOG_KEY) || '[]');
-    }
-
-    function setLogs(logs){
-      localStorage.setItem(SCAN_LOG_KEY, JSON.stringify(logs));
-    }
-
-    function saveScanLog(tagId, found){
-      const logs = getLogs();
-      logs.unshift({
-        tagId,
-        found,
-        time: new Date().toLocaleString()
-      });
-      setLogs(logs.slice(0, 100));
-    }
-
-    function renderScanLogs(){
-      const container = el('logsList');
-      const logs = getLogs();
-
-      if(!logs.length){
-        container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
-        return;
+      if (el('logsPane').classList.contains('active')) {
+        renderScanLogs();
       }
+    }
 
-      container.innerHTML = logs.map(log => {
-        const stateClass = log.found ? 'status-ok' : 'status-bad';
-        const stateText = log.found ? t('logFound') : t('logNotFound');
-        return `
-          <div class="log-item">
-            <div class="log-top">
-              <span class="${stateClass}">${stateText}</span>
-              <span class="log-time">${log.time}</span>
-            </div>
-            <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
-          </div>
-        `;
-      }).join('');
+    function stopActiveReader(){
+      if(activeNdefReader){
+        activeNdefReader.onreading = null;
+        activeNdefReader.onreadingerror = null;
+      }
+      activeNdefReader = null;
+    }
+
+    function setBusy(screenId, busy){
+      const screen = el(screenId);
+      if (!screen) return;
+      screen.classList.toggle('loading', busy);
     }
 
     function openScreen(screenId){
+      stopActiveReader();
       el('homeScreen').style.display = 'none';
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el(screenId).classList.add('active');
@@ -811,6 +823,7 @@
     }
 
     function goHome(){
+      stopActiveReader();
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el('homeScreen').style.display = 'flex';
       clearStatuses();
@@ -863,6 +876,7 @@
       el('nextInspection').value = '';
       el('itemStatus').value = 'תקין';
       el('notes').value = '';
+      currentLogTagId = '';
       selectImageByType();
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
@@ -910,61 +924,214 @@
       el('nextInspection').value = item.nextInspection || '';
       el('itemStatus').value = item.status || 'תקין';
       el('notes').value = item.notes || '';
+      currentLogTagId = item.tagId || '';
       selectImageByType();
       updateStatusColorSelect();
     }
 
-    function saveItem(){
-      const item = {
+    function buildItemFromForm(){
+      const itemType = el('itemType').value || 'אחר';
+      return {
         tagId: String(el('tagId').value || '').trim(),
-        itemType: el('itemType').value,
+        itemType,
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
         wll: el('wll').value.trim(),
         nextInspection: el('nextInspection').value,
-        status: el('itemStatus').value,
+        status: el('itemStatus').value || 'תקין',
         notes: el('notes').value.trim(),
-        imageSrc: IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['אחר']
+        imageSrc: IMAGE_LIBRARY[itemType] || IMAGE_LIBRARY['אחר']
       };
+    }
+
+    async function saveItemToCloud(item){
+      const ref = doc(db, 'nfc_items', item.tagId);
+      const existing = await getDoc(ref);
+      const createdAt = existing.exists() ? (existing.data().createdAt || serverTimestamp()) : serverTimestamp();
+
+      await setDoc(ref, {
+        ...item,
+        createdAt,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      return existing.exists();
+    }
+
+    async function loadItemFromCloud(tagId){
+      if(!tagId) return null;
+      const ref = doc(db, 'nfc_items', tagId);
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : null;
+    }
+
+    async function loadLatestItemFromCloud(){
+      const itemsRef = collection(db, 'nfc_items');
+      const q = query(itemsRef, orderBy('updatedAt', 'desc'), limit(1));
+      const snap = await getDocs(q);
+      if (snap.empty) return null;
+      return snap.docs[0].data();
+    }
+
+    async function saveScanLog(tagId, found){
+      if(!tagId) return;
+
+      const logsRef = collection(db, 'nfc_items', tagId, 'scan_logs');
+      await addDoc(logsRef, {
+        tagId,
+        found,
+        time: new Date().toLocaleString(),
+        timestamp: serverTimestamp()
+      });
+    }
+
+    async function loadScanLogs(tagId){
+      if(!tagId) return [];
+      const logsRef = collection(db, 'nfc_items', tagId, 'scan_logs');
+      const q = query(logsRef, orderBy('timestamp', 'desc'), limit(100));
+      const snap = await getDocs(q);
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    }
+
+    async function saveItem(){
+      const item = buildItemFromForm();
 
       if(!item.tagId){
         el('saveStatus').textContent = t('needTag');
         return;
       }
 
-      const items = getItems();
-      const idx = items.findIndex(x => x.tagId === item.tagId);
+      setBusy('registerScreen', true);
+      el('saveStatus').textContent = t('loading');
 
-      if(idx >= 0){
-        items[idx] = item;
-        el('saveStatus').textContent = t('itemUpdated');
-      } else {
-        items.unshift(item);
-        el('saveStatus').textContent = t('itemSaved');
+      try{
+        const existed = await saveItemToCloud(item);
+        currentLogTagId = item.tagId;
+        el('saveStatus').textContent = existed ? t('itemUpdated') : t('itemSaved');
+        setTimeout(() => {
+          clearForm();
+          goHome();
+        }, 700);
+      } catch(err){
+        console.error(err);
+        el('saveStatus').textContent = t('cloudSaveError');
+      } finally {
+        setBusy('registerScreen', false);
       }
-
-      setItems(items);
-      clearForm();
-      setTimeout(() => goHome(), 700);
     }
 
-    function demoScan(){
-      const items = getItems();
+    async function demoScan(){
+      setBusy('scanScreen', true);
+      el('scanStatus').textContent = t('loading');
+      el('scanResult').classList.remove('active');
 
-      if(!items.length){
-        el('scanResult').classList.remove('active');
-        el('scanStatus').textContent = t('noItemsForDemo');
+      try{
+        const manualTag = String(el('tagId')?.value || '').trim();
+        let item = null;
+
+        if (manualTag) {
+          item = await loadItemFromCloud(manualTag);
+        }
+
+        if (!item) {
+          item = await loadLatestItemFromCloud();
+        }
+
+        if(!item){
+          el('scanStatus').textContent = t('noItemsForDemo');
+          return;
+        }
+
+        await saveScanLog(item.tagId, true);
+        el('scanStatus').textContent = t('demoMode');
+        fillScanCard(item);
+      } catch(err){
+        console.error(err);
+        el('scanStatus').textContent = t('cloudLoadError');
+      } finally {
+        setBusy('scanScreen', false);
+      }
+    }
+
+    async function renderScanLogs(){
+      const container = el('logsList');
+      const tagId = String(currentLogTagId || el('tagId').value || '').trim();
+
+      if(!tagId){
+        container.innerHTML = `<div class="empty-text">${t('chooseItemForLogs')}</div>`;
         return;
       }
 
-      const item = items[0];
-      saveScanLog(item.tagId, true);
-      el('scanStatus').textContent = t('demoMode');
-      fillScanCard(item);
+      container.innerHTML = `<div class="empty-text">${t('loading')}</div>`;
+
+      try{
+        const logs = await loadScanLogs(tagId);
+
+        if(!logs.length){
+          container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
+          return;
+        }
+
+        container.innerHTML = logs.map(log => {
+          const stateClass = log.found ? 'status-ok' : 'status-bad';
+          const stateText = log.found ? t('logFound') : t('logNotFound');
+
+          return `
+            <div class="log-item">
+              <div class="log-top">
+                <span class="${stateClass}">${stateText}</span>
+                <span class="log-time">${log.time || ''}</span>
+              </div>
+              <div>${t('logTag')}: <span class="mono">${log.tagId || ''}</span></div>
+            </div>
+          `;
+        }).join('');
+      } catch(err){
+        console.error(err);
+        container.innerHTML = `<div class="empty-text">${t('cloudLogsError')}</div>`;
+      }
+    }
+
+    async function handleScannedTag(mode, tagId, statusEl){
+      setBusy(mode === 'scan' ? 'scanScreen' : 'registerScreen', true);
+
+      try{
+        const item = await loadItemFromCloud(tagId);
+        await saveScanLog(tagId, !!item);
+
+        if(mode === 'scan'){
+          if(item){
+            currentLogTagId = tagId;
+            statusEl.textContent = t('itemFound');
+            fillScanCard(item);
+          } else {
+            el('scanResult').classList.remove('active');
+            statusEl.textContent = t('itemNotFound');
+          }
+        } else {
+          el('tagId').value = tagId;
+          currentLogTagId = tagId;
+
+          if(item){
+            statusEl.textContent = t('existingTag');
+            fillRegisterForm(item);
+          } else {
+            statusEl.textContent = t('newTag');
+            selectImageByType();
+            updateStatusColorSelect();
+          }
+        }
+      } catch(err){
+        console.error(err);
+        statusEl.textContent = t('cloudLoadError');
+      } finally {
+        setBusy(mode === 'scan' ? 'scanScreen' : 'registerScreen', false);
+      }
     }
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      stopActiveReader();
 
       if(!('NDEFReader' in window)){
         statusEl.textContent = t('noWebNfc');
@@ -973,6 +1140,8 @@
 
       try{
         const ndef = new NDEFReader();
+        activeNdefReader = ndef;
+
         await ndef.scan();
         statusEl.textContent = t('waitingForNfcTag');
 
@@ -980,45 +1149,38 @@
           statusEl.textContent = t('scanReadError');
         };
 
-        ndef.onreading = ({ serialNumber }) => {
+        ndef.onreading = async ({ serialNumber }) => {
           const tagId = String(serialNumber || '').trim() || 'NFC-UNKNOWN';
-          const items = getItems();
-          const found = items.find(x => x.tagId === tagId);
-
-          saveScanLog(tagId, !!found);
-
-          if(mode === 'scan'){
-            if(found){
-              statusEl.textContent = t('itemFound');
-              fillScanCard(found);
-            } else {
-              el('scanResult').classList.remove('active');
-              statusEl.textContent = t('itemNotFound');
-            }
-          } else {
-            el('tagId').value = tagId;
-            if(found){
-              statusEl.textContent = t('existingTag');
-              fillRegisterForm(found);
-            } else {
-              statusEl.textContent = t('newTag');
-              updateStatusColorSelect();
-            }
-          }
+          await handleScannedTag(mode, tagId, statusEl);
         };
       } catch(err){
+        console.error(err);
         statusEl.textContent = t('scanStartError');
       }
     }
 
+    window.setLang = setLang;
+    window.openScreen = openScreen;
+    window.goHome = goHome;
+    window.openPasswordScreen = openPasswordScreen;
+    window.checkPassword = checkPassword;
+    window.openRegisterTab = openRegisterTab;
+    window.clearForm = clearForm;
+    window.saveItem = saveItem;
+    window.demoScan = demoScan;
+    window.startScan = startScan;
+    window.renderScanLogs = renderScanLogs;
+
     el('itemType').addEventListener('change', selectImageByType);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
+    el('tagId').addEventListener('input', () => {
+      currentLogTagId = String(el('tagId').value || '').trim();
+    });
 
     setLang(currentLang);
     clearStatuses();
     selectImageByType();
     updateStatusColorSelect();
-    renderScanLogs();
   </script>
 </body>
 </html>
