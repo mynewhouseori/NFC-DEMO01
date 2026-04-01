@@ -1008,12 +1008,12 @@
               <tr>
                 <th>${t('image')}</th>
                 <th>${t('tagId')}</th>
+                <th>${t('status')}</th>
                 <th>${t('itemType')}</th>
                 <th>${t('description')}</th>
                 <th>${t('serial')}</th>
                 <th>${t('wll')}</th>
                 <th>${t('nextInspection')}</th>
-                <th>${t('status')}</th>
                 <th>${t('notes')}</th>
               </tr>
             </thead>
@@ -1022,12 +1022,12 @@
                 <tr>
                   <td><img class="small-thumb" src="${item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['אחר']}" alt="item"></td>
                   <td><span class="mono">${item.tagId || ''}</span></td>
+                  <td><span class="${statusPillClass(item.status)}">${translateStatus(item.status)}</span></td>
                   <td>${translateType(item.itemType)}</td>
                   <td>${escapeHtml(item.description || '')}</td>
                   <td>${escapeHtml(item.serialNumber || '')}</td>
                   <td>${escapeHtml(item.wll || '')}</td>
                   <td>${escapeHtml(item.nextInspection || '')}</td>
-                  <td><span class="${statusPillClass(item.status)}">${translateStatus(item.status)}</span></td>
                   <td>${escapeHtml(item.notes || '')}</td>
                 </tr>
               `).join('')}
