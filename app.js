@@ -185,13 +185,14 @@
     }
 
     function applyStatusColor(node, status){
-      node.classList.remove('status-ok', 'status-warn', 'status-bad');
+      node.classList.remove('status-ok', 'status-warn', 'status-bad', 'status-chip', 'pill', 'pill-ok', 'pill-warn', 'pill-bad');
+      node.classList.add('status-chip');
       if(status === '׳×׳§׳™׳'){
-        node.classList.add('status-ok');
+        node.classList.add('pill', 'pill-ok');
       } else if(status === '׳׳‘׳“׳™׳§׳”'){
-        node.classList.add('status-warn');
+        node.classList.add('pill', 'pill-warn');
       } else if(status === '׳׳•׳©׳‘׳×'){
-        node.classList.add('status-bad');
+        node.classList.add('pill', 'pill-bad');
       }
     }
 
@@ -402,10 +403,11 @@
         }
 
         container.innerHTML = logs.map(log => {
-          const stateClass = log.found ? 'status-ok' : 'status-bad';
+          const stateClass = log.found ? 'pill pill-ok' : 'pill pill-bad';
+          const itemClass = log.found ? 'log-item log-item-ok' : 'log-item log-item-bad';
           const stateText = log.found ? t('logFound') : t('logNotFound');
           return `
-            <div class="log-item">
+            <div class="${itemClass}">
               <div class="log-top">
                 <span class="${stateClass}">${stateText}</span>
                 <span class="log-time">${log.time}</span>
