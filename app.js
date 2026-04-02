@@ -104,6 +104,14 @@
       return Object.values(IMAGE_LIBRARY).includes(src) || String(src || '').startsWith('data:image/svg+xml;utf8,');
     }
 
+    function getDisplayImageSrc(item){
+      const savedImage = item?.imageSrc || '';
+      if(savedImage && !isLibraryImageSrc(savedImage)){
+        return savedImage;
+      }
+      return IMAGE_LIBRARY[item?.itemType] || IMAGE_LIBRARY['׳׳—׳¨'];
+    }
+
     function readFileAsDataUrl(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -774,7 +782,7 @@
             <tbody>
               ${filteredItems.map(item => `
                 <tr>
-                  <td data-label="${t('image')}"><img class="small-thumb" src="${item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['׳׳—׳¨']}" alt="item"></td>
+                  <td data-label="${t('image')}"><img class="small-thumb" src="${getDisplayImageSrc(item)}" alt="item"></td>
                   <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
                   <td data-label="${t('status')}">
                     <select class="toolbar-input table-inline-input table-status-select" data-tag-id="${escapeHtml(item.tagId || '')}">
@@ -973,7 +981,7 @@
     }
 
     function fillScanCard(item){
-      el('scanItemImage').src = item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['׳׳—׳¨'];
+      el('scanItemImage').src = getDisplayImageSrc(item);
       el('scanItemType').textContent = translateType(item.itemType);
       el('scanTagId').textContent = item.tagId || '-';
       el('scanDescription').textContent = item.description || '-';
