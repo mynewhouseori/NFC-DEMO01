@@ -432,6 +432,16 @@
       display:block;
     }
 
+    .image-actions {
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .image-btn {
+      width:100%;
+    }
+
     .result-card {
       display:none;
       margin-top:14px;

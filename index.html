@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
-  <link rel="stylesheet" href="./styles.css?v=20260402j" />
+  <link rel="stylesheet" href="./styles.css?v=20260402k" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -109,6 +109,11 @@
               <div>
                 <label id="imageLabel"></label>
                 <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
+                <input id="itemImageInput" type="file" accept="image/*" capture="environment" hidden>
+                <div class="image-actions">
+                  <button class="mini-btn image-btn" onclick="triggerImagePicker()" id="captureImageBtn"></button>
+                  <button class="mini-btn image-btn" onclick="clearCustomImage()" id="clearImageBtn"></button>
+                </div>
               </div>
             </div>
           </div>
@@ -206,8 +211,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260402g"></script>
-  <script src="./config.local.js?v=20260402g"></script>
+  <script src="./config.demo.js?v=20260402k"></script>
+  <script src="./config.local.js?v=20260402k"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -231,7 +236,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260402g';
+      script.src = './app.js?v=20260402k';
       document.body.appendChild(script);
     })();
   </script>

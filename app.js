@@ -97,6 +97,7 @@
       key: 'tagId',
       direction: 'asc'
     };
+    let customImageSrc = '';
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
       visible: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -115,6 +116,10 @@
 
     function csvValue(value){
       return `"${String(value ?? '').replaceAll('"', '""')}"`;
+    }
+
+    function isLibraryImageSrc(src){
+      return Object.values(IMAGE_LIBRARY).includes(src);
     }
 
     function pushDebugLine(message){
@@ -372,6 +377,8 @@
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
       el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
+      el('captureImageBtn').textContent = t('captureImage');
+      el('clearImageBtn').textContent = t('clearImage');
 
       updateTypeOptions();
       updateStatusOptions();
@@ -809,6 +816,20 @@
       el('passwordStatus').textContent = '';
     }
 
+    function updatePreviewImage(src){
+      el('selectedImagePreview').src = src;
+    }
+
+    function triggerImagePicker(){
+      el('itemImageInput').click();
+    }
+
+    function clearCustomImage(){
+      customImageSrc = '';
+      el('itemImageInput').value = '';
+      selectImageByType();
+    }
+
     function openPasswordScreen(){
       openScreen('passwordScreen');
       el('passwordInput').value = '';
@@ -846,6 +867,8 @@
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
       el('notes').value = '';
+      customImageSrc = '';
+      el('itemImageInput').value = '';
       selectImageByType();
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
@@ -904,7 +927,7 @@
 
     function selectImageByType(){
       const type = el('itemType').value || '׳׳—׳¨';
-      el('selectedImagePreview').src = IMAGE_LIBRARY[type] || IMAGE_LIBRARY['׳׳—׳¨'];
+      updatePreviewImage(customImageSrc || IMAGE_LIBRARY[type] || IMAGE_LIBRARY['׳׳—׳¨']);
     }
 
     function updateStatusColorSelect(){
@@ -943,6 +966,8 @@
       el('nextInspection').value = item.nextInspection || '';
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('notes').value = item.notes || '';
+      customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
+      el('itemImageInput').value = '';
       selectImageByType();
       updateStatusColorSelect();
     }
@@ -965,7 +990,7 @@
         nextInspection: el('nextInspection').value,
         status: el('itemStatus').value,
         notes: el('notes').value.trim(),
-        imageSrc: IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨'],
+        imageSrc: customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨'],
         createdAt: existing?.createdAt || new Date().toLocaleString(),
         updatedAt: new Date().toLocaleString()
       };
@@ -1069,6 +1094,23 @@
 
     el('itemType').addEventListener('change', selectImageByType);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
+    el('itemImageInput').addEventListener('change', (event) => {
+      const file = event.target.files?.[0];
+      if(!file){
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        customImageSrc = String(reader.result || '');
+        updatePreviewImage(customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨']);
+        pushDebugLine(`Image selected for current item: ${file.name}`);
+      };
+      reader.onerror = () => {
+        pushDebugLine(`Image read failed: ${reader.error?.message || 'Unknown error'}`);
+      };
+      reader.readAsDataURL(file);
+    });
     el('tableSearchInput').addEventListener('input', (event) => {
       tableFilters.query = event.target.value || '';
       renderItemsTable();
@@ -1099,6 +1141,8 @@
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
     window.saveTableRow = saveTableRow;
+    window.triggerImagePicker = triggerImagePicker;
+    window.clearCustomImage = clearCustomImage;
     window.toggleTableSort = toggleTableSort;
     window.exportTableCsv = exportTableCsv;
     window.demoScan = demoScan;
