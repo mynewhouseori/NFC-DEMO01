@@ -463,11 +463,11 @@
       if(passwordContext === 'scan' && pendingScanRole === 'engineer'){
         el('passwordTitle').textContent = t('engineerLoginTitle');
         el('passwordLabel').textContent = t('engineerPasswordLabel');
-        el('passwordRoleHint').textContent = t('roleEngineer');
+        el('passwordRoleHint').textContent = `${t('roleEngineer')} · ${t('demoNoPasswordNeeded')}`;
       } else if(passwordContext === 'scan' && pendingScanRole === 'foreman'){
         el('passwordTitle').textContent = t('foremanLoginTitle');
         el('passwordLabel').textContent = t('foremanPasswordLabel');
-        el('passwordRoleHint').textContent = t('roleForeman');
+        el('passwordRoleHint').textContent = `${t('roleForeman')} · ${t('demoNoPasswordNeeded')}`;
       } else {
         el('passwordTitle').textContent = t('passwordTitle');
         el('passwordLabel').textContent = t('passwordLabel');
@@ -1124,15 +1124,7 @@
     }
 
     function checkPassword(){
-      const enteredPassword = String(el('passwordInput').value || '').trim();
-
       if(passwordContext === 'scan'){
-        const expected = pendingScanRole === 'engineer' ? ENGINEER_PASSWORD : FOREMAN_PASSWORD;
-        if(enteredPassword !== expected){
-          el('passwordStatus').textContent = t('passwordWrong');
-          return;
-        }
-
         scanAccessRole = pendingScanRole;
         pushDebugLine(`Scan access granted for ${scanAccessRole}.`);
         el('passwordInput').value = '';
