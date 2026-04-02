@@ -826,60 +826,23 @@
       }
 
       .items-table {
-        min-width:0;
+        min-width:1100px;
       }
 
       .table-wrap {
-        overflow-x:hidden;
-      }
-
-      .items-table thead {
-        display:none;
-      }
-
-      .items-table,
-      .items-table tbody,
-      .items-table tr,
-      .items-table td {
-        display:block;
-        width:100%;
-      }
-
-      .items-table tbody tr {
-        padding:12px;
-        border-bottom:1px solid #eef2f7;
-      }
-
-      .items-table tbody td {
-        display:grid;
-        grid-template-columns:minmax(100px, 38%) 1fr;
-        gap:10px;
-        padding:8px 0;
-        border-bottom:1px dashed #e5e7eb;
-        align-items:center;
-      }
-
-      .items-table tbody td:last-child {
-        border-bottom:none;
-      }
-
-      .items-table tbody td::before {
-        content:attr(data-label);
-        font-weight:700;
-        color:#475569;
-        text-align:start;
+        overflow-x:auto;
       }
 
       .table-actions-cell {
-        min-width:0;
+        min-width:120px;
       }
 
       .table-inline-input,
       .table-save-btn {
-        min-width:0;
+        min-width:120px;
       }
 
       .small-thumb {
-        margin-inline-start:auto;
+        margin-inline-start:0;
       }
     }
