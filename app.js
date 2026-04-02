@@ -406,13 +406,20 @@
     }
 
     function updateScanAccessUi(){
+      const hasAccess = Boolean(scanAccessRole);
       el('scanAccessCurrent').textContent = getScanRoleLabel(scanAccessRole);
       el('scanAccessCurrent').className = `scan-access-current role-${scanAccessRole || 'viewer'}`;
       el('scanEditPanel').classList.toggle('active', scanAccessRole === 'engineer' && Boolean(currentScannedItem));
+      el('scanNowBtn').disabled = !hasAccess;
+      el('demoScanBtn').disabled = !hasAccess;
       if(scanAccessRole === 'foreman'){
         el('scanEditStatusText').textContent = t('scanReadOnlyNote');
       } else if(scanAccessRole !== 'engineer') {
         el('scanEditStatusText').textContent = '';
+      }
+
+      if(!hasAccess && !el('scanResult').classList.contains('active')){
+        el('scanStatus').textContent = t('scanAccessRequired');
       }
     }
 
@@ -1069,6 +1076,8 @@
       el('homeScreen').style.display = 'flex';
       clearStatuses();
       currentScannedItem = null;
+      scanAccessRole = '';
+      pendingScanRole = '';
       populateScanEditForm(null);
       updateScanAccessUi();
     }
@@ -1386,6 +1395,11 @@
     }
 
     async function demoScan(){
+      if(!scanAccessRole){
+        el('scanStatus').textContent = t('scanAccessRequired');
+        return;
+      }
+
       try {
         const items = await getItems();
 
@@ -1413,6 +1427,11 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+
+      if(mode === 'scan' && !scanAccessRole){
+        statusEl.textContent = t('scanAccessRequired');
+        return;
+      }
 
       if(!('NDEFReader' in window)){
         pushDebugLine('Web NFC is not available on this device/browser.');
