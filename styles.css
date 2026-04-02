@@ -740,10 +740,10 @@
     }
 
     .small-thumb {
-      width:36px;
-      height:36px;
+      width:42px;
+      height:42px;
       object-fit:cover;
-      border-radius:8px;
+      border-radius:10px;
       border:1px solid #e5e7eb;
       background:#fff;
     }
