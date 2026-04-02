@@ -423,7 +423,7 @@
       container.innerHTML = `<div class="empty-text">Loading...</div>`;
 
       try {
-        const [logs, items] = await Promise.all([getLogs(), getAllItems()]);
+        const [logs, items] = await Promise.all([getLogs(), getItems()]);
         const itemMap = new Map(items.map((item) => [normalizeTagId(item.tagId), item]));
 
         if(!logs.length){
