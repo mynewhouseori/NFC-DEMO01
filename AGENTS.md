@@ -8,7 +8,7 @@ This file helps Codex work well in this repository and keeps the project easy to
 - Main entry: `index.html`
 - Asset file: `background.jpeg`
 - Database: Firebase Firestore
-- Main purpose: NFC equipment registration and scan demo with Hebrew and English UI
+- Main purpose: NFC equipment registration and scan demo with Hebrew, English, and Arabic UI
 
 ## Current App Behavior
 
@@ -16,7 +16,7 @@ This file helps Codex work well in this repository and keeps the project easy to
   - `index.html` for structure
   - `styles.css` for styling
   - `app.js` for app logic
-  - `translations.js` for Hebrew and English text
+  - `translations.js` for Hebrew, English, and Arabic text
 - Firestore collections currently used:
   - `nfc_items`
   - `nfc_scan_logs`
@@ -40,7 +40,7 @@ This file helps Codex work well in this repository and keeps the project easy to
 - Keep the experience calm and low-friction: fewer steps, fewer files, fewer decisions.
 - When making changes, explain them in simple product language first, not just engineering language.
 - If suggesting architecture changes, offer a safe option and a more advanced option.
-- Keep Hebrew and English support working.
+- Keep Hebrew, English, and Arabic support working.
 - When changing wording, update `translations.js` first instead of scattering text across the app.
 - Do not remove Firebase or Web NFC behavior unless the user asks.
 - Prefer direct updates to `main` for this repo unless the user explicitly asks for branches or PR flow.
@@ -118,10 +118,14 @@ When making changes, Codex should verify what it can locally:
 - If screenshot capture is blocked by the sandbox, say so clearly instead of pretending visual verification happened.
 - Default Chrome smoke-test flow:
   - start localhost preview
-  - open `http://127.0.0.1:4173/`
-  - check home screen text, icons, and language switch
-  - check register/password flow, table tab, logs tab, and demo scan
+  - run a desktop viewport pass with `http://127.0.0.1:4173/`
+  - run a mobile viewport pass with `http://127.0.0.1:4173/`
+  - check home screen text, icons, and language switch in both
+  - check register/password flow, table tab, logs tab, and demo scan in both when the change affects layout or interaction
   - use `?debug=1` and capture a screenshot when visual validation or diagnostics matter
+- Recommended headless Chrome sizes:
+  - desktop: `1280x1600`
+  - mobile: `390x844`
 
 ## Known Product Constraints
 

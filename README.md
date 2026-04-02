@@ -9,14 +9,14 @@ This repo contains a simple NFC equipment demo app built with static HTML, CSS, 
 - lets you register or update equipment
 - stores equipment records in Firestore
 - stores scan history in Firestore
-- supports Hebrew and English
+- supports Hebrew, English, and Arabic
 
 ## Project Structure
 
 - `index.html` - the main HTML entry file
 - `styles.css` - app styles
 - `app.js` - app logic, Firebase logic, and NFC logic
-- `translations.js` - Hebrew and English UI text in one place
+- `translations.js` - Hebrew, English, and Arabic UI text in one place
 - `background.jpeg` - home screen background image
 - `AGENTS.md` - instructions for Codex so this repo stays easy to work with
 - `config.demo.js` - public demo config used by GitHub Pages
@@ -67,7 +67,8 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 - UI wording lives in `translations.js`
 - `app.js` uses translation keys instead of holding all text inline
 - if you want to change Hebrew or English wording, start in `translations.js`
-- keep the same keys in both languages so the app stays consistent
+- keep the same keys in all languages so the app stays consistent
+- Arabic uses a simple RTL wording style suitable for Israeli local use
 
 ## How To Test
 
@@ -77,9 +78,10 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 - Use Chrome as the default browser for testing this repo
 - Do not open `index.html` directly with `file://`
 - Open the app in Chrome
-- Check language switching.
-- Check registration flow.
-- Check table and scan log loading from Firebase.
+- Check the app once in a desktop-sized browser window and once in a mobile-sized browser window
+- Check language switching
+- Check registration flow
+- Check table and scan log loading from Firebase
 - Test NFC scanning on a supported mobile device.
 
 ## Local Preview

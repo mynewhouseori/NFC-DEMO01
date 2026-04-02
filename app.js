@@ -82,7 +82,8 @@
     });
 
     const el = (id) => document.getElementById(id);
-    let currentLang = localStorage.getItem('lang') || 'he';
+    const savedLang = localStorage.getItem('lang');
+    let currentLang = LANG[savedLang] ? savedLang : 'he';
     const tableFilters = {
       query: '',
       status: 'all'
@@ -224,6 +225,9 @@
       document.documentElement.lang = lang;
       document.documentElement.dir = LANG[lang].dir;
       pushDebugLine(`Language set to ${lang}.`);
+      document.querySelectorAll('.flag-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.lang === lang);
+      });
 
       el('homeCheckText').textContent = t('homeCheck');
       el('homeRegisterText').textContent = t('homeRegister');
@@ -439,7 +443,7 @@
         }
 
         container.innerHTML = `
-          <table>
+          <table class="items-table">
             <thead>
               <tr>
                 <th>${t('image')}</th>
@@ -456,15 +460,15 @@
             <tbody>
               ${filteredItems.map(item => `
                 <tr>
-                  <td><img class="small-thumb" src="${item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['׳׳—׳¨']}" alt="item"></td>
-                  <td><span class="mono">${item.tagId || ''}</span></td>
-                  <td><span class="${statusPillClass(item.status)}">${translateStatus(item.status)}</span></td>
-                  <td>${translateType(item.itemType)}</td>
-                  <td>${escapeHtml(item.description || '')}</td>
-                  <td>${escapeHtml(item.serialNumber || '')}</td>
-                  <td>${escapeHtml(item.wll || '')}</td>
-                  <td>${escapeHtml(item.nextInspection || '')}</td>
-                  <td>${escapeHtml(item.notes || '')}</td>
+                  <td data-label="${t('image')}"><img class="small-thumb" src="${item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['׳׳—׳¨']}" alt="item"></td>
+                  <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
+                  <td data-label="${t('status')}"><span class="${statusPillClass(item.status)}">${translateStatus(item.status)}</span></td>
+                  <td data-label="${t('itemType')}">${translateType(item.itemType)}</td>
+                  <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
+                  <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
+                  <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
+                  <td data-label="${t('nextInspection')}">${escapeHtml(item.nextInspection || '')}</td>
+                  <td data-label="${t('notes')}">${escapeHtml(item.notes || '')}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -566,6 +570,48 @@
       el('tableSearchInput').value = '';
       el('tableStatusFilter').value = 'all';
       renderItemsTable();
+    }
+
+    async function applyUrlTestState(){
+      const params = new URLSearchParams(window.location.search);
+      const langParam = params.get('lang');
+      const screenParam = params.get('screen');
+      const tabParam = params.get('tab');
+
+      if (langParam && LANG[langParam]) {
+        setLang(langParam);
+      }
+
+      if (screenParam === 'password') {
+        openPasswordScreen();
+        return;
+      }
+
+      if (screenParam === 'scan') {
+        openScreen('scanScreen');
+        return;
+      }
+
+      if (screenParam === 'register') {
+        openScreen('registerScreen');
+
+        if (tabParam === 'table') {
+          openRegisterTab('tablePane');
+          await renderItemsTable();
+          return;
+        }
+
+        if (tabParam === 'logs') {
+          openRegisterTab('logsPane');
+          await renderScanLogs();
+          return;
+        }
+
+        openRegisterTab('registerPane');
+        return;
+      }
+
+      goHome();
     }
 
     function selectImageByType(){
@@ -753,15 +799,6 @@
       pushDebugLine(`Unhandled promise rejection: ${reason}`);
     });
 
-    setLang(currentLang);
-    clearStatuses();
-    selectImageByType();
-    updateStatusColorSelect();
-    renderScanLogs();
-    renderItemsTable();
-    refreshDebugPanel();
-    pushDebugLine('App boot completed.');
-
     window.setLang = setLang;
     window.openScreen = openScreen;
     window.openPasswordScreen = openPasswordScreen;
@@ -777,3 +814,17 @@
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
     window.renderScanLogs = renderScanLogs;
+
+    async function bootApp(){
+      setLang(currentLang);
+      clearStatuses();
+      selectImageByType();
+      updateStatusColorSelect();
+      await renderScanLogs();
+      await renderItemsTable();
+      await applyUrlTestState();
+      refreshDebugPanel();
+      pushDebugLine('App boot completed.');
+    }
+
+    bootApp();

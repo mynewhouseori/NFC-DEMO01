@@ -40,15 +40,22 @@ npm run preview:open
 Use this as the standard local test routine:
 
 1. Start the preview with `start-local.bat` or `npm run preview:open`
-2. Open `http://127.0.0.1:4173/` in Chrome
-3. Check the home screen text, icons, and language switch
-4. Check the register flow, password screen, table tab, logs tab, and demo scan
-5. Use `?debug=1` and headless Chrome screenshots when a visual check or diagnostics matter
+2. Run one desktop check in Chrome at `http://127.0.0.1:4173/`
+3. Run one mobile-size check in Chrome at `http://127.0.0.1:4173/`
+4. Check the home screen text, icons, and language switch in both
+5. Check the register flow, password screen, table tab, logs tab, and demo scan in both when the change touches layout or interaction
+6. Use `?debug=1` and headless Chrome screenshots when a visual check or diagnostics matter
 
-Example headless Chrome pattern:
+Example headless Chrome desktop pattern:
 
 ```powershell
 "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --window-size=1280,1600 --screenshot=chrome-check.png "http://127.0.0.1:4173/"
+```
+
+Example headless Chrome mobile pattern:
+
+```powershell
+"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --window-size=390,844 --screenshot=chrome-check-mobile.png "http://127.0.0.1:4173/"
 ```
 
 ## What The Debug Panel Shows
@@ -78,9 +85,9 @@ You can also use the `Copy Debug Info` button and paste the result directly into
 
 ## Updating Text
 
-- edit `translations.js` when you want to change Hebrew or English wording
-- keep the same translation keys in both languages
-- after changing text, recheck the home screen, register flow, table tab, and logs tab in Chrome
+- edit `translations.js` when you want to change Hebrew, English, or Arabic wording
+- keep the same translation keys in all languages
+- after changing text, recheck the home screen, register flow, table tab, and logs tab in both desktop and mobile Chrome views
 
 ## Important Limits
 
