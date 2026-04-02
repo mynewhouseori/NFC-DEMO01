@@ -112,8 +112,8 @@
     };
     let lastSavedTagId = '';
     let passwordContext = 'register';
-    let pendingScanRole = '';
-    let scanAccessRole = '';
+    let pendingRegisterRole = 'engineer';
+    let registerAccessRole = '';
     let currentScannedItem = null;
     let customImageSrc = '';
     let pendingImageTask = null;
@@ -272,7 +272,7 @@
       return status || '-';
     }
 
-    function getScanRoleLabel(role){
+    function getAccessRoleLabel(role){
       if(role === 'engineer') return t('roleEngineer');
       if(role === 'foreman') return t('roleForeman');
       return t('roleViewer');
@@ -405,21 +405,39 @@
       el('scanEditStatus').value = currentStatus;
     }
 
-    function updateScanAccessUi(){
-      const hasAccess = Boolean(scanAccessRole);
-      el('scanAccessCurrent').textContent = getScanRoleLabel(scanAccessRole);
-      el('scanAccessCurrent').className = `scan-access-current role-${scanAccessRole || 'viewer'}`;
-      el('scanEditPanel').classList.toggle('active', scanAccessRole === 'engineer' && Boolean(currentScannedItem));
-      el('scanNowBtn').disabled = !hasAccess;
-      el('demoScanBtn').disabled = !hasAccess;
-      if(scanAccessRole === 'foreman'){
-        el('scanEditStatusText').textContent = t('scanReadOnlyNote');
-      } else if(scanAccessRole !== 'engineer') {
-        el('scanEditStatusText').textContent = '';
-      }
+    function canEditRegister(){
+      return registerAccessRole === 'engineer';
+    }
 
-      if(!hasAccess && !el('scanResult').classList.contains('active')){
-        el('scanStatus').textContent = t('scanAccessRequired');
+    function updateRegisterAccessUi(){
+      const canEdit = canEditRegister();
+      const selectedRole = pendingRegisterRole || registerAccessRole || 'engineer';
+      el('engineerAccessBtn').classList.toggle('active', selectedRole === 'engineer');
+      el('foremanAccessBtn').classList.toggle('active', selectedRole === 'foreman');
+
+      [
+        'tagId',
+        'itemType',
+        'description',
+        'serialNumber',
+        'wll',
+        'nextInspection',
+        'itemStatus',
+        'notes'
+      ].forEach((id) => {
+        el(id).disabled = !canEdit;
+      });
+
+      el('scanNewTagBtn').disabled = !canEdit;
+      el('saveBtn').disabled = !canEdit;
+      el('clearFormBtn').disabled = !canEdit;
+      el('captureImageBtn').disabled = !canEdit;
+      el('clearImageBtn').disabled = !canEdit;
+
+      if(registerAccessRole === 'foreman'){
+        el('registerStatus').textContent = t('scanReadOnlyNote');
+      } else if(registerAccessRole === 'engineer' && el('registerStatus').textContent === t('scanReadOnlyNote')) {
+        el('registerStatus').textContent = t('waitingForScan');
       }
     }
 
@@ -460,14 +478,10 @@
       el('homeRegisterText').textContent = t('homeRegister');
 
       el('passwordBackBtn').textContent = t('back');
-      if(passwordContext === 'scan' && pendingScanRole === 'engineer'){
-        el('passwordTitle').textContent = t('engineerLoginTitle');
-        el('passwordLabel').textContent = t('engineerPasswordLabel');
-        el('passwordRoleHint').textContent = `${t('roleEngineer')} · ${t('demoNoPasswordNeeded')}`;
-      } else if(passwordContext === 'scan' && pendingScanRole === 'foreman'){
-        el('passwordTitle').textContent = t('foremanLoginTitle');
-        el('passwordLabel').textContent = t('foremanPasswordLabel');
-        el('passwordRoleHint').textContent = `${t('roleForeman')} · ${t('demoNoPasswordNeeded')}`;
+      if(passwordContext === 'register'){
+        el('passwordTitle').textContent = pendingRegisterRole === 'foreman' ? t('foremanLoginTitle') : t('engineerLoginTitle');
+        el('passwordLabel').textContent = pendingRegisterRole === 'foreman' ? t('foremanPasswordLabel') : t('engineerPasswordLabel');
+        el('passwordRoleHint').textContent = `${getAccessRoleLabel(pendingRegisterRole)} · ${t('demoNoPasswordNeeded')}`;
       } else {
         el('passwordTitle').textContent = t('passwordTitle');
         el('passwordLabel').textContent = t('passwordLabel');
@@ -480,7 +494,6 @@
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
       el('demoScanBtn').textContent = t('demoScan');
-      el('scanAccessLabel').textContent = t('scanAccessLabel');
       el('engineerAccessBtn').textContent = t('engineerAccessBtn');
       el('foremanAccessBtn').textContent = t('foremanAccessBtn');
       el('scanEditTitle').textContent = t('scanEditTitle');
@@ -498,8 +511,6 @@
       el('scanEditSerial').placeholder = t('serialPlaceholder');
       el('scanEditWll').placeholder = t('wllPlaceholder');
       el('scanEditNotes').placeholder = t('notesPlaceholder');
-      el('scanAccessCurrent').textContent = getScanRoleLabel(scanAccessRole);
-
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = t('registerTitle');
       el('tabRegisterBtn').textContent = t('tabRegister');
@@ -547,7 +558,7 @@
       updateTypeOptions();
       updateStatusOptions();
       updateScanEditOptions();
-      updateScanAccessUi();
+      updateRegisterAccessUi();
       updateTableFilterOptions();
       selectImageByType();
       renderScanLogs();
@@ -759,6 +770,11 @@
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
       if(!tagId || !statusNode){
+        return;
+      }
+
+      if(!canEditRegister()){
+        statusNode.textContent = t('scanEditNoPermission');
         return;
       }
 
@@ -1008,7 +1024,7 @@
                   <td data-label="${t('image')}"><img class="small-thumb" src="${getDisplayImageSrc(item)}" alt="item"></td>
                   <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
                   <td data-label="${t('status')}">
-                    <select class="toolbar-input table-inline-input table-status-select" data-tag-id="${escapeHtml(item.tagId || '')}">
+                    <select class="toolbar-input table-inline-input table-status-select" data-tag-id="${escapeHtml(item.tagId || '')}" ${canEditRegister() ? '' : 'disabled'}>
                       ${getStatusOptionsMarkup(item.status)}
                     </select>
                   </td>
@@ -1017,15 +1033,15 @@
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
-                    <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}">
+                    <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
                   <td class="table-edit-cell" data-label="${t('notes')}">
-                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}">
+                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
-                      <button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
-                      <button class="mini-btn table-delete-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>
+                      ${canEditRegister() ? `<button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
+                      <button class="mini-btn table-delete-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>` : ''}
                       <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
                     </div>
                   </td>
@@ -1067,7 +1083,6 @@
         el('scanResult').classList.remove('active');
         currentScannedItem = null;
         populateScanEditForm(null);
-        updateScanAccessUi();
       }
     }
 
@@ -1076,10 +1091,10 @@
       el('homeScreen').style.display = 'flex';
       clearStatuses();
       currentScannedItem = null;
-      scanAccessRole = '';
-      pendingScanRole = '';
+      registerAccessRole = '';
+      pendingRegisterRole = 'engineer';
       populateScanEditForm(null);
-      updateScanAccessUi();
+      updateRegisterAccessUi();
     }
 
     function clearStatuses(){
@@ -1107,39 +1122,26 @@
 
     function openPasswordScreen(){
       passwordContext = 'register';
-      pendingScanRole = '';
+      pendingRegisterRole = 'engineer';
       openScreen('passwordScreen');
       el('passwordInput').value = '';
       el('passwordStatus').textContent = '';
       setLang(currentLang);
     }
 
-    function openScanAccess(role){
-      passwordContext = 'scan';
-      pendingScanRole = role;
-      openScreen('passwordScreen');
-      el('passwordInput').value = '';
-      el('passwordStatus').textContent = '';
+    function selectRegisterRole(role){
+      pendingRegisterRole = role;
       setLang(currentLang);
     }
 
     function checkPassword(){
-      if(passwordContext === 'scan'){
-        scanAccessRole = pendingScanRole;
-        pushDebugLine(`Scan access granted for ${scanAccessRole}.`);
-        el('passwordInput').value = '';
-        el('passwordStatus').textContent = '';
-        pendingScanRole = '';
-        openScreen('scanScreen');
-        updateScanAccessUi();
-        return;
-      }
-
       pushDebugLine('Password screen accepted in demo mode.');
+      registerAccessRole = pendingRegisterRole || 'engineer';
       el('passwordInput').value = '';
       el('passwordStatus').textContent = '';
       openScreen('registerScreen');
       openRegisterTab('registerPane');
+      updateRegisterAccessUi();
     }
 
     function openRegisterTab(tabId){
@@ -1256,11 +1258,10 @@
       el('scanNotes').textContent = item.notes || '-';
       el('scanResult').classList.add('active');
       populateScanEditForm(item);
-      updateScanAccessUi();
     }
 
     async function saveScanItemEdits(){
-      if(scanAccessRole !== 'engineer'){
+      if(!canEditRegister()){
         el('scanEditStatusText').textContent = t('scanEditNoPermission');
         return;
       }
@@ -1337,6 +1338,11 @@
     }
 
     async function saveItem(){
+      if(!canEditRegister()){
+        el('saveStatus').textContent = t('scanEditNoPermission');
+        return;
+      }
+
       const tagId = String(el('tagId').value || '').trim();
 
       if(!tagId){
@@ -1387,18 +1393,12 @@
     }
 
     async function demoScan(){
-      if(!scanAccessRole){
-        el('scanStatus').textContent = t('scanAccessRequired');
-        return;
-      }
-
       try {
         const items = await getItems();
 
         if(!items.length){
           currentScannedItem = null;
           populateScanEditForm(null);
-          updateScanAccessUi();
           el('scanResult').classList.remove('active');
           el('scanStatus').textContent = t('noItemsForDemo');
           return;
@@ -1419,11 +1419,6 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
-
-      if(mode === 'scan' && !scanAccessRole){
-        statusEl.textContent = t('scanAccessRequired');
-        return;
-      }
 
       if(!('NDEFReader' in window)){
         pushDebugLine('Web NFC is not available on this device/browser.');
@@ -1457,7 +1452,6 @@
               } else {
                 currentScannedItem = null;
                 populateScanEditForm(null);
-                updateScanAccessUi();
                 el('scanResult').classList.remove('active');
                 statusEl.textContent = t('itemNotFound');
               }
@@ -1527,7 +1521,6 @@
     window.setLang = setLang;
     window.openScreen = openScreen;
     window.openPasswordScreen = openPasswordScreen;
-    window.openScanAccess = openScanAccess;
     window.goHome = goHome;
     window.checkPassword = checkPassword;
     window.openRegisterTab = openRegisterTab;
@@ -1553,7 +1546,7 @@
       clearStatuses();
       selectImageByType();
       updateStatusColorSelect();
-      updateScanAccessUi();
+      updateRegisterAccessUi();
       await renderScanLogs();
       await renderItemsTable();
       await applyUrlTestState();

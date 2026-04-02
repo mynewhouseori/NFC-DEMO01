@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
-  <link rel="stylesheet" href="./styles.css?v=20260402z" />
+  <link rel="stylesheet" href="./styles.css?v=20260402aa" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -44,6 +44,10 @@
     </div>
     <div class="card">
       <div id="passwordRoleHint" class="access-note"></div>
+      <div class="scan-access-actions">
+        <button class="mini-btn role-btn" onclick="selectRegisterRole('engineer')" id="engineerAccessBtn"></button>
+        <button class="mini-btn role-btn" onclick="selectRegisterRole('foreman')" id="foremanAccessBtn"></button>
+      </div>
       <label for="passwordInput" id="passwordLabel"></label>
       <input id="passwordInput" type="password">
       <button class="password-btn" onclick="checkPassword()" id="passwordEnterBtn"></button>
@@ -57,16 +61,6 @@
       <h2 id="scanScreenTitle"></h2>
     </div>
     <div class="card">
-      <div class="scan-access-bar">
-        <div>
-          <div class="scan-access-label" id="scanAccessLabel"></div>
-          <div class="scan-access-current" id="scanAccessCurrent"></div>
-        </div>
-        <div class="scan-access-actions">
-          <button class="mini-btn role-btn" onclick="openScanAccess('engineer')" id="engineerAccessBtn"></button>
-          <button class="mini-btn role-btn" onclick="openScanAccess('foreman')" id="foremanAccessBtn"></button>
-        </div>
-      </div>
       <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
       <button class="secondary-btn" onclick="demoScan()" id="demoScanBtn"></button>
       <div id="scanStatus" class="status muted"></div>
@@ -268,8 +262,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260402z"></script>
-  <script src="./config.local.js?v=20260402z"></script>
+  <script src="./config.demo.js?v=20260402aa"></script>
+  <script src="./config.local.js?v=20260402aa"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -293,7 +287,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260402z';
+      script.src = './app.js?v=20260402aa';
       document.body.appendChild(script);
     })();
   </script>
