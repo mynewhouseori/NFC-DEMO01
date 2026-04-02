@@ -53,8 +53,11 @@ export const LANG = {
     actions: '\u05e4\u05e2\u05d5\u05dc\u05d5\u05ea',
     saveItem: '\u05e9\u05de\u05d5\u05e8 \u05e4\u05e8\u05d9\u05d8',
     saveChanges: '\u05e9\u05de\u05d5\u05e8 \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd',
+    deleteItem: '\u05de\u05d7\u05e7',
     saving: '\u05e9\u05d5\u05de\u05e8...',
     tableRowUpdated: '\u05d4\u05e9\u05d5\u05e8\u05d4 \u05e2\u05d5\u05d3\u05db\u05e0\u05d4',
+    itemDeleted: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05e0\u05de\u05d7\u05e7',
+    deleteItemConfirm: '\u05dc\u05de\u05d7\u05d5\u05e7 \u05d0\u05ea \u05d4\u05e4\u05e8\u05d9\u05d8 \u05d4\u05d6\u05d4?',
     tagPlaceholder: '\u05d9\u05ea\u05de\u05dc\u05d0 \u05d0\u05d7\u05e8\u05d9 \u05e1\u05e8\u05d9\u05e7\u05d4 \u05d0\u05d5 \u05d9\u05d3\u05e0\u05d9\u05ea',
     descriptionPlaceholder: 'For example: Shackle 3/4',
     serialPlaceholder: 'For example: GP-77421',
@@ -145,8 +148,11 @@ export const LANG = {
     actions: 'Actions',
     saveItem: 'Save Item',
     saveChanges: 'Save Changes',
+    deleteItem: 'Delete',
     saving: 'Saving...',
     tableRowUpdated: 'Row updated',
+    itemDeleted: 'Item deleted',
+    deleteItemConfirm: 'Delete this item?',
     tagPlaceholder: 'Will be filled after scan or manually',
     descriptionPlaceholder: 'For example: Shackle 3/4',
     serialPlaceholder: 'For example: GP-77421',
@@ -256,3 +262,6 @@ export const LANG = {
 
 LANG.ar.type_fire = 'طفاية حريق';
 LANG.ar.type_aircomp = 'ضاغط هواء';
+LANG.ar.deleteItem = 'حذف';
+LANG.ar.itemDeleted = 'تم حذف المعدّة';
+LANG.ar.deleteItemConfirm = 'هل تريد حذف هذه المعدّة؟';

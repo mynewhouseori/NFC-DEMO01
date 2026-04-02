@@ -771,6 +771,13 @@
       width:100%;
     }
 
+    .table-delete-btn {
+      width:100%;
+      border-color:rgba(220,38,38,.28);
+      background:#fef2f2;
+      color:#991b1b;
+    }
+
     .table-row-status {
       min-height:18px;
       font-size:12px;

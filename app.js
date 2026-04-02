@@ -4,6 +4,7 @@
       collection,
       doc,
       setDoc,
+      deleteDoc,
       getDoc,
       getDocs,
       addDoc,
@@ -571,6 +572,12 @@
           saveTableRow(button.dataset.tagId || '');
         });
       });
+
+      document.querySelectorAll('.table-delete-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          deleteTableRow(button.dataset.tagId || '');
+        });
+      });
     }
 
     async function saveTableRow(tagId){
@@ -608,6 +615,35 @@
         await renderItemsTable();
       } catch (e) {
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
+        statusNode.textContent = t('cloudSaveError');
+        console.error(e);
+      }
+    }
+
+    async function deleteTableRow(tagId){
+      const safeTagId = CSS.escape(String(tagId || ''));
+      const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
+
+      if(!tagId || !statusNode){
+        return;
+      }
+
+      if(!window.confirm(t('deleteItemConfirm'))){
+        return;
+      }
+
+      statusNode.textContent = t('saving');
+
+      try {
+        await deleteDoc(doc(db, ITEMS_COLLECTION, tagId));
+        pushDebugLine(`Deleted item ${tagId}.`);
+        statusNode.textContent = t('itemDeleted');
+        if(lastSavedTagId === tagId){
+          lastSavedTagId = '';
+        }
+        await renderItemsTable();
+      } catch (e) {
+        pushDebugLine(`Delete error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
         console.error(e);
       }
@@ -833,6 +869,7 @@
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
                       <button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
+                      <button class="mini-btn table-delete-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>
                       <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
                     </div>
                   </td>
@@ -1231,6 +1268,7 @@
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
     window.saveTableRow = saveTableRow;
+    window.deleteTableRow = deleteTableRow;
     window.triggerImagePicker = triggerImagePicker;
     window.clearCustomImage = clearCustomImage;
     window.toggleTableSort = toggleTableSort;
