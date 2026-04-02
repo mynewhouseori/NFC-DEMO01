@@ -215,6 +215,10 @@
       return '';
     }
 
+    function normalizeTagId(tagId){
+      return String(tagId || '').trim().toLowerCase();
+    }
+
     function updateStatusOptions(){
       const current = el('itemStatus').value || '׳×׳§׳™׳';
       el('itemStatus').innerHTML = `
@@ -420,7 +424,7 @@
 
       try {
         const [logs, items] = await Promise.all([getLogs(), getAllItems()]);
-        const itemMap = new Map(items.map((item) => [String(item.tagId || '').trim(), item]));
+        const itemMap = new Map(items.map((item) => [normalizeTagId(item.tagId), item]));
 
         if(!logs.length){
           container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
@@ -428,13 +432,14 @@
         }
 
         container.innerHTML = logs.map(log => {
-          const fallbackItem = itemMap.get(String(log.tagId || '').trim());
+          const fallbackItem = itemMap.get(normalizeTagId(log.tagId));
           const effectiveStatus = log.itemStatus || fallbackItem?.status || '';
           const effectiveType = log.itemType || fallbackItem?.itemType || '';
           const normalizedStatus = normalizeStatus(effectiveStatus);
-          const stateClass = log.found
+          const foundClass = log.found
             ? statusPillClass(effectiveStatus || STATUS_VALUES.ok)
             : 'pill pill-bad';
+          const statusClass = statusPillClass(effectiveStatus || '');
           const itemClass = log.found
             ? `log-item ${normalizedStatus === 'review' ? 'log-item-warn' : normalizedStatus === 'disabled' ? 'log-item-bad' : 'log-item-ok'}`
             : 'log-item log-item-bad';
@@ -444,11 +449,13 @@
           return `
             <div class="${itemClass}">
               <div class="log-top">
-                <span class="${stateClass}">${stateText}</span>
+                <div class="log-pill-row">
+                  <span class="${foundClass}">${stateText}</span>
+                  ${statusText ? `<span class="${statusClass}">${t('status')}: ${statusText}</span>` : ''}
+                </div>
                 <span class="log-time">${log.time}</span>
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
-              ${statusText ? `<div>${t('status')}: <span class="${stateClass}">${statusText}</span></div>` : ''}
               ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
             </div>
           `;
