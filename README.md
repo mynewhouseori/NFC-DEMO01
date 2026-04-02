@@ -73,7 +73,7 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 
 - Double-click `start-local.bat`
 - Run `npm run preview`
-- Open [http://127.0.0.1:4173/?debug=1](http://127.0.0.1:4173/?debug=1)
+- Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/)
 - Use Chrome as the default browser for testing this repo
 - Do not open `index.html` directly with `file://`
 - Open the app in Chrome
@@ -89,7 +89,7 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 - `npm run preview:open` starts the server and opens the preview in your browser
 - do not open `index.html` directly with `file://` for this app; use localhost preview instead
 - use Chrome for local browser checks and headless smoke tests
-- use `?debug=1` in the URL to show the built-in debug panel
+- use [http://127.0.0.1:4173/?debug=1](http://127.0.0.1:4173/?debug=1) when you want the built-in debug panel
 - by default, local preview uses the same live demo data as GitHub Pages
 - only create `config.local.js` if you want a different local Firebase project or password
 

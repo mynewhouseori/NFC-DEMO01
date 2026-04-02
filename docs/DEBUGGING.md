@@ -27,7 +27,7 @@ npm run preview
 
 Open:
 
-[http://127.0.0.1:4173/?debug=1](http://127.0.0.1:4173/?debug=1)
+[http://127.0.0.1:4173/](http://127.0.0.1:4173/)
 
 If you want the browser to open automatically:
 
@@ -40,15 +40,15 @@ npm run preview:open
 Use this as the standard local test routine:
 
 1. Start the preview with `start-local.bat` or `npm run preview:open`
-2. Open `http://127.0.0.1:4173/?debug=1` in Chrome
+2. Open `http://127.0.0.1:4173/` in Chrome
 3. Check the home screen text, icons, and language switch
 4. Check the register flow, password screen, table tab, logs tab, and demo scan
-5. Use headless Chrome screenshots when a visual check matters
+5. Use `?debug=1` and headless Chrome screenshots when a visual check or diagnostics matter
 
 Example headless Chrome pattern:
 
 ```powershell
-"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --window-size=1280,1600 --screenshot=chrome-check.png "http://127.0.0.1:4173/?debug=1"
+"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --headless=new --disable-gpu --window-size=1280,1600 --screenshot=chrome-check.png "http://127.0.0.1:4173/"
 ```
 
 ## What The Debug Panel Shows

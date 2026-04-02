@@ -94,7 +94,8 @@ When making changes, Codex should verify what it can locally:
   - use `start-local.bat` or `npm run preview:open` for browser testing in this repo
   - use Chrome as the default browser for manual checks
   - use headless Chrome for quick smoke tests when available
-  - use `http://127.0.0.1:4173/?debug=1` as the default local test URL
+  - use `http://127.0.0.1:4173/` as the default local app URL
+  - use `http://127.0.0.1:4173/?debug=1` when debugging is needed
 - confirm files changed as expected
 - check for obvious HTML/JS syntax issues
 - verify that the main buttons still point to real functions
@@ -117,10 +118,10 @@ When making changes, Codex should verify what it can locally:
 - If screenshot capture is blocked by the sandbox, say so clearly instead of pretending visual verification happened.
 - Default Chrome smoke-test flow:
   - start localhost preview
-  - open `http://127.0.0.1:4173/?debug=1`
+  - open `http://127.0.0.1:4173/`
   - check home screen text, icons, and language switch
   - check register/password flow, table tab, logs tab, and demo scan
-  - capture a screenshot when visual validation matters
+  - use `?debug=1` and capture a screenshot when visual validation or diagnostics matter
 
 ## Known Product Constraints
 

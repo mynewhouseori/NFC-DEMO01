@@ -55,8 +55,10 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  const url = `http://${host}:${port}/?debug=1`;
+  const url = `http://${host}:${port}/`;
+  const debugUrl = `${url}?debug=1`;
   console.log(`Preview running at ${url}`);
+  console.log(`Debug view: ${debugUrl}`);
   console.log('Use Ctrl+C to stop.');
 
   if (shouldOpen) {
