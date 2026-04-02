@@ -659,18 +659,11 @@
     }
 
     function checkPassword(){
-      const password = String(el('passwordInput').value || '').trim();
-
-      if(password === PASSWORD_VALUE){
-        pushDebugLine('Password accepted.');
-        el('passwordInput').value = '';
-        el('passwordStatus').textContent = '';
-        openScreen('registerScreen');
-        openRegisterTab('registerPane');
-      } else {
-        pushDebugLine('Password rejected.');
-        el('passwordStatus').textContent = t('passwordWrong');
-      }
+      pushDebugLine('Password screen accepted in demo mode.');
+      el('passwordInput').value = '';
+      el('passwordStatus').textContent = '';
+      openScreen('registerScreen');
+      openRegisterTab('registerPane');
     }
 
     function openRegisterTab(tabId){
