@@ -219,6 +219,27 @@
       return String(tagId || '').trim().toLowerCase();
     }
 
+    function toTimeValue(value){
+      if(!value) return 0;
+      if(typeof value?.toDate === 'function'){
+        return value.toDate().getTime();
+      }
+      if(value instanceof Date){
+        return value.getTime();
+      }
+
+      const parsed = Date.parse(String(value));
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function getNewestItem(items){
+      return [...items].sort((a, b) => {
+        const timeA = toTimeValue(a?.updatedAt || a?.createdAt);
+        const timeB = toTimeValue(b?.updatedAt || b?.createdAt);
+        return timeB - timeA;
+      })[0] || null;
+    }
+
     function updateStatusOptions(){
       const current = el('itemStatus').value || '׳×׳§׳™׳';
       el('itemStatus').innerHTML = `
@@ -837,9 +858,9 @@
           return;
         }
 
-        const item = items[0];
+        const item = getNewestItem(items) || items[0];
         await saveScanLog(item.tagId, true, item);
-        pushDebugLine(`Demo scan used tag ${item.tagId}.`);
+        pushDebugLine(`Demo scan used newest item ${item.tagId}.`);
         el('scanStatus').textContent = t('demoMode');
         fillScanCard(item);
         renderScanLogs();
