@@ -826,33 +826,7 @@
       }
 
       .items-table {
-        min-width:1100px;
-      }
-
-      .items-table,
-      .items-table thead,
-      .items-table tbody,
-      .items-table tr {
-        display:table;
-        width:100%;
-      }
-
-      .items-table thead {
-        width:100%;
-        table-layout:fixed;
-      }
-
-      .items-table tbody {
-        display:table-row-group;
-      }
-
-      .items-table tr {
-        display:table-row;
-      }
-
-      .items-table th,
-      .items-table td {
-        display:table-cell;
+        min-width:960px;
       }
 
       .table-wrap {
