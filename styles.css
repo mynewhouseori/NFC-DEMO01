@@ -575,6 +575,32 @@
       background:#fff;
     }
 
+    .table-inline-input {
+      width:100%;
+      min-width:120px;
+      font-size:13px;
+      padding:10px 12px;
+    }
+
+    .table-status-select {
+      font-weight:700;
+    }
+
+    .table-actions-cell {
+      display:grid;
+      gap:6px;
+      min-width:120px;
+    }
+
+    .table-save-btn {
+      width:100%;
+    }
+
+    .table-row-status {
+      min-height:18px;
+      font-size:12px;
+    }
+
     .debug-panel {
       position:fixed;
       left:16px;
@@ -733,6 +759,15 @@
         font-weight:700;
         color:#475569;
         text-align:start;
+      }
+
+      .table-actions-cell {
+        min-width:0;
+      }
+
+      .table-inline-input,
+      .table-save-btn {
+        min-width:0;
       }
 
       .small-thumb {

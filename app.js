@@ -350,6 +350,82 @@
       el('tableStatusFilter').value = current;
     }
 
+    function getStatusOptionsMarkup(selectedStatus){
+      return `
+        <option value="${STATUS_VALUES.ok}" ${normalizeStatus(selectedStatus) === 'ok' ? 'selected' : ''}>${t('status_ok')}</option>
+        <option value="${STATUS_VALUES.review}" ${normalizeStatus(selectedStatus) === 'review' ? 'selected' : ''}>${t('status_review')}</option>
+        <option value="${STATUS_VALUES.disabled}" ${normalizeStatus(selectedStatus) === 'disabled' ? 'selected' : ''}>${t('status_disabled')}</option>
+      `;
+    }
+
+    function applySelectStatusClass(select, statusValue){
+      if(!select) return;
+      select.classList.remove('status-ok', 'status-warn', 'status-bad');
+      const normalized = normalizeStatus(statusValue);
+      if(normalized === 'ok'){
+        select.classList.add('status-ok');
+      } else if(normalized === 'review'){
+        select.classList.add('status-warn');
+      } else if(normalized === 'disabled'){
+        select.classList.add('status-bad');
+      }
+    }
+
+    function bindTableEditors(){
+      document.querySelectorAll('.table-status-select').forEach((select) => {
+        applySelectStatusClass(select, select.value);
+        select.addEventListener('change', () => {
+          applySelectStatusClass(select, select.value);
+        });
+      });
+
+      document.querySelectorAll('.table-save-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+          saveTableRow(button.dataset.tagId || '');
+        });
+      });
+    }
+
+    async function saveTableRow(tagId){
+      const safeTagId = CSS.escape(String(tagId || ''));
+      const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
+      const dateInput = document.querySelector(`.table-date-input[data-tag-id="${safeTagId}"]`);
+      const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
+      const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
+
+      if(!statusInput || !dateInput || !notesInput || !statusNode){
+        return;
+      }
+
+      statusNode.textContent = t('saving');
+
+      try {
+        const existing = await getItemByTag(tagId);
+
+        if(!existing){
+          statusNode.textContent = t('itemNotFound');
+          return;
+        }
+
+        const updatedItem = {
+          ...existing,
+          status: statusInput.value,
+          nextInspection: dateInput.value,
+          notes: notesInput.value.trim(),
+          updatedAt: new Date().toLocaleString()
+        };
+
+        await saveItemToCloud(updatedItem);
+        applySelectStatusClass(statusInput, statusInput.value);
+        statusNode.textContent = t('tableRowUpdated');
+        await renderItemsTable();
+      } catch (e) {
+        pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
+        statusNode.textContent = t('cloudSaveError');
+        console.error(e);
+      }
+    }
+
     function getFilteredItems(items){
       const normalizedQuery = tableFilters.query.trim().toLowerCase();
 
@@ -501,6 +577,7 @@
                 <th>${t('wll')}</th>
                 <th>${t('nextInspection')}</th>
                 <th>${t('notes')}</th>
+                <th>${t('actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -508,18 +585,33 @@
                 <tr>
                   <td data-label="${t('image')}"><img class="small-thumb" src="${item.imageSrc || IMAGE_LIBRARY[item.itemType] || IMAGE_LIBRARY['׳׳—׳¨']}" alt="item"></td>
                   <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
-                  <td data-label="${t('status')}"><span class="${statusPillClass(item.status)}">${translateStatus(item.status)}</span></td>
+                  <td data-label="${t('status')}">
+                    <select class="toolbar-input table-inline-input table-status-select" data-tag-id="${escapeHtml(item.tagId || '')}">
+                      ${getStatusOptionsMarkup(item.status)}
+                    </select>
+                  </td>
                   <td data-label="${t('itemType')}">${translateType(item.itemType)}</td>
                   <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
-                  <td data-label="${t('nextInspection')}">${escapeHtml(item.nextInspection || '')}</td>
-                  <td data-label="${t('notes')}">${escapeHtml(item.notes || '')}</td>
+                  <td data-label="${t('nextInspection')}">
+                    <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}">
+                  </td>
+                  <td data-label="${t('notes')}">
+                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}">
+                  </td>
+                  <td data-label="${t('actions')}">
+                    <div class="table-actions-cell">
+                      <button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
+                      <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
+                    </div>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         `;
+        bindTableEditors();
       } catch (e) {
         container.innerHTML = `<div class="empty-text">${t('tableLoadError')}</div>`;
         pushDebugLine(`Items table load error: ${e.message}`);
@@ -856,6 +948,7 @@
     window.toggleDebugPanel = toggleDebugPanel;
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
+    window.saveTableRow = saveTableRow;
     window.demoScan = demoScan;
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
