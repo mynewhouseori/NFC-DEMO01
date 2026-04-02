@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
-  <link rel="stylesheet" href="./styles.css?v=20260402w" />
+  <link rel="stylesheet" href="./styles.css?v=20260402x" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -43,6 +43,7 @@
       <h2 id="passwordTitle"></h2>
     </div>
     <div class="card">
+      <div id="passwordRoleHint" class="access-note"></div>
       <label for="passwordInput" id="passwordLabel"></label>
       <input id="passwordInput" type="password">
       <button class="password-btn" onclick="checkPassword()" id="passwordEnterBtn"></button>
@@ -56,6 +57,16 @@
       <h2 id="scanScreenTitle"></h2>
     </div>
     <div class="card">
+      <div class="scan-access-bar">
+        <div>
+          <div class="scan-access-label" id="scanAccessLabel"></div>
+          <div class="scan-access-current" id="scanAccessCurrent"></div>
+        </div>
+        <div class="scan-access-actions">
+          <button class="mini-btn role-btn" onclick="openScanAccess('engineer')" id="engineerAccessBtn"></button>
+          <button class="mini-btn role-btn" onclick="openScanAccess('foreman')" id="foremanAccessBtn"></button>
+        </div>
+      </div>
       <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
       <button class="secondary-btn" onclick="demoScan()" id="demoScanBtn"></button>
       <div id="scanStatus" class="status muted"></div>
@@ -73,6 +84,52 @@
             <div><span id="lblStatus"></span>: <span id="scanItemStatus"></span></div>
             <div><span id="lblNotes"></span>: <span id="scanNotes"></span></div>
           </div>
+        </div>
+
+        <div id="scanEditPanel" class="scan-edit-panel">
+          <div class="scan-edit-title" id="scanEditTitle"></div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditTagId" id="scanEditTagIdLabel"></label>
+              <input id="scanEditTagId">
+            </div>
+            <div>
+              <label for="scanEditItemType" id="scanEditItemTypeLabel"></label>
+              <select id="scanEditItemType"></select>
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditDescription" id="scanEditDescriptionLabel"></label>
+              <input id="scanEditDescription">
+            </div>
+            <div>
+              <label for="scanEditSerial" id="scanEditSerialLabel"></label>
+              <input id="scanEditSerial">
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditWll" id="scanEditWllLabel"></label>
+              <input id="scanEditWll">
+            </div>
+            <div>
+              <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
+              <input id="scanEditNextInspection" type="date">
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditStatus" id="scanEditStatusLabel"></label>
+              <select id="scanEditStatus"></select>
+            </div>
+            <div>
+              <label for="scanEditNotes" id="scanEditNotesLabel"></label>
+              <input id="scanEditNotes">
+            </div>
+          </div>
+          <button class="save-btn" onclick="saveScanItemEdits()" id="scanSaveBtn"></button>
+          <div id="scanEditStatusText" class="status muted"></div>
         </div>
       </div>
     </div>
@@ -211,8 +268,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260402w"></script>
-  <script src="./config.local.js?v=20260402w"></script>
+  <script src="./config.demo.js?v=20260402x"></script>
+  <script src="./config.local.js?v=20260402x"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -236,7 +293,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260402w';
+      script.src = './app.js?v=20260402x';
       document.body.appendChild(script);
     })();
   </script>

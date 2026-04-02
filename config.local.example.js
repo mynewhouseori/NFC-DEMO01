@@ -12,6 +12,8 @@ window.APP_CONFIG = {
     scanLogs: "nfc_scan_logs"
   },
   auth: {
-    registerPassword: "CHANGE_ME"
+    registerPassword: "CHANGE_ME",
+    engineerPassword: "CHANGE_ME_ENGINEER",
+    foremanPassword: "CHANGE_ME_FOREMAN"
   }
 };

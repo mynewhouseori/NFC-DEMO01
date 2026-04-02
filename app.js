@@ -36,6 +36,8 @@
     const ITEMS_COLLECTION = SETTINGS.firestoreCollections.items;
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
+    const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
+    const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
     const TYPE_VALUES = {
       shackle: '׳©׳׳§׳',
       strap: '׳¨׳¦׳•׳¢׳”',
@@ -109,6 +111,10 @@
       logs: { value: null, loadedAt: 0, promise: null }
     };
     let lastSavedTagId = '';
+    let passwordContext = 'register';
+    let pendingScanRole = '';
+    let scanAccessRole = '';
+    let currentScannedItem = null;
     let customImageSrc = '';
     let pendingImageTask = null;
     const debugState = {
@@ -266,6 +272,12 @@
       return status || '-';
     }
 
+    function getScanRoleLabel(role){
+      if(role === 'engineer') return t('roleEngineer');
+      if(role === 'foreman') return t('roleForeman');
+      return t('roleViewer');
+    }
+
     function statusPillClass(status){
       const normalized = normalizeStatus(status);
       if(normalized === 'ok') return 'pill pill-ok';
@@ -384,6 +396,49 @@
       el('itemType').value = current;
     }
 
+    function updateScanEditOptions(){
+      const currentType = el('scanEditItemType').value || '׳©׳׳§׳';
+      const currentStatus = el('scanEditStatus').value || '׳×׳§׳™׳';
+      el('scanEditItemType').innerHTML = el('itemType').innerHTML;
+      el('scanEditStatus').innerHTML = el('itemStatus').innerHTML;
+      el('scanEditItemType').value = currentType;
+      el('scanEditStatus').value = currentStatus;
+    }
+
+    function updateScanAccessUi(){
+      el('scanAccessCurrent').textContent = getScanRoleLabel(scanAccessRole);
+      el('scanAccessCurrent').className = `scan-access-current role-${scanAccessRole || 'viewer'}`;
+      el('scanEditPanel').classList.toggle('active', scanAccessRole === 'engineer' && Boolean(currentScannedItem));
+      if(scanAccessRole === 'foreman'){
+        el('scanEditStatusText').textContent = t('scanReadOnlyNote');
+      } else if(scanAccessRole !== 'engineer') {
+        el('scanEditStatusText').textContent = '';
+      }
+    }
+
+    function populateScanEditForm(item){
+      if(!item){
+        el('scanEditTagId').value = '';
+        el('scanEditItemType').value = '׳©׳׳§׳';
+        el('scanEditDescription').value = '';
+        el('scanEditSerial').value = '';
+        el('scanEditWll').value = '';
+        el('scanEditNextInspection').value = '';
+        el('scanEditStatus').value = '׳×׳§׳™׳';
+        el('scanEditNotes').value = '';
+        return;
+      }
+
+      el('scanEditTagId').value = item.tagId || '';
+      el('scanEditItemType').value = item.itemType || '׳©׳׳§׳';
+      el('scanEditDescription').value = item.description || '';
+      el('scanEditSerial').value = item.serialNumber || '';
+      el('scanEditWll').value = item.wll || '';
+      el('scanEditNextInspection').value = item.nextInspection || '';
+      el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
+      el('scanEditNotes').value = item.notes || '';
+    }
+
     function setLang(lang){
       currentLang = lang;
       localStorage.setItem('lang', lang);
@@ -398,8 +453,19 @@
       el('homeRegisterText').textContent = t('homeRegister');
 
       el('passwordBackBtn').textContent = t('back');
-      el('passwordTitle').textContent = t('passwordTitle');
-      el('passwordLabel').textContent = t('passwordLabel');
+      if(passwordContext === 'scan' && pendingScanRole === 'engineer'){
+        el('passwordTitle').textContent = t('engineerLoginTitle');
+        el('passwordLabel').textContent = t('engineerPasswordLabel');
+        el('passwordRoleHint').textContent = t('roleEngineer');
+      } else if(passwordContext === 'scan' && pendingScanRole === 'foreman'){
+        el('passwordTitle').textContent = t('foremanLoginTitle');
+        el('passwordLabel').textContent = t('foremanPasswordLabel');
+        el('passwordRoleHint').textContent = t('roleForeman');
+      } else {
+        el('passwordTitle').textContent = t('passwordTitle');
+        el('passwordLabel').textContent = t('passwordLabel');
+        el('passwordRoleHint').textContent = '';
+      }
       el('passwordInput').placeholder = t('passwordPlaceholder');
       el('passwordEnterBtn').textContent = t('passwordEnter');
 
@@ -407,6 +473,25 @@
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
       el('demoScanBtn').textContent = t('demoScan');
+      el('scanAccessLabel').textContent = t('scanAccessLabel');
+      el('engineerAccessBtn').textContent = t('engineerAccessBtn');
+      el('foremanAccessBtn').textContent = t('foremanAccessBtn');
+      el('scanEditTitle').textContent = t('scanEditTitle');
+      el('scanEditTagIdLabel').textContent = t('tagId');
+      el('scanEditItemTypeLabel').textContent = t('itemType');
+      el('scanEditDescriptionLabel').textContent = t('description');
+      el('scanEditSerialLabel').textContent = t('serial');
+      el('scanEditWllLabel').textContent = t('wll');
+      el('scanEditNextInspectionLabel').textContent = t('nextInspection');
+      el('scanEditStatusLabel').textContent = t('status');
+      el('scanEditNotesLabel').textContent = t('notes');
+      el('scanSaveBtn').textContent = t('saveScanChanges');
+      el('scanEditTagId').placeholder = t('tagPlaceholder');
+      el('scanEditDescription').placeholder = t('descriptionPlaceholder');
+      el('scanEditSerial').placeholder = t('serialPlaceholder');
+      el('scanEditWll').placeholder = t('wllPlaceholder');
+      el('scanEditNotes').placeholder = t('notesPlaceholder');
+      el('scanAccessCurrent').textContent = getScanRoleLabel(scanAccessRole);
 
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = t('registerTitle');
@@ -454,6 +539,8 @@
 
       updateTypeOptions();
       updateStatusOptions();
+      updateScanEditOptions();
+      updateScanAccessUi();
       updateTableFilterOptions();
       selectImageByType();
       renderScanLogs();
@@ -971,6 +1058,9 @@
 
       if(screenId === 'scanScreen'){
         el('scanResult').classList.remove('active');
+        currentScannedItem = null;
+        populateScanEditForm(null);
+        updateScanAccessUi();
       }
     }
 
@@ -978,6 +1068,9 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el('homeScreen').style.display = 'flex';
       clearStatuses();
+      currentScannedItem = null;
+      populateScanEditForm(null);
+      updateScanAccessUi();
     }
 
     function clearStatuses(){
@@ -985,6 +1078,7 @@
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
       el('passwordStatus').textContent = '';
+      el('scanEditStatusText').textContent = '';
     }
 
     function updatePreviewImage(src){
@@ -1003,12 +1097,43 @@
     }
 
     function openPasswordScreen(){
+      passwordContext = 'register';
+      pendingScanRole = '';
       openScreen('passwordScreen');
       el('passwordInput').value = '';
       el('passwordStatus').textContent = '';
+      setLang(currentLang);
+    }
+
+    function openScanAccess(role){
+      passwordContext = 'scan';
+      pendingScanRole = role;
+      openScreen('passwordScreen');
+      el('passwordInput').value = '';
+      el('passwordStatus').textContent = '';
+      setLang(currentLang);
     }
 
     function checkPassword(){
+      const enteredPassword = String(el('passwordInput').value || '').trim();
+
+      if(passwordContext === 'scan'){
+        const expected = pendingScanRole === 'engineer' ? ENGINEER_PASSWORD : FOREMAN_PASSWORD;
+        if(enteredPassword !== expected){
+          el('passwordStatus').textContent = t('passwordWrong');
+          return;
+        }
+
+        scanAccessRole = pendingScanRole;
+        pushDebugLine(`Scan access granted for ${scanAccessRole}.`);
+        el('passwordInput').value = '';
+        el('passwordStatus').textContent = '';
+        pendingScanRole = '';
+        openScreen('scanScreen');
+        updateScanAccessUi();
+        return;
+      }
+
       pushDebugLine('Password screen accepted in demo mode.');
       el('passwordInput').value = '';
       el('passwordStatus').textContent = '';
@@ -1117,6 +1242,7 @@
     }
 
     function fillScanCard(item){
+      currentScannedItem = item;
       el('scanItemImage').src = getDisplayImageSrc(item);
       el('scanItemType').textContent = translateType(item.itemType);
       el('scanTagId').textContent = item.tagId || '-';
@@ -1128,6 +1254,69 @@
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
       el('scanResult').classList.add('active');
+      populateScanEditForm(item);
+      updateScanAccessUi();
+    }
+
+    async function saveScanItemEdits(){
+      if(scanAccessRole !== 'engineer'){
+        el('scanEditStatusText').textContent = t('scanEditNoPermission');
+        return;
+      }
+
+      if(!currentScannedItem){
+        el('scanEditStatusText').textContent = t('scanEditNeedItem');
+        return;
+      }
+
+      const originalTagId = String(currentScannedItem.tagId || '').trim();
+      const nextTagId = String(el('scanEditTagId').value || '').trim();
+
+      if(!nextTagId){
+        el('scanEditStatusText').textContent = t('needTag');
+        return;
+      }
+
+      el('scanEditStatusText').textContent = t('saving');
+
+      try {
+        if(nextTagId !== originalTagId){
+          const tagConflict = await getItemByTag(nextTagId);
+          if(tagConflict){
+            el('scanEditStatusText').textContent = t('scanEditTagConflict');
+            return;
+          }
+        }
+
+        const updatedItem = {
+          ...currentScannedItem,
+          tagId: nextTagId,
+          itemType: el('scanEditItemType').value,
+          description: el('scanEditDescription').value.trim(),
+          serialNumber: el('scanEditSerial').value.trim(),
+          wll: el('scanEditWll').value.trim(),
+          nextInspection: el('scanEditNextInspection').value,
+          status: el('scanEditStatus').value,
+          notes: el('scanEditNotes').value.trim(),
+          updatedAt: new Date().toLocaleString()
+        };
+
+        await saveItemToCloud(updatedItem);
+        if(nextTagId !== originalTagId){
+          await deleteDoc(doc(db, ITEMS_COLLECTION, originalTagId));
+          invalidateItemsCache();
+        }
+
+        currentScannedItem = updatedItem;
+        lastSavedTagId = updatedItem.tagId;
+        fillScanCard(updatedItem);
+        el('scanEditStatusText').textContent = t('scanItemUpdated');
+        await renderItemsTable();
+      } catch (error) {
+        pushDebugLine(`Scan edit save error: ${error.message}`);
+        el('scanEditStatusText').textContent = t('cloudSaveError');
+        console.error(error);
+      }
     }
 
     function fillRegisterForm(item){
@@ -1201,6 +1390,9 @@
         const items = await getItems();
 
         if(!items.length){
+          currentScannedItem = null;
+          populateScanEditForm(null);
+          updateScanAccessUi();
           el('scanResult').classList.remove('active');
           el('scanStatus').textContent = t('noItemsForDemo');
           return;
@@ -1252,6 +1444,9 @@
                 statusEl.textContent = t('itemFound');
                 fillScanCard(found);
               } else {
+                currentScannedItem = null;
+                populateScanEditForm(null);
+                updateScanAccessUi();
                 el('scanResult').classList.remove('active');
                 statusEl.textContent = t('itemNotFound');
               }
@@ -1321,6 +1516,7 @@
     window.setLang = setLang;
     window.openScreen = openScreen;
     window.openPasswordScreen = openPasswordScreen;
+    window.openScanAccess = openScanAccess;
     window.goHome = goHome;
     window.checkPassword = checkPassword;
     window.openRegisterTab = openRegisterTab;
@@ -1329,6 +1525,7 @@
     window.toggleDebugPanel = toggleDebugPanel;
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
+    window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
     window.deleteTableRow = deleteTableRow;
     window.triggerImagePicker = triggerImagePicker;
@@ -1345,6 +1542,7 @@
       clearStatuses();
       selectImageByType();
       updateStatusColorSelect();
+      updateScanAccessUi();
       await renderScanLogs();
       await renderItemsTable();
       await applyUrlTestState();

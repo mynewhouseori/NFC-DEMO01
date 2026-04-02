@@ -460,8 +460,80 @@
       align-items:start;
     }
 
+    .scan-access-bar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+      padding:10px 12px;
+      border:1px solid #e5e7eb;
+      border-radius:14px;
+      background:#f8fafc;
+    }
+
+    .scan-access-label {
+      font-size:13px;
+      font-weight:700;
+      color:#64748b;
+    }
+
+    .scan-access-current {
+      font-size:15px;
+      font-weight:800;
+      color:#111827;
+      margin-top:2px;
+    }
+
+    .scan-access-current.role-engineer { color:#0f766e; }
+    .scan-access-current.role-foreman { color:#92400e; }
+    .scan-access-current.role-viewer { color:#64748b; }
+
+    .scan-access-actions {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .role-btn {
+      min-width:150px;
+    }
+
+    .access-note {
+      margin-bottom:8px;
+      font-size:14px;
+      font-weight:700;
+      color:#0f766e;
+    }
+
+    .scan-edit-panel {
+      display:none;
+      margin-top:14px;
+      border-top:1px dashed #d1d5db;
+      padding-top:14px;
+    }
+
+    .scan-edit-panel.active {
+      display:block;
+    }
+
+    .scan-edit-title {
+      font-size:16px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .scan-edit-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:12px;
+      margin-bottom:6px;
+    }
+
     @media (max-width:600px){
       .result-grid { grid-template-columns:1fr; }
+      .scan-edit-grid { grid-template-columns:1fr; }
     }
 
     .mono {
