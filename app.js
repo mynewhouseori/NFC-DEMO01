@@ -48,6 +48,11 @@
       review: '׳׳‘׳“׳™׳§׳”',
       disabled: '׳׳•׳©׳‘׳×'
     };
+    const STATUS_VARIANTS = {
+      ok: [STATUS_VALUES.ok, 'תקין', 'ok', 'Okay', 'סלים'],
+      review: [STATUS_VALUES.review, 'לבדיקה', 'needs review', 'review', 'בבדיקה', 'بحاجة إلى فحص'],
+      disabled: [STATUS_VALUES.disabled, 'מושבת', 'disabled', 'out of service', 'معطّل']
+    };
 
     const IMAGE_LIBRARY = {
       "׳©׳׳§׳":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ”—%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳©׳׳§׳%3C/text%3E%3C/svg%3E",
@@ -171,29 +176,43 @@
     }
 
     function translateStatus(status){
-      if(status === '׳×׳§׳™׳') return t('status_ok');
-      if(status === '׳׳‘׳“׳™׳§׳”') return t('status_review');
-      if(status === '׳׳•׳©׳‘׳×') return t('status_disabled');
+      const normalized = normalizeStatus(status);
+      if(normalized === 'ok') return t('status_ok');
+      if(normalized === 'review') return t('status_review');
+      if(normalized === 'disabled') return t('status_disabled');
       return status || '-';
     }
 
     function statusPillClass(status){
-      if(status === '׳×׳§׳™׳') return 'pill pill-ok';
-      if(status === '׳׳‘׳“׳™׳§׳”') return 'pill pill-warn';
-      if(status === '׳׳•׳©׳‘׳×') return 'pill pill-bad';
+      const normalized = normalizeStatus(status);
+      if(normalized === 'ok') return 'pill pill-ok';
+      if(normalized === 'review') return 'pill pill-warn';
+      if(normalized === 'disabled') return 'pill pill-bad';
       return 'pill';
     }
 
     function applyStatusColor(node, status){
+      const normalized = normalizeStatus(status);
       node.classList.remove('status-ok', 'status-warn', 'status-bad', 'status-chip', 'pill', 'pill-ok', 'pill-warn', 'pill-bad');
       node.classList.add('status-chip');
-      if(status === '׳×׳§׳™׳'){
+      if(normalized === 'ok'){
         node.classList.add('pill', 'pill-ok');
-      } else if(status === '׳׳‘׳“׳™׳§׳”'){
+      } else if(normalized === 'review'){
         node.classList.add('pill', 'pill-warn');
-      } else if(status === '׳׳•׳©׳‘׳×'){
+      } else if(normalized === 'disabled'){
         node.classList.add('pill', 'pill-bad');
       }
+    }
+
+    function normalizeStatus(status){
+      const normalizedText = String(status || '').trim().toLowerCase();
+      if(!normalizedText) return '';
+
+      if(STATUS_VARIANTS.ok.some((value) => String(value).trim().toLowerCase() === normalizedText)) return 'ok';
+      if(STATUS_VARIANTS.review.some((value) => String(value).trim().toLowerCase() === normalizedText)) return 'review';
+      if(STATUS_VARIANTS.disabled.some((value) => String(value).trim().toLowerCase() === normalizedText)) return 'disabled';
+
+      return '';
     }
 
     function updateStatusOptions(){
@@ -331,7 +350,10 @@
       const normalizedQuery = tableFilters.query.trim().toLowerCase();
 
       return items.filter((item) => {
-        const matchesStatus = tableFilters.status === 'all' || item.status === tableFilters.status;
+        const matchesStatus =
+          tableFilters.status === 'all' ||
+          item.status === tableFilters.status ||
+          normalizeStatus(item.status) === normalizeStatus(tableFilters.status);
 
         if(!matchesStatus){
           return false;
