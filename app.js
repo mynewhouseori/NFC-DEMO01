@@ -66,6 +66,30 @@
       "מדחס אויר":"./תמונות/aircomp.jpg",
       "׳׳—׳¨":"./תמונות/shackle.jpg"
     };
+    const IMAGE_TYPE_ALIASES = {
+      "׳©׳׳§׳": "./תמונות/shackle.jpg",
+      "שאקל": "./תמונות/shackle.jpg",
+      "shackle": "./תמונות/shackle.jpg",
+      "׳¨׳¦׳•׳¢׳”": "./תמונות/strap.jpg",
+      "רצועה": "./תמונות/strap.jpg",
+      "strap": "./תמונות/strap.jpg",
+      "׳©׳¨׳©׳¨׳×": "./תמונות/chain.jpg",
+      "שרשרת": "./תמונות/chain.jpg",
+      "chain": "./תמונות/chain.jpg",
+      "׳˜׳‘׳¢׳×": "./תמונות/ring.jpg",
+      "טבעת": "./תמונות/ring.jpg",
+      "ring": "./תמונות/ring.jpg",
+      "׳•׳•": "./תמונות/hook.jpg",
+      "וו": "./תמונות/hook.jpg",
+      "hook": "./תמונות/hook.jpg",
+      "מטף כיבוי אש": "./תמונות/fire.jpg",
+      "fire extinguisher": "./תמונות/fire.jpg",
+      "מדחס אויר": "./תמונות/aircomp.jpg",
+      "air compressor": "./תמונות/aircomp.jpg",
+      "׳׳—׳¨": "./תמונות/shackle.jpg",
+      "אחר": "./תמונות/shackle.jpg",
+      "other": "./תמונות/shackle.jpg"
+    };
 
     const el = (id) => document.getElementById(id);
     const savedLang = localStorage.getItem('lang');
@@ -104,12 +128,18 @@
       return Object.values(IMAGE_LIBRARY).includes(src) || String(src || '').startsWith('data:image/svg+xml;utf8,');
     }
 
+    function getDefaultImageForType(type){
+      const normalized = String(type || '').trim();
+      const normalizedLower = normalized.toLowerCase();
+      return IMAGE_TYPE_ALIASES[normalized] || IMAGE_TYPE_ALIASES[normalizedLower] || IMAGE_LIBRARY['׳׳—׳¨'];
+    }
+
     function getDisplayImageSrc(item){
       const savedImage = item?.imageSrc || '';
       if(savedImage && !isLibraryImageSrc(savedImage)){
         return savedImage;
       }
-      return IMAGE_LIBRARY[item?.itemType] || IMAGE_LIBRARY['׳׳—׳¨'];
+      return getDefaultImageForType(item?.itemType);
     }
 
     function readFileAsDataUrl(file){
@@ -964,7 +994,7 @@
 
     function selectImageByType(){
       const type = el('itemType').value || '׳׳—׳¨';
-      updatePreviewImage(customImageSrc || IMAGE_LIBRARY[type] || IMAGE_LIBRARY['׳׳—׳¨']);
+      updatePreviewImage(customImageSrc || getDefaultImageForType(type));
     }
 
     function updateStatusColorSelect(){
@@ -1039,7 +1069,7 @@
         nextInspection: el('nextInspection').value,
         status: el('itemStatus').value,
         notes: el('notes').value.trim(),
-        imageSrc: customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨'],
+      imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
         createdAt: existing?.createdAt || new Date().toLocaleString(),
         updatedAt: new Date().toLocaleString()
       };
@@ -1152,7 +1182,7 @@
       pendingImageTask = buildCompressedImageDataUrl(file)
         .then((dataUrl) => {
           customImageSrc = dataUrl;
-          updatePreviewImage(customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨']);
+      updatePreviewImage(customImageSrc || getDefaultImageForType(el('itemType').value));
           pushDebugLine(`Image selected for current item: ${file.name}`);
           pendingImageTask = null;
         })
