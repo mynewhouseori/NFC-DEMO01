@@ -11,9 +11,15 @@
 
   <div id="homeScreen" class="home-screen">
     <div class="lang-switch">
-      <button class="flag-btn" data-lang="he" onclick="setLang('he')" aria-label="עברית">HE</button>
-      <button class="flag-btn" data-lang="en" onclick="setLang('en')" aria-label="English">EN</button>
-      <button class="flag-btn" data-lang="ar" onclick="setLang('ar')" aria-label="العربية">AR</button>
+      <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="עברית">
+        <span class="flag-mark" aria-hidden="true"></span>
+      </button>
+      <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
+        <span class="flag-mark" aria-hidden="true"></span>
+      </button>
+      <button class="flag-btn flag-btn-ar" data-lang="ar" onclick="setLang('ar')" aria-label="العربية">
+        <span class="flag-mark" aria-hidden="true">ع</span>
+      </button>
     </div>
 
     <div class="actions">
