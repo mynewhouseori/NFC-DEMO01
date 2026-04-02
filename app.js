@@ -392,11 +392,13 @@
       pushDebugLine(`Saved item ${item.tagId}.`);
     }
 
-    async function saveScanLog(tagId, found){
+    async function saveScanLog(tagId, found, item = null){
       pushDebugLine(`Writing scan log for ${tagId} (${found ? 'found' : 'not found'}).`);
       await addDoc(collection(db, LOGS_COLLECTION), {
         tagId,
         found,
+        itemStatus: item?.status || '',
+        itemType: item?.itemType || '',
         time: new Date().toLocaleString(),
         sortTime: new Date().toISOString()
       });
@@ -417,7 +419,8 @@
       container.innerHTML = `<div class="empty-text">Loading...</div>`;
 
       try {
-        const logs = await getLogs();
+        const [logs, items] = await Promise.all([getLogs(), getAllItems()]);
+        const itemMap = new Map(items.map((item) => [String(item.tagId || '').trim(), item]));
 
         if(!logs.length){
           container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
@@ -425,9 +428,19 @@
         }
 
         container.innerHTML = logs.map(log => {
-          const stateClass = log.found ? 'pill pill-ok' : 'pill pill-bad';
-          const itemClass = log.found ? 'log-item log-item-ok' : 'log-item log-item-bad';
+          const fallbackItem = itemMap.get(String(log.tagId || '').trim());
+          const effectiveStatus = log.itemStatus || fallbackItem?.status || '';
+          const effectiveType = log.itemType || fallbackItem?.itemType || '';
+          const normalizedStatus = normalizeStatus(effectiveStatus);
+          const stateClass = log.found
+            ? statusPillClass(effectiveStatus || STATUS_VALUES.ok)
+            : 'pill pill-bad';
+          const itemClass = log.found
+            ? `log-item ${normalizedStatus === 'review' ? 'log-item-warn' : normalizedStatus === 'disabled' ? 'log-item-bad' : 'log-item-ok'}`
+            : 'log-item log-item-bad';
           const stateText = log.found ? t('logFound') : t('logNotFound');
+          const statusText = log.found && effectiveStatus ? translateStatus(effectiveStatus) : '';
+          const typeText = effectiveType ? translateType(effectiveType) : '';
           return `
             <div class="${itemClass}">
               <div class="log-top">
@@ -435,6 +448,8 @@
                 <span class="log-time">${log.time}</span>
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
+              ${statusText ? `<div>${t('status')}: <span class="${stateClass}">${statusText}</span></div>` : ''}
+              ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
             </div>
           `;
         }).join('');
@@ -731,7 +746,7 @@
         }
 
         const item = items[0];
-        await saveScanLog(item.tagId, true);
+        await saveScanLog(item.tagId, true, item);
         pushDebugLine(`Demo scan used tag ${item.tagId}.`);
         el('scanStatus').textContent = t('demoMode');
         fillScanCard(item);
@@ -769,7 +784,7 @@
 
           try {
             const found = await getItemByTag(tagId);
-            await saveScanLog(tagId, !!found);
+            await saveScanLog(tagId, !!found, found);
 
             if(mode === 'scan'){
               if(found){
