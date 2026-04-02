@@ -35,11 +35,15 @@ This file helps Codex work well in this repository and keeps the project easy to
 
 - Prefer small, low-risk improvements over big rewrites.
 - Preserve the single-file structure unless the user asks to split the app into separate files.
+- Treat this as a repo for a non-technical user first, and an engineering project second.
+- Keep the experience calm and low-friction: fewer steps, fewer files, fewer decisions.
 - When making changes, explain them in simple product language first, not just engineering language.
 - If suggesting architecture changes, offer a safe option and a more advanced option.
 - Keep Hebrew and English support working.
 - Do not remove Firebase or Web NFC behavior unless the user asks.
 - Prefer direct updates to `main` for this repo unless the user explicitly asks for branches or PR flow.
+- If the user says `update`, interpret that as: make the change, commit it, and push it to `main`.
+- Avoid asking the user to run git commands manually when Codex can do it.
 - Be careful with hardcoded values such as:
   - password value
   - Firestore collection names
@@ -63,10 +67,12 @@ When asked for improvements, prefer this order:
 Assume the repo owner is a strong product innovator and may not want deep technical jargon.
 
 - Use plain English.
+- Prefer short explanations over technical deep-dives unless asked.
 - Offer 2-3 concrete options when tradeoffs matter.
 - Name risks clearly.
 - State what changed, why it matters, and how to test it.
 - Make progress without forcing the user to answer many setup questions.
+- Default to doing the helpful next step instead of turning the user into the operator.
 
 ## Common Tasks Codex Can Help With
 
@@ -92,4 +98,5 @@ When making changes, Codex should verify what it can locally:
 - Keep the experience simple enough for a demo.
 - Avoid overengineering.
 - Prefer visible progress over hidden complexity.
+- Do not introduce workflow ceremony unless the user explicitly asks for it.
 - If adding security-sensitive features, point out what is demo-grade versus production-grade.

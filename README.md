@@ -50,6 +50,7 @@ You can ask for changes in plain language, for example:
 - "Make the registration flow easier for operators."
 
 For this POC, keep GitHub usage simple: make the change, test it, and push to `main`.
+If you say `update`, Codex should treat that as: make the change, commit it, and push it to `main`.
 
 ## Good Next Upgrades
 
