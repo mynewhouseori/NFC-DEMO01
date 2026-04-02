@@ -704,6 +704,14 @@
       background:#fafafa;
     }
 
+    .recently-saved-row {
+      background:linear-gradient(90deg, rgba(220,252,231,.7), rgba(255,255,255,1) 30%);
+    }
+
+    .recently-saved-row td {
+      border-bottom-color:#bbf7d0;
+    }
+
     .pill {
       display:inline-block;
       padding:6px 10px;

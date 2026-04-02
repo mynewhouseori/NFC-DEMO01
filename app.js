@@ -102,6 +102,7 @@
       key: 'tagId',
       direction: 'asc'
     };
+    let lastSavedTagId = '';
     let customImageSrc = '';
     let pendingImageTask = null;
     const debugState = {
@@ -811,7 +812,7 @@
             </thead>
             <tbody>
               ${filteredItems.map(item => `
-                <tr>
+                <tr class="${item.tagId === lastSavedTagId ? 'recently-saved-row' : ''}" data-tag-id="${escapeHtml(item.tagId || '')}">
                   <td data-label="${t('image')}"><img class="small-thumb" src="${getDisplayImageSrc(item)}" alt="item"></td>
                   <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
                   <td data-label="${t('status')}">
@@ -841,6 +842,12 @@
           </table>
         `;
         bindTableEditors();
+        if(lastSavedTagId){
+          const row = container.querySelector(`tr[data-tag-id="${CSS.escape(lastSavedTagId)}"]`);
+          if(row){
+            row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          }
+        }
       } catch (e) {
         container.innerHTML = `<div class="empty-text">${t('tableLoadError')}</div>`;
         pushDebugLine(`Items table load error: ${e.message}`);
@@ -1078,9 +1085,11 @@
         await saveItemToCloud(item);
         pushDebugLine(`Save flow completed for ${tagId}.`);
         el('saveStatus').textContent = existing ? t('itemUpdated') : t('itemSaved');
-        await renderItemsTable();
+        lastSavedTagId = tagId;
         clearForm();
-        setTimeout(() => goHome(), 700);
+        clearTableFilters();
+        openRegisterTab('tablePane');
+        await renderItemsTable();
       } catch (e) {
         pushDebugLine(`Save error for ${tagId}: ${e.message}`);
         el('saveStatus').textContent = t('cloudSaveError');
