@@ -1,0 +1,8 @@
+{
+  "name": "nfc-demo",
+  "private": true,
+  "scripts": {
+    "preview": "node tools/serve.js",
+    "preview:open": "node tools/serve.js --open"
+  }
+}
