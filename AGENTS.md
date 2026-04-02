@@ -4,20 +4,19 @@ This file helps Codex work well in this repository and keeps the project easy to
 
 ## Project Snapshot
 
-- Project type: single-page HTML app
-- Main file: `index.html`
+- Project type: static HTML/CSS/JS app
+- Main entry: `index.html`
 - Asset file: `background.jpeg`
 - Database: Firebase Firestore
 - Main purpose: NFC equipment registration and scan demo with Hebrew and English UI
 
 ## Current App Behavior
 
-- The full app lives inside `index.html`:
-  - layout and styles
-  - UI text translations
-  - Firebase setup
-  - Firestore reads and writes
-  - Web NFC scanning flow
+- The app is split into a few simple files:
+  - `index.html` for structure
+  - `styles.css` for styling
+  - `app.js` for app logic
+  - `translations.js` for Hebrew and English text
 - Firestore collections currently used:
   - `nfc_items`
   - `nfc_scan_logs`
@@ -29,17 +28,20 @@ This file helps Codex work well in this repository and keeps the project easy to
 - Web NFC usually requires a secure context such as `https://` or `localhost`.
 - Public demo settings live in `config.demo.js` for GitHub Pages.
 - Local project settings can override them through `config.local.js`, which should not be committed.
+- UI text should stay centralized in `translations.js`.
 - There is no build step yet. Keep changes simple unless the user explicitly asks for a refactor.
+- This is a static app. Do not assume a dev server is required for every test.
 
 ## How Codex Should Work In This Repo
 
 - Prefer small, low-risk improvements over big rewrites.
-- Preserve the single-file structure unless the user asks to split the app into separate files.
+- Preserve the simple file structure and avoid unnecessary framework complexity.
 - Treat this as a repo for a non-technical user first, and an engineering project second.
 - Keep the experience calm and low-friction: fewer steps, fewer files, fewer decisions.
 - When making changes, explain them in simple product language first, not just engineering language.
 - If suggesting architecture changes, offer a safe option and a more advanced option.
 - Keep Hebrew and English support working.
+- When changing wording, update `translations.js` first instead of scattering text across the app.
 - Do not remove Firebase or Web NFC behavior unless the user asks.
 - Prefer direct updates to `main` for this repo unless the user explicitly asks for branches or PR flow.
 - If the user says `update`, interpret that as: make the change, commit it, and push it to `main`.
@@ -88,10 +90,37 @@ Assume the repo owner is a strong product innovator and may not want deep techni
 
 When making changes, Codex should verify what it can locally:
 
+- Prefer the simplest test path first:
+  - use `start-local.bat` or `npm run preview:open` for browser testing in this repo
+  - use Chrome as the default browser for manual checks
+  - use headless Chrome for quick smoke tests when available
+  - use `http://127.0.0.1:4173/?debug=1` as the default local test URL
 - confirm files changed as expected
 - check for obvious HTML/JS syntax issues
+- verify that the main buttons still point to real functions
+- for UI checks, prefer validating:
+  - home screen labels and icons
+  - language switch
+  - register/password flow
+  - table tab
+  - logs tab
+  - demo scan button
 - describe any testing that cannot be completed in the sandbox
 - remind the user that real NFC testing must happen on a supported device
+
+## Browser Test Notes
+
+- Do not use `file:///.../index.html` for this app. It uses a module-based Firebase frontend and will hit browser CORS/module restrictions.
+- Prefer Chrome over Edge for this repo unless the user explicitly asks for something else.
+- For headless browser checks, prefer Chrome with a temporary user-data directory.
+- Use `tools/serve.js` / `npm run preview` / `start-local.bat` for local browser testing.
+- If screenshot capture is blocked by the sandbox, say so clearly instead of pretending visual verification happened.
+- Default Chrome smoke-test flow:
+  - start localhost preview
+  - open `http://127.0.0.1:4173/?debug=1`
+  - check home screen text, icons, and language switch
+  - check register/password flow, table tab, logs tab, and demo scan
+  - capture a screenshot when visual validation matters
 
 ## Known Product Constraints
 

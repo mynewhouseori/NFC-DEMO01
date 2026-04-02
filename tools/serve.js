@@ -34,7 +34,8 @@ function openBrowser(url) {
 }
 
 const server = http.createServer((req, res) => {
-  const requestPath = req.url === '/' ? '/index.html' : decodeURIComponent(req.url.split('?')[0]);
+  const pathname = decodeURIComponent(req.url.split('?')[0]);
+  const requestPath = pathname === '/' ? '/index.html' : pathname;
   const safePath = path.normalize(path.join(root, requestPath));
 
   if (!safePath.startsWith(root)) {

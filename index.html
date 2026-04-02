@@ -54,7 +54,7 @@
         <div class="result-grid">
           <div class="thumb"><img id="scanItemImage" src="" alt="Item image"></div>
           <div>
-            <h3 id="scanItemType">׳₪׳¨׳™׳˜</h3>
+            <h3 id="scanItemType"></h3>
             <div><span id="lblTagId"></span>: <span id="scanTagId" class="mono"></span></div>
             <div><span id="lblDescription"></span>: <span id="scanDescription"></span></div>
             <div><span id="lblSerial"></span>: <span id="scanSerial"></span></div>
@@ -195,7 +195,33 @@
 
   <script src="./config.demo.js"></script>
   <script src="./config.local.js"></script>
-  <script type="module" src="./app.js"></script>
+  <script>
+    (function bootApp() {
+      if (window.location.protocol === 'file:') {
+        document.body.innerHTML = `
+          <div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fa;font-family:Arial,sans-serif;">
+            <div style="max-width:720px;background:#fff;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.08);color:#111827;">
+              <h1 style="margin:0 0 12px;font-size:30px;">Open this app from localhost</h1>
+              <p style="margin:0 0 10px;line-height:1.6;">This app uses a browser module setup for Firebase, so opening <strong>index.html</strong> directly with <strong>file://</strong> will not work correctly.</p>
+              <p style="margin:0 0 10px;line-height:1.6;">Use one of these simple options instead:</p>
+              <ul style="margin:0 0 18px 20px;line-height:1.7;">
+                <li>Double-click <strong>start-local.bat</strong></li>
+                <li>Run <strong>npm run preview:open</strong></li>
+                <li>Open <strong>http://127.0.0.1:4173/?debug=1</strong> if the local preview is already running</li>
+              </ul>
+              <button onclick="window.location.href='http://127.0.0.1:4173/?debug=1'" style="border:none;border-radius:14px;padding:14px 18px;background:#111827;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">Try localhost preview</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = './app.js';
+      document.body.appendChild(script);
+    })();
+  </script>
 </body>
 </html>
 

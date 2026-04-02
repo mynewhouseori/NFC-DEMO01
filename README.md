@@ -1,6 +1,6 @@
 # NFC Demo
 
-This repo contains a simple NFC equipment demo app built as one HTML file with Firebase Firestore.
+This repo contains a simple NFC equipment demo app built with static HTML, CSS, JavaScript, and Firebase Firestore.
 
 ## What It Does
 
@@ -16,6 +16,7 @@ This repo contains a simple NFC equipment demo app built as one HTML file with F
 - `index.html` - the main HTML entry file
 - `styles.css` - app styles
 - `app.js` - app logic, Firebase logic, and NFC logic
+- `translations.js` - Hebrew and English UI text in one place
 - `background.jpeg` - home screen background image
 - `AGENTS.md` - instructions for Codex so this repo stays easy to work with
 - `config.demo.js` - public demo config used by GitHub Pages
@@ -30,7 +31,7 @@ This repo contains a simple NFC equipment demo app built as one HTML file with F
 ## Important Notes
 
 - This is currently a demo-style app, not a production-hardened system.
-- The Firebase config is inside `index.html`.
+- The Firebase config is loaded by the app through `config.demo.js` and optional `config.local.js`.
 - GitHub Pages uses `config.demo.js`.
 - Local work can override that with `config.local.js`, which is ignored by git.
 - Copy `config.local.example.js` to `config.local.js` only if you want different local settings.
@@ -61,12 +62,21 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 - prepare deployment instructions
 - later, split HTML, CSS, and JavaScript into separate files
 
+## Language Text
+
+- UI wording lives in `translations.js`
+- `app.js` uses translation keys instead of holding all text inline
+- if you want to change Hebrew or English wording, start in `translations.js`
+- keep the same keys in both languages so the app stays consistent
+
 ## How To Test
 
 - Double-click `start-local.bat`
 - Run `npm run preview`
 - Open [http://127.0.0.1:4173/?debug=1](http://127.0.0.1:4173/?debug=1)
-- Open the app in a browser.
+- Use Chrome as the default browser for testing this repo
+- Do not open `index.html` directly with `file://`
+- Open the app in Chrome
 - Check language switching.
 - Check registration flow.
 - Check table and scan log loading from Firebase.
@@ -77,6 +87,8 @@ If you say `update`, Codex should treat that as: make the change, commit it, and
 - `start-local.bat` starts the local preview and opens the browser
 - `npm run preview` starts a local server for the repo
 - `npm run preview:open` starts the server and opens the preview in your browser
+- do not open `index.html` directly with `file://` for this app; use localhost preview instead
+- use Chrome for local browser checks and headless smoke tests
 - use `?debug=1` in the URL to show the built-in debug panel
 - by default, local preview uses the same live demo data as GitHub Pages
 - only create `config.local.js` if you want a different local Firebase project or password
