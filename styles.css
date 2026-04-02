@@ -588,6 +588,12 @@
       flex-wrap:wrap;
     }
 
+    .table-toolbar-actions {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     .table-filters {
       display:grid;
       grid-template-columns:minmax(220px, 1.5fr) minmax(160px, 1fr) auto;
@@ -636,6 +642,28 @@
       position:sticky;
       top:0;
       z-index:1;
+    }
+
+    .sort-btn {
+      border:none;
+      background:transparent;
+      padding:0;
+      font:inherit;
+      font-weight:800;
+      color:#0f172a;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+    }
+
+    .sort-btn.active {
+      color:#0f766e;
+    }
+
+    .sort-indicator {
+      font-size:12px;
+      color:#64748b;
     }
 
     tbody td {

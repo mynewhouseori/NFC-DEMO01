@@ -93,6 +93,10 @@
       query: '',
       status: 'all'
     };
+    const tableSort = {
+      key: 'tagId',
+      direction: 'asc'
+    };
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
       visible: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -107,6 +111,10 @@
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, t(key));
+    }
+
+    function csvValue(value){
+      return `"${String(value ?? '').replaceAll('"', '""')}"`;
     }
 
     function pushDebugLine(message){
@@ -362,6 +370,7 @@
       el('tableSearchInput').setAttribute('aria-label', t('tableSearchPlaceholder'));
       el('tableStatusFilter').setAttribute('aria-label', t('tableStatusFilterLabel'));
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
+      el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
 
       updateTypeOptions();
@@ -404,6 +413,55 @@
         <option value="${STATUS_VALUES.disabled}">${t('status_disabled')}</option>
       `;
       el('tableStatusFilter').value = current;
+    }
+
+    function getSortValue(item, key){
+      if(key === 'status') return translateStatus(item.status);
+      if(key === 'itemType') return translateType(item.itemType);
+      return item?.[key] || '';
+    }
+
+    function compareSortValues(a, b){
+      const timeA = toTimeValue(a);
+      const timeB = toTimeValue(b);
+      if(timeA && timeB){
+        return timeA - timeB;
+      }
+
+      const textA = String(a || '').trim().toLowerCase();
+      const textB = String(b || '').trim().toLowerCase();
+      return textA.localeCompare(textB, currentLang);
+    }
+
+    function sortItems(items){
+      return [...items].sort((itemA, itemB) => {
+        const result = compareSortValues(
+          getSortValue(itemA, tableSort.key),
+          getSortValue(itemB, tableSort.key)
+        );
+        return tableSort.direction === 'asc' ? result : result * -1;
+      });
+    }
+
+    function toggleTableSort(key){
+      if(tableSort.key === key){
+        tableSort.direction = tableSort.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        tableSort.key = key;
+        tableSort.direction = 'asc';
+      }
+
+      renderItemsTable();
+    }
+
+    function sortIndicator(key){
+      if(tableSort.key !== key) return '↕';
+      return tableSort.direction === 'asc' ? '↑' : '↓';
+    }
+
+    function sortableHeader(label, key){
+      const activeClass = tableSort.key === key ? ' active' : '';
+      return `<button class="sort-btn${activeClass}" onclick="toggleTableSort('${key}')">${label} <span class="sort-indicator">${sortIndicator(key)}</span></button>`;
     }
 
     function getStatusOptionsMarkup(selectedStatus){
@@ -478,6 +536,49 @@
       } catch (e) {
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
+        console.error(e);
+      }
+    }
+
+    async function exportTableCsv(){
+      try {
+        const items = await getItems();
+        const filteredItems = sortItems(getFilteredItems(items));
+        const headers = [
+          t('tagId'),
+          t('status'),
+          t('itemType'),
+          t('description'),
+          t('serial'),
+          t('wll'),
+          t('nextInspection'),
+          t('notes')
+        ];
+
+        const rows = filteredItems.map((item) => [
+          item.tagId || '',
+          translateStatus(item.status),
+          translateType(item.itemType),
+          item.description || '',
+          item.serialNumber || '',
+          item.wll || '',
+          item.nextInspection || '',
+          item.notes || ''
+        ]);
+
+        const csv = '\uFEFF' + [headers, ...rows].map((row) => row.map(csvValue).join(',')).join('\r\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `nfc-items-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        pushDebugLine(`Exported ${filteredItems.length} table rows.`);
+      } catch (e) {
+        pushDebugLine(`Table export error: ${e.message}`);
         console.error(e);
       }
     }
@@ -605,7 +706,7 @@
 
       try {
         const items = await getItems();
-        const filteredItems = getFilteredItems(items);
+        const filteredItems = sortItems(getFilteredItems(items));
 
         updateTableSummary(filteredItems.length, items.length);
 
@@ -625,13 +726,13 @@
             <thead>
               <tr>
                 <th>${t('image')}</th>
-                <th>${t('tagId')}</th>
-                <th>${t('status')}</th>
-                <th>${t('itemType')}</th>
-                <th>${t('description')}</th>
-                <th>${t('serial')}</th>
+                <th>${sortableHeader(t('tagId'), 'tagId')}</th>
+                <th>${sortableHeader(t('status'), 'status')}</th>
+                <th>${sortableHeader(t('itemType'), 'itemType')}</th>
+                <th>${sortableHeader(t('description'), 'description')}</th>
+                <th>${sortableHeader(t('serial'), 'serialNumber')}</th>
                 <th>${t('wll')}</th>
-                <th>${t('nextInspection')}</th>
+                <th>${sortableHeader(t('nextInspection'), 'nextInspection')}</th>
                 <th>${t('notes')}</th>
                 <th>${t('actions')}</th>
               </tr>
@@ -998,6 +1099,8 @@
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
     window.saveTableRow = saveTableRow;
+    window.toggleTableSort = toggleTableSort;
+    window.exportTableCsv = exportTableCsv;
     window.demoScan = demoScan;
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;

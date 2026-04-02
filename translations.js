@@ -77,7 +77,8 @@ export const LANG = {
     tableStatusFilterLabel: '\u05e1\u05e0\u05df \u05dc\u05e4\u05d9 \u05e1\u05d8\u05d8\u05d5\u05e1',
     tableAllStatuses: '\u05db\u05dc \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1\u05d9\u05dd',
     clearTableFilters: '\u05e0\u05e7\u05d4 \u05e1\u05d9\u05e0\u05d5\u05e0\u05d9\u05dd',
-    noFilteredItems: '\u05d0\u05d9\u05df \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd \u05d4\u05de\u05ea\u05d0\u05d9\u05de\u05d9\u05dd \u05dc\u05e1\u05d9\u05e0\u05d5\u05df \u05d4\u05e0\u05d5\u05db\u05d7\u05d9'
+    noFilteredItems: '\u05d0\u05d9\u05df \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd \u05d4\u05de\u05ea\u05d0\u05d9\u05de\u05d9\u05dd \u05dc\u05e1\u05d9\u05e0\u05d5\u05df \u05d4\u05e0\u05d5\u05db\u05d7\u05d9',
+    exportExcel: '\u05d9\u05d9\u05e6\u05d5\u05d0 \u05dc-Excel'
   },
   en: {
     dir: 'ltr',
@@ -123,6 +124,7 @@ export const LANG = {
     tableAllStatuses: 'All statuses',
     clearTableFilters: 'Clear Filters',
     noFilteredItems: 'No items match the current filters',
+    exportExcel: 'Export to Excel',
     refresh: 'Refresh Table',
     noTableItems: 'No items to display',
     tagId: 'Tag ID',
@@ -203,6 +205,7 @@ export const LANG = {
     tableAllStatuses: 'كل الحالات',
     clearTableFilters: 'مسح التصفية',
     noFilteredItems: 'لا توجد معدّات تطابق التصفية الحالية',
+    exportExcel: 'تصدير لـ Excel',
     refresh: 'تحديث الجدول',
     noTableItems: 'لا توجد معدّات للعرض',
     tagId: 'Tag ID',

@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
-  <link rel="stylesheet" href="./styles.css?v=20260402f" />
+  <link rel="stylesheet" href="./styles.css?v=20260402g" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -163,7 +163,10 @@
             <select id="tableStatusFilter" class="toolbar-input"></select>
             <button class="mini-btn" onclick="clearTableFilters()" id="clearTableFiltersBtn"></button>
           </div>
-          <button class="mini-btn" onclick="renderItemsTable()" id="refreshTableBtn"></button>
+          <div class="table-toolbar-actions">
+            <button class="mini-btn" onclick="exportTableCsv()" id="exportTableBtn"></button>
+            <button class="mini-btn" onclick="renderItemsTable()" id="refreshTableBtn"></button>
+          </div>
         </div>
         <div id="itemsTableContainer" class="table-wrap"></div>
       </div>
@@ -203,8 +206,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260402e"></script>
-  <script src="./config.local.js?v=20260402e"></script>
+  <script src="./config.demo.js?v=20260402g"></script>
+  <script src="./config.local.js?v=20260402g"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -228,7 +231,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260402e';
+      script.src = './app.js?v=20260402g';
       document.body.appendChild(script);
     })();
   </script>
