@@ -700,6 +700,10 @@
       word-break:break-word;
     }
 
+    .table-edit-cell {
+      vertical-align:top;
+    }
+
     tbody tr:hover {
       background:#fafafa;
     }
@@ -759,7 +763,7 @@
       display:grid;
       gap:6px;
       min-width:120px;
-      align-content:center;
+      align-content:start;
       justify-items:stretch;
     }
 

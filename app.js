@@ -824,13 +824,13 @@
                   <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
-                  <td data-label="${t('nextInspection')}">
+                  <td class="table-edit-cell" data-label="${t('nextInspection')}">
                     <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}">
                   </td>
-                  <td data-label="${t('notes')}">
+                  <td class="table-edit-cell" data-label="${t('notes')}">
                     <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}">
                   </td>
-                  <td data-label="${t('actions')}">
+                  <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
                       <button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
                       <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
