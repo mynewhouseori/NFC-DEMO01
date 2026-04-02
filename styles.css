@@ -759,6 +759,8 @@
       display:grid;
       gap:6px;
       min-width:120px;
+      align-content:center;
+      justify-items:stretch;
     }
 
     .table-save-btn {
@@ -768,6 +770,7 @@
     .table-row-status {
       min-height:18px;
       font-size:12px;
+      line-height:1.3;
     }
 
     .debug-panel {
