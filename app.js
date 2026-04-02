@@ -98,6 +98,7 @@
       direction: 'asc'
     };
     let customImageSrc = '';
+    let pendingImageTask = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
       visible: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -143,7 +144,7 @@
     async function buildCompressedImageDataUrl(file){
       const sourceDataUrl = await readFileAsDataUrl(file);
       const image = await loadImageElement(sourceDataUrl);
-      const maxDimension = 1200;
+      const maxDimension = 640;
       const scale = Math.min(1, maxDimension / Math.max(image.width || 1, image.height || 1));
       const width = Math.max(1, Math.round((image.width || 1) * scale));
       const height = Math.max(1, Math.round((image.height || 1) * scale));
@@ -160,7 +161,7 @@
       context.fillRect(0, 0, width, height);
       context.drawImage(image, 0, 0, width, height);
 
-      return canvas.toDataURL('image/jpeg', 0.78);
+      return canvas.toDataURL('image/jpeg', 0.62);
     }
 
     function pushDebugLine(message){
@@ -867,6 +868,7 @@
 
     function clearCustomImage(){
       customImageSrc = '';
+      pendingImageTask = null;
       el('itemImageInput').value = '';
       selectImageByType();
     }
@@ -909,6 +911,7 @@
       el('itemStatus').value = '׳×׳§׳™׳';
       el('notes').value = '';
       customImageSrc = '';
+      pendingImageTask = null;
       el('itemImageInput').value = '';
       selectImageByType();
       updateStatusColorSelect();
@@ -1008,6 +1011,7 @@
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('notes').value = item.notes || '';
       customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
+      pendingImageTask = null;
       el('itemImageInput').value = '';
       selectImageByType();
       updateStatusColorSelect();
@@ -1019,6 +1023,17 @@
       if(!tagId){
         el('saveStatus').textContent = t('needTag');
         return;
+      }
+
+      if(pendingImageTask){
+        el('saveStatus').textContent = t('saving');
+        try {
+          await pendingImageTask;
+        } catch (e) {
+          pushDebugLine(`Image preparation error before save: ${e.message}`);
+          el('saveStatus').textContent = t('cloudSaveError');
+          return;
+        }
       }
 
       const existing = await getItemByTag(tagId);
@@ -1141,14 +1156,17 @@
         return;
       }
 
-      buildCompressedImageDataUrl(file)
+      pendingImageTask = buildCompressedImageDataUrl(file)
         .then((dataUrl) => {
           customImageSrc = dataUrl;
           updatePreviewImage(customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨']);
           pushDebugLine(`Image selected for current item: ${file.name}`);
+          pendingImageTask = null;
         })
         .catch((error) => {
           pushDebugLine(`Image read failed: ${error.message || 'Unknown error'}`);
+          pendingImageTask = null;
+          throw error;
         });
     });
     el('tableSearchInput').addEventListener('input', (event) => {
