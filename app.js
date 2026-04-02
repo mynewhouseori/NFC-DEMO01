@@ -103,6 +103,11 @@
       key: 'tagId',
       direction: 'asc'
     };
+    const CACHE_TTL_MS = 5000;
+    const dataCache = {
+      items: { value: null, loadedAt: 0, promise: null },
+      logs: { value: null, loadedAt: 0, promise: null }
+    };
     let lastSavedTagId = '';
     let customImageSrc = '';
     let pendingImageTask = null;
@@ -459,16 +464,35 @@
       if(!el('registerStatus').textContent.trim()) el('registerStatus').textContent = t('waitingForScan');
     }
 
-    async function getItems(){
+    async function getItems(forceFresh = false){
+      if(!forceFresh && isCacheFresh(dataCache.items)){
+        pushDebugLine(`Using cached items (${dataCache.items.value.length}).`);
+        return [...dataCache.items.value];
+      }
+
+      if(!forceFresh && dataCache.items.promise){
+        pushDebugLine('Waiting for in-flight items request.');
+        const pendingItems = await dataCache.items.promise;
+        return [...pendingItems];
+      }
+
       pushDebugLine('Loading items from Firestore.');
-      const snapshot = await getDocs(collection(db, ITEMS_COLLECTION));
-      const items = [];
-      snapshot.forEach((docSnap) => {
-        items.push(docSnap.data());
+      dataCache.items.promise = getDocs(collection(db, ITEMS_COLLECTION)).then((snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push(docSnap.data());
+        });
+        items.sort((a, b) => (a.tagId || '').localeCompare(b.tagId || ''));
+        dataCache.items.value = items;
+        dataCache.items.loadedAt = Date.now();
+        pushDebugLine(`Loaded ${items.length} items.`);
+        return items;
+      }).finally(() => {
+        dataCache.items.promise = null;
       });
-      items.sort((a, b) => (a.tagId || '').localeCompare(b.tagId || ''));
-      pushDebugLine(`Loaded ${items.length} items.`);
-      return items;
+
+      const items = await dataCache.items.promise;
+      return [...items];
     }
 
     function updateTableSummary(shownCount, totalCount){
@@ -476,6 +500,22 @@
         shown: shownCount,
         total: totalCount
       });
+    }
+
+    function isCacheFresh(entry){
+      return Boolean(entry.value) && (Date.now() - entry.loadedAt) < CACHE_TTL_MS;
+    }
+
+    function invalidateItemsCache(){
+      dataCache.items.value = null;
+      dataCache.items.loadedAt = 0;
+      dataCache.items.promise = null;
+    }
+
+    function invalidateLogsCache(){
+      dataCache.logs.value = null;
+      dataCache.logs.loadedAt = 0;
+      dataCache.logs.promise = null;
     }
 
     function updateTableFilterOptions(){
@@ -636,6 +676,7 @@
 
       try {
         await deleteDoc(doc(db, ITEMS_COLLECTION, tagId));
+        invalidateItemsCache();
         pushDebugLine(`Deleted item ${tagId}.`);
         statusNode.textContent = t('itemDeleted');
         if(lastSavedTagId === tagId){
@@ -735,6 +776,7 @@
     async function saveItemToCloud(item){
       pushDebugLine(`Saving item ${item.tagId}.`);
       await setDoc(doc(db, ITEMS_COLLECTION, item.tagId), item);
+      invalidateItemsCache();
       pushDebugLine(`Saved item ${item.tagId}.`);
     }
 
@@ -748,16 +790,36 @@
         time: new Date().toLocaleString(),
         sortTime: new Date().toISOString()
       });
+      invalidateLogsCache();
     }
 
-    async function getLogs(){
+    async function getLogs(forceFresh = false){
+      if(!forceFresh && isCacheFresh(dataCache.logs)){
+        pushDebugLine(`Using cached logs (${dataCache.logs.value.length}).`);
+        return [...dataCache.logs.value];
+      }
+
+      if(!forceFresh && dataCache.logs.promise){
+        pushDebugLine('Waiting for in-flight logs request.');
+        const pendingLogs = await dataCache.logs.promise;
+        return [...pendingLogs];
+      }
+
       pushDebugLine('Loading scan logs.');
       const q = query(collection(db, LOGS_COLLECTION), orderBy('sortTime', 'desc'), limit(100));
-      const snapshot = await getDocs(q);
-      const logs = [];
-      snapshot.forEach((docSnap) => logs.push(docSnap.data()));
-      pushDebugLine(`Loaded ${logs.length} logs.`);
-      return logs;
+      dataCache.logs.promise = getDocs(q).then((snapshot) => {
+        const logs = [];
+        snapshot.forEach((docSnap) => logs.push(docSnap.data()));
+        dataCache.logs.value = logs;
+        dataCache.logs.loadedAt = Date.now();
+        pushDebugLine(`Loaded ${logs.length} logs.`);
+        return logs;
+      }).finally(() => {
+        dataCache.logs.promise = null;
+      });
+
+      const logs = await dataCache.logs.promise;
+      return [...logs];
     }
 
     async function renderScanLogs(){
