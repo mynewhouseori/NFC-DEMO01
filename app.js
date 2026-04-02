@@ -34,6 +34,19 @@
     const ITEMS_COLLECTION = SETTINGS.firestoreCollections.items;
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
+    const TYPE_VALUES = {
+      shackle: '׳©׳׳§׳',
+      strap: '׳¨׳¦׳•׳¢׳”',
+      chain: '׳©׳¨׳©׳¨׳×',
+      ring: '׳˜׳‘׳¢׳×',
+      hook: '׳•׳•',
+      other: '׳׳—׳¨'
+    };
+    const STATUS_VALUES = {
+      ok: '׳×׳§׳™׳',
+      review: '׳׳‘׳“׳™׳§׳”',
+      disabled: '׳׳•׳©׳‘׳×'
+    };
 
     const LANG = {
       he: {
@@ -190,6 +203,83 @@
       }
     };
 
+    LANG.he = {
+      dir: 'rtl',
+      homeCheck: '\u05d1\u05d3\u05d9\u05e7\u05ea \u05e6\u05d9\u05d5\u05d3',
+      homeRegister: '\u05e7\u05dc\u05d9\u05d8\u05ea \u05e6\u05d9\u05d5\u05d3',
+      back: '\u05d7\u05d6\u05e8\u05d4',
+      passwordTitle: '\u05db\u05e0\u05d9\u05e1\u05d4 \u05dc\u05e7\u05dc\u05d9\u05d8\u05ea \u05e6\u05d9\u05d5\u05d3',
+      passwordLabel: '\u05e1\u05d9\u05e1\u05de\u05d4 (1234)',
+      passwordPlaceholder: '\u05d4\u05e7\u05dc\u05d3 \u05e1\u05d9\u05e1\u05de\u05d4',
+      passwordEnter: '\u05db\u05e0\u05d9\u05e1\u05d4',
+      passwordWrong: '\u05e1\u05d9\u05e1\u05de\u05d4 \u05e9\u05d2\u05d5\u05d9\u05d4',
+      scanTitle: '\u05d1\u05d3\u05d9\u05e7\u05ea \u05e6\u05d9\u05d5\u05d3',
+      scanNow: '\u05e1\u05e8\u05d5\u05e7 \u05e2\u05db\u05e9\u05d9\u05d5',
+      demoScan: '\u05d4\u05d3\u05de\u05d9\u05d9\u05ea \u05e1\u05e8\u05d9\u05e7\u05d4',
+      registerTitle: '\u05e7\u05dc\u05d9\u05d8\u05ea \u05e6\u05d9\u05d5\u05d3',
+      tabRegister: '\u05e7\u05dc\u05d9\u05d8\u05d4',
+      tabTable: '\u05d8\u05d1\u05dc\u05d4',
+      tabLogs: '\u05dc\u05d5\u05d2',
+      scanNewTag: '\u05e1\u05e8\u05d5\u05e7 \u05ea\u05d2 \u05d7\u05d3\u05e9',
+      clearForm: '\u05e0\u05e7\u05d4 \u05d8\u05d5\u05e4\u05e1',
+      waitingForScan: '\u05de\u05de\u05ea\u05d9\u05df \u05dc\u05e1\u05e8\u05d9\u05e7\u05d4.',
+      waitingForNfcTag: '\u05de\u05de\u05ea\u05d9\u05df \u05dc\u05d4\u05e6\u05de\u05d3\u05ea \u05ea\u05d2 NFC...',
+      scanReadError: '\u05d4\u05ea\u05d2 \u05d6\u05d5\u05d4\u05d4, \u05d0\u05d1\u05dc \u05d4\u05e7\u05e8\u05d9\u05d0\u05d4 \u05e0\u05db\u05e9\u05dc\u05d4.',
+      noWebNfc: '\u05d4\u05de\u05db\u05e9\u05d9\u05e8 \u05d0\u05d5 \u05d4\u05d3\u05e4\u05d3\u05e4\u05df \u05dc\u05d0 \u05ea\u05d5\u05de\u05db\u05d9\u05dd \u05d1-Web NFC.',
+      scanStartError: '\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05dc\u05d4\u05ea\u05d7\u05d9\u05dc \u05e1\u05e8\u05d9\u05e7\u05d4 \u05d1\u05de\u05db\u05e9\u05d9\u05e8 \u05d4\u05d6\u05d4 \u05d0\u05d5 \u05e9\u05d4\u05d4\u05e8\u05e9\u05d0\u05d4 \u05e0\u05d3\u05d7\u05ea\u05d4.',
+      itemFound: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05d6\u05d5\u05d4\u05d4 \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4.',
+      itemNotFound: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05dc\u05d0 \u05e7\u05d9\u05d9\u05dd \u05d1\u05de\u05e2\u05e8\u05db\u05ea.',
+      existingTag: '\u05d4\u05ea\u05d2 \u05db\u05d1\u05e8 \u05e7\u05d9\u05d9\u05dd, \u05d0\u05e4\u05e9\u05e8 \u05dc\u05e2\u05d3\u05db\u05df \u05d0\u05ea \u05d4\u05e4\u05e8\u05d9\u05d8.',
+      newTag: '\u05ea\u05d2 \u05d7\u05d3\u05e9 \u05d6\u05d5\u05d4\u05d4, \u05d0\u05e4\u05e9\u05e8 \u05dc\u05de\u05dc\u05d0 \u05d5\u05dc\u05e9\u05de\u05d5\u05e8.',
+      needTag: '\u05d7\u05d9\u05d9\u05d1\u05d9\u05dd \u05dc\u05e1\u05e8\u05d5\u05e7 \u05d0\u05d5 \u05dc\u05d4\u05d6\u05d9\u05df Tag ID.',
+      itemUpdated: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05e2\u05d5\u05d3\u05db\u05df \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4.',
+      itemSaved: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05e0\u05e9\u05de\u05e8 \u05d1\u05d4\u05e6\u05dc\u05d7\u05d4.',
+      noItemsForDemo: '\u05d0\u05d9\u05df \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd \u05d1\u05de\u05e2\u05e8\u05db\u05ea',
+      demoMode: '\u05e1\u05e8\u05d9\u05e7\u05d4 \u05dc\u05d3\u05de\u05d5',
+      cloudSaveError: '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05e9\u05de\u05d9\u05e8\u05d4 \u05dc\u05e2\u05e0\u05df',
+      cloudReadError: '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05e7\u05e8\u05d9\u05d0\u05d4 \u05de\u05d4\u05e2\u05e0\u05df',
+      logLoadError: '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d8\u05e2\u05d9\u05e0\u05ea \u05d4\u05dc\u05d5\u05d2',
+      tableLoadError: '\u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d8\u05e2\u05d9\u05e0\u05ea \u05d4\u05d8\u05d1\u05dc\u05d4',
+      tableTitle: '\u05e8\u05e9\u05d9\u05de\u05ea \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd',
+      refresh: '\u05e8\u05e2\u05e0\u05df \u05d8\u05d1\u05dc\u05d4',
+      noTableItems: '\u05d0\u05d9\u05df \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd \u05dc\u05d4\u05e6\u05d2\u05d4',
+      tagId: 'Tag ID',
+      itemType: '\u05e1\u05d5\u05d2 \u05e4\u05e8\u05d9\u05d8',
+      image: '\u05ea\u05de\u05d5\u05e0\u05d4',
+      description: '\u05ea\u05d9\u05d0\u05d5\u05e8',
+      serial: '\u05de\u05e1\u05e4\u05e8 \u05e1\u05d9\u05d3\u05d5\u05e8\u05d9',
+      wll: '\u05e2\u05d5\u05de\u05e1 \u05de\u05d5\u05ea\u05e8 (WLL)',
+      nextInspection: '\u05d1\u05d3\u05d9\u05e7\u05d4 \u05d4\u05d1\u05d0\u05d4',
+      status: '\u05e1\u05d8\u05d8\u05d5\u05e1',
+      notes: '\u05d4\u05e2\u05e8\u05d5\u05ea',
+      saveItem: '\u05e9\u05de\u05d5\u05e8 \u05e4\u05e8\u05d9\u05d8',
+      tagPlaceholder: '\u05d9\u05ea\u05de\u05dc\u05d0 \u05d0\u05d7\u05e8\u05d9 \u05e1\u05e8\u05d9\u05e7\u05d4 \u05d0\u05d5 \u05d9\u05d3\u05e0\u05d9\u05ea',
+      descriptionPlaceholder: 'For example: Shackle 3/4',
+      serialPlaceholder: 'For example: GP-77421',
+      wllPlaceholder: 'For example: 4.75T',
+      notesPlaceholder: '\u05d0\u05d5\u05e4\u05e6\u05d9\u05d5\u05e0\u05dc\u05d9',
+      type_shackle: '\u05e9\u05d0\u05e7\u05dc',
+      type_strap: '\u05e8\u05e6\u05d5\u05e2\u05d4',
+      type_chain: '\u05e9\u05e8\u05e9\u05e8\u05ea',
+      type_ring: '\u05d8\u05d1\u05e2\u05ea',
+      type_hook: '\u05d5\u05d5',
+      type_other: '\u05d0\u05d7\u05e8',
+      status_ok: '\u05ea\u05e7\u05d9\u05df',
+      status_review: '\u05dc\u05d1\u05d3\u05d9\u05e7\u05d4',
+      status_disabled: '\u05de\u05d5\u05e9\u05d1\u05ea',
+      scanItemDefault: '\u05e4\u05e8\u05d9\u05d8',
+      logTitleEmpty: '\u05d0\u05d9\u05df \u05e1\u05e8\u05d9\u05e7\u05d5\u05ea \u05e2\u05d3\u05d9\u05d9\u05df',
+      logFound: '\u05e0\u05de\u05e6\u05d0',
+      logNotFound: '\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0',
+      logTag: '\u05ea\u05d2',
+      tableSummary: '\u05de\u05d5\u05e6\u05d2\u05d9\u05dd {shown} \u05de\u05ea\u05d5\u05da {total}',
+      tableSearchPlaceholder: '\u05d7\u05e4\u05e9 \u05dc\u05e4\u05d9 \u05ea\u05d2, \u05e1\u05d5\u05d2, \u05ea\u05d9\u05d0\u05d5\u05e8, \u05e1\u05d9\u05d3\u05d5\u05e8\u05d9, WLL \u05d0\u05d5 \u05d4\u05e2\u05e8\u05d5\u05ea',
+      tableStatusFilterLabel: '\u05e1\u05e0\u05df \u05dc\u05e4\u05d9 \u05e1\u05d8\u05d8\u05d5\u05e1',
+      tableAllStatuses: '\u05db\u05dc \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1\u05d9\u05dd',
+      clearTableFilters: '\u05e0\u05e7\u05d4 \u05e1\u05d9\u05e0\u05d5\u05e0\u05d9\u05dd',
+      noFilteredItems: '\u05d0\u05d9\u05df \u05e4\u05e8\u05d9\u05d8\u05d9\u05dd \u05d4\u05de\u05ea\u05d0\u05d9\u05de\u05d9\u05dd \u05dc\u05e1\u05d9\u05e0\u05d5\u05df \u05d4\u05e0\u05d5\u05db\u05d7\u05d9'
+    };
+
     const IMAGE_LIBRARY = {
       "׳©׳׳§׳":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ”—%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳©׳׳§׳%3C/text%3E%3C/svg%3E",
       "׳¨׳¦׳•׳¢׳”":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ×¢%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳¨׳¦׳•׳¢׳”%3C/text%3E%3C/svg%3E",
@@ -198,6 +288,29 @@
       "׳•׳•":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ×%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳•׳•%3C/text%3E%3C/svg%3E",
       "׳׳—׳¨":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ“¦%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳₪׳¨׳™׳˜%3C/text%3E%3C/svg%3E"
     };
+
+    function buildItemImage(iconText, labelText){
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+          <rect width="400" height="400" rx="32" fill="#f8fafc"/>
+          <rect x="24" y="24" width="352" height="352" rx="28" fill="white" stroke="#dbe4ea" stroke-width="6"/>
+          <circle cx="200" cy="150" r="72" fill="#ecfeff" stroke="#0f766e" stroke-width="6"/>
+          <text x="200" y="176" font-size="88" text-anchor="middle" fill="#0f766e" font-family="Arial, sans-serif">${iconText}</text>
+          <rect x="70" y="258" width="260" height="58" rx="16" fill="#0f766e" opacity="0.12"/>
+          <text x="200" y="296" font-size="30" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif">${labelText}</text>
+        </svg>
+      `;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    Object.assign(IMAGE_LIBRARY, {
+      [TYPE_VALUES.shackle]: buildItemImage('S', 'Shackle'),
+      [TYPE_VALUES.strap]: buildItemImage('R', 'Strap'),
+      [TYPE_VALUES.chain]: buildItemImage('C', 'Chain'),
+      [TYPE_VALUES.ring]: buildItemImage('O', 'Ring'),
+      [TYPE_VALUES.hook]: buildItemImage('H', 'Hook'),
+      [TYPE_VALUES.other]: buildItemImage('I', 'Item')
+    });
 
     const el = (id) => document.getElementById(id);
     let currentLang = localStorage.getItem('lang') || 'he';
@@ -433,9 +546,9 @@
       const current = tableFilters.status || 'all';
       el('tableStatusFilter').innerHTML = `
         <option value="all">${t('tableAllStatuses')}</option>
-        <option value="׳³ֳ—׳³ֲ§׳³ג„¢׳³ֲ">${t('status_ok')}</option>
-        <option value="׳³ֲ׳³ג€˜׳³ג€׳³ג„¢׳³ֲ§׳³ג€">${t('status_review')}</option>
-        <option value="׳³ֲ׳³ג€¢׳³ֲ©׳³ג€˜׳³ֳ—">${t('status_disabled')}</option>
+        <option value="${STATUS_VALUES.ok}">${t('status_ok')}</option>
+        <option value="${STATUS_VALUES.review}">${t('status_review')}</option>
+        <option value="${STATUS_VALUES.disabled}">${t('status_disabled')}</option>
       `;
       el('tableStatusFilter').value = current;
     }
