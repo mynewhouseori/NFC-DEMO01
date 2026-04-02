@@ -68,7 +68,7 @@
     .flag-btn{
       width:48px;
       height:54px;
-      border:1px solid rgba(0,0,0,.22);
+      border:2px solid rgba(0,0,0,.38);
       border-radius:12px;
       background:rgba(255,255,255,.14);
       color:#fff;
@@ -83,7 +83,7 @@
       align-items:center;
       justify-content:center;
       gap:5px;
-      box-shadow:0 6px 16px rgba(0,0,0,.14);
+      box-shadow:0 8px 18px rgba(0,0,0,.18);
       transition:background-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease;
     }
 
@@ -197,7 +197,7 @@
     .flag-btn.active{
       background:#ffffff;
       color:#111827;
-      box-shadow:0 8px 18px rgba(0,0,0,.18);
+      box-shadow:0 10px 22px rgba(0,0,0,.22);
     }
 
     .flag-btn.active .flag-mark {
@@ -237,18 +237,18 @@
 
     .btn {
       width:100%;
-      border:1px solid rgba(0,0,0,.22);
+      border:2px solid rgba(0,0,0,.4);
       border-radius:18px;
       padding:18px 16px;
       font-size:18px;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 10px 28px rgba(0,0,0,.18);
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
       transition:transform .12s ease, box-shadow .2s ease;
     }
 
     .btn:active { transform:scale(.98); }
-    .btn:hover { box-shadow:0 12px 30px rgba(0,0,0,.22); }
+    .btn:hover { box-shadow:0 14px 34px rgba(0,0,0,.26); }
 
     .btn-check { background:var(--accent); color:#fff; }
     .btn-register { background:#f0f1f4; color:var(--text); }
@@ -295,7 +295,7 @@
     }
 
     .back-btn {
-      border:1px solid rgba(0,0,0,.14);
+      border:2px solid rgba(0,0,0,.22);
       background:#e5e7eb;
       color:#111827;
       border-radius:12px;
@@ -317,13 +317,13 @@
     }
 
     .main-action, .save-btn, .password-btn, .secondary-btn, .mini-btn {
-      border:1px solid rgba(0,0,0,.16);
+      border:2px solid rgba(0,0,0,.24);
       border-radius:14px;
       padding:16px;
       font-size:18px;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 4px 12px rgba(0,0,0,.08);
+      box-shadow:0 6px 14px rgba(0,0,0,.12);
     }
 
     .main-action, .save-btn, .password-btn {
@@ -490,7 +490,7 @@
     .tab-btn {
       flex:1;
       min-width:120px;
-      border:1px solid rgba(0,0,0,.14);
+      border:2px solid rgba(0,0,0,.22);
       border-radius:14px;
       padding:12px 14px;
       font-size:16px;
@@ -498,13 +498,13 @@
       cursor:pointer;
       background:var(--tab);
       color:#111827;
-      box-shadow:0 2px 6px rgba(0,0,0,.04);
+      box-shadow:0 4px 10px rgba(0,0,0,.08);
     }
 
     .tab-btn.active {
       background:var(--accent);
       color:#fff;
-      box-shadow:0 8px 18px rgba(15,118,110,.22);
+      box-shadow:0 10px 22px rgba(15,118,110,.26);
     }
 
     .tab-pane {
