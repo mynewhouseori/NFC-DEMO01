@@ -122,6 +122,47 @@
       return Object.values(IMAGE_LIBRARY).includes(src);
     }
 
+    function readFileAsDataUrl(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ''));
+        reader.onerror = () => reject(reader.error || new Error('File read failed'));
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImageElement(src){
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('Image load failed'));
+        image.src = src;
+      });
+    }
+
+    async function buildCompressedImageDataUrl(file){
+      const sourceDataUrl = await readFileAsDataUrl(file);
+      const image = await loadImageElement(sourceDataUrl);
+      const maxDimension = 1200;
+      const scale = Math.min(1, maxDimension / Math.max(image.width || 1, image.height || 1));
+      const width = Math.max(1, Math.round((image.width || 1) * scale));
+      const height = Math.max(1, Math.round((image.height || 1) * scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext('2d');
+
+      if(!context){
+        return sourceDataUrl;
+      }
+
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, width, height);
+      context.drawImage(image, 0, 0, width, height);
+
+      return canvas.toDataURL('image/jpeg', 0.78);
+    }
+
     function pushDebugLine(message){
       const timestamp = new Date().toLocaleTimeString();
       debugState.lines.unshift(`[${timestamp}] ${message}`);
@@ -1100,16 +1141,15 @@
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = () => {
-        customImageSrc = String(reader.result || '');
-        updatePreviewImage(customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨']);
-        pushDebugLine(`Image selected for current item: ${file.name}`);
-      };
-      reader.onerror = () => {
-        pushDebugLine(`Image read failed: ${reader.error?.message || 'Unknown error'}`);
-      };
-      reader.readAsDataURL(file);
+      buildCompressedImageDataUrl(file)
+        .then((dataUrl) => {
+          customImageSrc = dataUrl;
+          updatePreviewImage(customImageSrc || IMAGE_LIBRARY[el('itemType').value] || IMAGE_LIBRARY['׳׳—׳¨']);
+          pushDebugLine(`Image selected for current item: ${file.name}`);
+        })
+        .catch((error) => {
+          pushDebugLine(`Image read failed: ${error.message || 'Unknown error'}`);
+        });
     });
     el('tableSearchInput').addEventListener('input', (event) => {
       tableFilters.query = event.target.value || '';
