@@ -65,6 +65,8 @@ export const LANG = {
     type_chain: '\u05e9\u05e8\u05e9\u05e8\u05ea',
     type_ring: '\u05d8\u05d1\u05e2\u05ea',
     type_hook: '\u05d5\u05d5',
+    type_fire: '\u05de\u05d8\u05e3 \u05db\u05d9\u05d1\u05d5\u05d9 \u05d0\u05e9',
+    type_aircomp: '\u05de\u05d3\u05d7\u05e1 \u05d0\u05d5\u05d9\u05e8',
     type_other: '\u05d0\u05d7\u05e8',
     status_ok: '\u05ea\u05e7\u05d9\u05df',
     status_review: '\u05dc\u05d1\u05d3\u05d9\u05e7\u05d4',
@@ -155,6 +157,8 @@ export const LANG = {
     type_chain: 'Chain',
     type_ring: 'Ring',
     type_hook: 'Hook',
+    type_fire: 'Fire Extinguisher',
+    type_aircomp: 'Air Compressor',
     type_other: 'Other',
     status_ok: 'OK',
     status_review: 'Needs Review',
@@ -249,3 +253,6 @@ export const LANG = {
     logTag: 'الوسم'
   }
 };
+
+LANG.ar.type_fire = 'طفاية حريق';
+LANG.ar.type_aircomp = 'ضاغط هواء';

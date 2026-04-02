@@ -41,6 +41,8 @@
       chain: '׳©׳¨׳©׳¨׳×',
       ring: '׳˜׳‘׳¢׳×',
       hook: '׳•׳•',
+      fire: 'מטף כיבוי אש',
+      aircomp: 'מדחס אויר',
       other: '׳׳—׳¨'
     };
     const STATUS_VALUES = {
@@ -55,36 +57,15 @@
     };
 
     const IMAGE_LIBRARY = {
-      "׳©׳׳§׳":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ”—%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳©׳׳§׳%3C/text%3E%3C/svg%3E",
-      "׳¨׳¦׳•׳¢׳”":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ×¢%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳¨׳¦׳•׳¢׳”%3C/text%3E%3C/svg%3E",
-      "׳©׳¨׳©׳¨׳×":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eג›“ן¸%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳©׳¨׳©׳¨׳×%3C/text%3E%3C/svg%3E",
-      "׳˜׳‘׳¢׳×":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eג­•%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳˜׳‘׳¢׳×%3C/text%3E%3C/svg%3E",
-      "׳•׳•":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ×%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳•׳•%3C/text%3E%3C/svg%3E",
-      "׳׳—׳¨":"data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='32' fill='%23f8fafc'/%3E%3Crect x='24' y='24' width='352' height='352' rx='28' fill='white' stroke='%23dbe4ea' stroke-width='6'/%3E%3Ccircle cx='200' cy='150' r='72' fill='%23ecfeff' stroke='%230f766e' stroke-width='6'/%3E%3Ctext x='200' y='170' font-size='82' text-anchor='middle'%3Eנ“¦%3C/text%3E%3Crect x='70' y='258' width='260' height='58' rx='16' fill='%230f766e' opacity='0.12'/%3E%3Ctext x='200' y='296' font-size='34' text-anchor='middle' fill='%231f2937' font-family='Arial, sans-serif'%3E׳₪׳¨׳™׳˜%3C/text%3E%3C/svg%3E"
+      "׳©׳׳§׳":"./תמונות/shackle.jpg",
+      "׳¨׳¦׳•׳¢׳”":"./תמונות/strap.jpg",
+      "׳©׳¨׳©׳¨׳×":"./תמונות/chain.jpg",
+      "׳˜׳‘׳¢׳×":"./תמונות/ring.jpg",
+      "׳•׳•":"./תמונות/hook.jpg",
+      "מטף כיבוי אש":"./תמונות/fire.jpg",
+      "מדחס אויר":"./תמונות/aircomp.jpg",
+      "׳׳—׳¨":"./תמונות/shackle.jpg"
     };
-
-    function buildItemImage(iconText, labelText){
-      const svg = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-          <rect width="400" height="400" rx="32" fill="#f8fafc"/>
-          <rect x="24" y="24" width="352" height="352" rx="28" fill="white" stroke="#dbe4ea" stroke-width="6"/>
-          <circle cx="200" cy="150" r="72" fill="#ecfeff" stroke="#0f766e" stroke-width="6"/>
-          <text x="200" y="176" font-size="88" text-anchor="middle" fill="#0f766e" font-family="Arial, sans-serif">${iconText}</text>
-          <rect x="70" y="258" width="260" height="58" rx="16" fill="#0f766e" opacity="0.12"/>
-          <text x="200" y="296" font-size="30" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif">${labelText}</text>
-        </svg>
-      `;
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-    }
-
-    Object.assign(IMAGE_LIBRARY, {
-      [TYPE_VALUES.shackle]: buildItemImage('S', 'Shackle'),
-      [TYPE_VALUES.strap]: buildItemImage('R', 'Strap'),
-      [TYPE_VALUES.chain]: buildItemImage('C', 'Chain'),
-      [TYPE_VALUES.ring]: buildItemImage('O', 'Ring'),
-      [TYPE_VALUES.hook]: buildItemImage('H', 'Hook'),
-      [TYPE_VALUES.other]: buildItemImage('I', 'Item')
-    });
 
     const el = (id) => document.getElementById(id);
     const savedLang = localStorage.getItem('lang');
@@ -120,7 +101,7 @@
     }
 
     function isLibraryImageSrc(src){
-      return Object.values(IMAGE_LIBRARY).includes(src);
+      return Object.values(IMAGE_LIBRARY).includes(src) || String(src || '').startsWith('data:image/svg+xml;utf8,');
     }
 
     function readFileAsDataUrl(file){
@@ -226,6 +207,8 @@
       if(type === '׳©׳¨׳©׳¨׳×') return t('type_chain');
       if(type === '׳˜׳‘׳¢׳×') return t('type_ring');
       if(type === '׳•׳•') return t('type_hook');
+      if(type === 'מטף כיבוי אש') return t('type_fire');
+      if(type === 'מדחס אויר') return t('type_aircomp');
       if(type === '׳׳—׳¨') return t('type_other');
       return type || t('scanItemDefault');
     }
@@ -349,6 +332,8 @@
         <option value="׳©׳¨׳©׳¨׳×">${t('type_chain')}</option>
         <option value="׳˜׳‘׳¢׳×">${t('type_ring')}</option>
         <option value="׳•׳•">${t('type_hook')}</option>
+        <option value="מטף כיבוי אש">${t('type_fire')}</option>
+        <option value="מדחס אויר">${t('type_aircomp')}</option>
         <option value="׳׳—׳¨">${t('type_other')}</option>
       `;
       el('itemType').value = current;
