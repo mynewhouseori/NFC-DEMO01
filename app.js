@@ -1131,14 +1131,6 @@
     }
 
     function checkPassword(role){
-      const enteredPassword = String(role === 'foreman' ? el('foremanPasswordInput').value : el('engineerPasswordInput').value || '').trim();
-      const expectedPassword = role === 'foreman' ? FOREMAN_PASSWORD : ENGINEER_PASSWORD;
-
-      if(enteredPassword !== expectedPassword){
-        el('passwordStatus').textContent = t('passwordWrong');
-        return;
-      }
-
       pushDebugLine(`Register access granted for ${role}.`);
       registerAccessRole = role;
       el('engineerPasswordInput').value = '';
