@@ -113,22 +113,31 @@
           </div>
           <div class="scan-edit-grid">
             <div>
-              <label for="scanEditWll" id="scanEditWllLabel"></label>
-              <input id="scanEditWll">
+              <label for="scanEditRegistrationDate" id="scanEditRegistrationDateLabel"></label>
+              <input id="scanEditRegistrationDate" type="date">
             </div>
             <div>
-              <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
-              <input id="scanEditNextInspection" type="date">
+              <label for="scanEditWll" id="scanEditWllLabel"></label>
+              <input id="scanEditWll">
             </div>
           </div>
           <div class="scan-edit-grid">
             <div>
+              <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
+              <input id="scanEditNextInspection" type="date">
+            </div>
+            <div>
               <label for="scanEditStatus" id="scanEditStatusLabel"></label>
               <select id="scanEditStatus"></select>
             </div>
+          </div>
+          <div class="scan-edit-grid">
             <div>
               <label for="scanEditNotes" id="scanEditNotesLabel"></label>
               <input id="scanEditNotes">
+            </div>
+            <div>
+              <label></label>
             </div>
           </div>
           <button class="save-btn" onclick="saveScanItemEdits()" id="scanSaveBtn"></button>
@@ -196,12 +205,16 @@
             <input id="wll">
           </div>
           <div>
-            <label for="nextInspection" id="nextInspectionLabel"></label>
-            <input id="nextInspection" type="date">
+            <label for="registrationDate" id="registrationDateLabel"></label>
+            <input id="registrationDate" type="date">
           </div>
         </div>
 
         <div class="row">
+          <div>
+            <label for="nextInspection" id="nextInspectionLabel"></label>
+            <input id="nextInspection" type="date">
+          </div>
           <div>
             <label for="itemStatus" id="itemStatusLabel"></label>
             <select id="itemStatus"></select>

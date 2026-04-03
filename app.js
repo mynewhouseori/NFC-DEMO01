@@ -117,6 +117,7 @@
         reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
       }
     };
+    LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
 
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
@@ -499,6 +500,7 @@
         'description',
         'serialNumber',
         'wll',
+        'registrationDate',
         'nextInspection',
         'itemStatus',
         'notes'
@@ -526,6 +528,7 @@
         el('scanEditDescription').value = '';
         el('scanEditSerial').value = '';
         el('scanEditWll').value = '';
+        el('scanEditRegistrationDate').value = '';
         el('scanEditNextInspection').value = '';
         el('scanEditStatus').value = '׳×׳§׳™׳';
         el('scanEditNotes').value = '';
@@ -537,6 +540,7 @@
       el('scanEditDescription').value = item.description || '';
       el('scanEditSerial').value = item.serialNumber || '';
       el('scanEditWll').value = item.wll || '';
+      el('scanEditRegistrationDate').value = getRegistrationDateValue(item);
       el('scanEditNextInspection').value = item.nextInspection || '';
       el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
       el('scanEditNotes').value = item.notes || '';
@@ -588,6 +592,7 @@
       el('scanEditDescriptionLabel').textContent = t('description');
       el('scanEditSerialLabel').textContent = t('serial');
       el('scanEditWllLabel').textContent = t('wll');
+      el('scanEditRegistrationDateLabel').textContent = t('registrationDate');
       el('scanEditNextInspectionLabel').textContent = t('nextInspection');
       el('scanEditStatusLabel').textContent = t('status');
       el('scanEditNotesLabel').textContent = t('notes');
@@ -611,6 +616,7 @@
       el('descriptionLabel').textContent = t('description');
       el('serialLabel').textContent = t('serial');
       el('wllLabel').textContent = t('wll');
+      el('registrationDateLabel').textContent = t('registrationDate');
       el('nextInspectionLabel').textContent = t('nextInspection');
       el('itemStatusLabel').textContent = t('status');
       el('notesLabel').textContent = t('notes');
@@ -724,6 +730,7 @@
     function getSortValue(item, key){
       if(key === 'status') return translateStatus(item.status);
       if(key === 'itemType') return translateType(item.itemType);
+      if(key === 'registrationDate') return getRegistrationDateValue(item);
       return item?.[key] || '';
     }
 
@@ -815,11 +822,12 @@
     async function saveTableRow(tagId){
       const safeTagId = CSS.escape(String(tagId || ''));
       const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
+      const registrationDateInput = document.querySelector(`.table-registration-date-input[data-tag-id="${safeTagId}"]`);
       const dateInput = document.querySelector(`.table-date-input[data-tag-id="${safeTagId}"]`);
       const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
-      if(!statusInput || !dateInput || !notesInput || !statusNode){
+      if(!statusInput || !registrationDateInput || !dateInput || !notesInput || !statusNode){
         return;
       }
 
@@ -836,6 +844,7 @@
         const updatedItem = {
           ...existing,
           status: statusInput.value,
+          registrationDate: registrationDateInput.value,
           nextInspection: dateInput.value,
           notes: notesInput.value.trim(),
           updatedAt: new Date().toLocaleString()
@@ -898,6 +907,7 @@
           t('description'),
           t('serial'),
           t('wll'),
+          t('registrationDate'),
           t('nextInspection'),
           t('notes')
         ];
@@ -909,6 +919,7 @@
           item.description || '',
           item.serialNumber || '',
           item.wll || '',
+          getRegistrationDateValue(item),
           item.nextInspection || '',
           item.notes || ''
         ]);
@@ -955,6 +966,35 @@
       const parsed = parseInspectionDate(value);
       if(!parsed) return value || '-';
       return parsed.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
+    }
+
+    function todayIsoDate(){
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function normalizeRegistrationDate(value){
+      const text = String(value || '').trim();
+      if(!text) return '';
+      if(/^\d{4}-\d{2}-\d{2}$/.test(text)){
+        return text;
+      }
+      const timeValue = toTimeValue(text);
+      if(!timeValue){
+        return '';
+      }
+      const parsed = new Date(timeValue);
+      const year = parsed.getFullYear();
+      const month = String(parsed.getMonth() + 1).padStart(2, '0');
+      const day = String(parsed.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function getRegistrationDateValue(item = null){
+      return normalizeRegistrationDate(item?.registrationDate || item?.createdAt) || todayIsoDate();
     }
 
     function getInspectionBucket(item){
@@ -1017,12 +1057,13 @@
                   <td>${escapeHtml(translateType(item.itemType))}</td>
                   <td>${escapeHtml(item.description || '-')}</td>
                   <td>${escapeHtml(translateStatus(item.status))}</td>
+                  <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
                   <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
                   <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
                 </tr>
               `;
             }).join('')
-          : `<tr><td colspan="6">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+          : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
         const reportHtml = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -1085,6 +1126,7 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('registrationDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(rt('reportUrgency'))}</th>
                   </tr>
@@ -1178,6 +1220,7 @@
           item.description,
           item.serialNumber,
           item.wll,
+          getRegistrationDateValue(item),
           item.notes,
           translateStatus(item.status)
         ];
@@ -1324,6 +1367,7 @@
                 <th>${sortableHeader(t('description'), 'description')}</th>
                 <th>${sortableHeader(t('serial'), 'serialNumber')}</th>
                 <th>${t('wll')}</th>
+                <th>${sortableHeader(t('registrationDate'), 'registrationDate')}</th>
                 <th>${sortableHeader(t('nextInspection'), 'nextInspection')}</th>
                 <th>${t('notes')}</th>
                 <th>${t('actions')}</th>
@@ -1343,6 +1387,9 @@
                   <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
+                  <td class="table-edit-cell" data-label="${t('registrationDate')}">
+                    <input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(getRegistrationDateValue(item))}" ${canEditRegister() ? '' : 'disabled'}>
+                  </td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
                     <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
@@ -1470,6 +1517,7 @@
       el('description').value = '';
       el('serialNumber').value = '';
       el('wll').value = '';
+      el('registrationDate').value = todayIsoDate();
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
       el('notes').value = '';
@@ -1603,6 +1651,7 @@
           description: el('scanEditDescription').value.trim(),
           serialNumber: el('scanEditSerial').value.trim(),
           wll: el('scanEditWll').value.trim(),
+          registrationDate: el('scanEditRegistrationDate').value || getRegistrationDateValue(currentScannedItem),
           nextInspection: el('scanEditNextInspection').value,
           status: el('scanEditStatus').value,
           notes: el('scanEditNotes').value.trim(),
@@ -1633,6 +1682,7 @@
       el('description').value = item.description || '';
       el('serialNumber').value = item.serialNumber || '';
       el('wll').value = item.wll || '';
+      el('registrationDate').value = getRegistrationDateValue(item);
       el('nextInspection').value = item.nextInspection || '';
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('notes').value = item.notes || '';
@@ -1674,6 +1724,7 @@
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
         wll: el('wll').value.trim(),
+        registrationDate: el('registrationDate').value || getRegistrationDateValue(existing),
         nextInspection: el('nextInspection').value,
         status: el('itemStatus').value,
         notes: el('notes').value.trim(),
@@ -1851,6 +1902,7 @@
     async function bootApp(){
       setLang(currentLang);
       clearStatuses();
+      clearForm();
       selectImageByType();
       updateStatusColorSelect();
       updateRegisterAccessUi();
