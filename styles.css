@@ -396,7 +396,7 @@
 
     @media (max-width: 720px) {
       .actions {
-        margin-bottom:clamp(82px, 14vh, 132px);
+        margin-bottom:clamp(108px, 18vh, 168px);
       }
 
       .site-legal-bar {
