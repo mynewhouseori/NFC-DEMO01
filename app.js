@@ -481,7 +481,7 @@
       if(passwordContext === 'register'){
         el('passwordTitle').textContent = pendingRegisterRole === 'foreman' ? t('foremanLoginTitle') : t('engineerLoginTitle');
         el('passwordLabel').textContent = pendingRegisterRole === 'foreman' ? t('foremanPasswordLabel') : t('engineerPasswordLabel');
-        el('passwordRoleHint').textContent = `${getAccessRoleLabel(pendingRegisterRole)} · ${t('demoNoPasswordNeeded')}`;
+        el('passwordRoleHint').textContent = getAccessRoleLabel(pendingRegisterRole);
       } else {
         el('passwordTitle').textContent = t('passwordTitle');
         el('passwordLabel').textContent = t('passwordLabel');
@@ -1135,7 +1135,15 @@
     }
 
     function checkPassword(){
-      pushDebugLine('Password screen accepted in demo mode.');
+      const enteredPassword = String(el('passwordInput').value || '').trim();
+      const expectedPassword = pendingRegisterRole === 'foreman' ? FOREMAN_PASSWORD : ENGINEER_PASSWORD;
+
+      if(enteredPassword !== expectedPassword){
+        el('passwordStatus').textContent = t('passwordWrong');
+        return;
+      }
+
+      pushDebugLine(`Register access granted for ${pendingRegisterRole || 'engineer'}.`);
       registerAccessRole = pendingRegisterRole || 'engineer';
       el('passwordInput').value = '';
       el('passwordStatus').textContent = '';
