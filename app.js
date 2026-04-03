@@ -117,6 +117,35 @@
         reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
       }
     };
+    const LOCATION_TEXT = {
+      he: {
+        lastSeenLocation: 'מיקום אחרון',
+        locationUnavailable: 'לא זמין',
+        locationPending: 'מאמת מיקום...',
+        locationSaved: 'המיקום נשמר',
+        locationCoords: 'קו רוחב {lat}, קו אורך {lng}',
+        locationAccuracy: 'דיוק משוער {meters} מ׳',
+        locationAt: 'עודכן {time}'
+      },
+      en: {
+        lastSeenLocation: 'Last Location',
+        locationUnavailable: 'Unavailable',
+        locationPending: 'Checking location...',
+        locationSaved: 'Location saved',
+        locationCoords: 'Lat {lat}, Lng {lng}',
+        locationAccuracy: 'Approx. accuracy {meters} m',
+        locationAt: 'Updated {time}'
+      },
+      ar: {
+        lastSeenLocation: 'آخر موقع',
+        locationUnavailable: 'غير متاح',
+        locationPending: 'جارٍ التحقق من الموقع...',
+        locationSaved: 'تم حفظ الموقع',
+        locationCoords: 'خط العرض {lat}، خط الطول {lng}',
+        locationAccuracy: 'دقة تقريبية {meters} م',
+        locationAt: 'تم التحديث {time}'
+      }
+    };
     LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
 
     const IMAGE_VERSION = '20260403f';
@@ -214,6 +243,16 @@
       }, rt(key));
     }
 
+    function lt(key){
+      return LOCATION_TEXT[currentLang]?.[key] || LOCATION_TEXT.he[key] || key;
+    }
+
+    function formatLocationText(key, replacements = {}){
+      return Object.entries(replacements).reduce((text, [name, value]) => {
+        return text.replaceAll(`{${name}}`, String(value));
+      }, lt(key));
+    }
+
     function csvValue(value){
       return `"${String(value ?? '').replaceAll('"', '""')}"`;
     }
@@ -236,6 +275,90 @@
         return savedImage;
       }
       return getDefaultImageForType(item?.itemType);
+    }
+
+    function roundCoordinate(value){
+      return Number(value || 0).toFixed(5);
+    }
+
+    function formatLocationSnapshot(location){
+      if(!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number'){
+        return '';
+      }
+
+      const parts = [
+        formatLocationText('locationCoords', {
+          lat: roundCoordinate(location.latitude),
+          lng: roundCoordinate(location.longitude)
+        })
+      ];
+
+      if(Number.isFinite(Number(location.accuracy))){
+        parts.push(formatLocationText('locationAccuracy', {
+          meters: Math.round(Number(location.accuracy))
+        }));
+      }
+
+      if(location.capturedAt){
+        parts.push(formatLocationText('locationAt', {
+          time: new Date(location.capturedAt).toLocaleString()
+        }));
+      }
+
+      return parts.join(' • ');
+    }
+
+    function getLastSeenLocationText(item){
+      if(!item?.lastSeenLocation){
+        return lt('locationUnavailable');
+      }
+
+      return item.lastSeenLocation.label || formatLocationSnapshot(item.lastSeenLocation) || lt('locationUnavailable');
+    }
+
+    function getCurrentLocationSnapshot(){
+      return new Promise((resolve) => {
+        if(!navigator.geolocation){
+          pushDebugLine('Geolocation is not available on this device/browser.');
+          resolve(null);
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition((position) => {
+          const snapshot = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            capturedAt: new Date().toISOString()
+          };
+          snapshot.label = formatLocationSnapshot(snapshot);
+          pushDebugLine(`Location captured: ${snapshot.label}`);
+          resolve(snapshot);
+        }, (error) => {
+          pushDebugLine(`Location unavailable: ${error.message}`);
+          resolve(null);
+        }, {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 60000
+        });
+      });
+    }
+
+    async function attachLastSeenToItem(item, locationSnapshot){
+      if(!item || !locationSnapshot){
+        return item;
+      }
+
+      const updatedItem = {
+        ...item,
+        lastSeenLocation: locationSnapshot,
+        lastSeenAt: locationSnapshot.capturedAt,
+        updatedAt: new Date().toLocaleString()
+      };
+
+      await saveItemToCloud(updatedItem);
+      return updatedItem;
     }
 
     function readFileAsDataUrl(file){
@@ -647,6 +770,7 @@
       el('lblNextInspection').textContent = t('nextInspection');
       el('lblStatus').textContent = t('status');
       el('lblNotes').textContent = t('notes');
+      el('lblLastSeenLocation').textContent = lt('lastSeenLocation');
 
       el('tableTitleText').textContent = t('tableTitle');
       el('tableSummaryText').textContent = formatText('tableSummary', { shown: 0, total: 0 });
@@ -1256,13 +1380,15 @@
       pushDebugLine(`Saved item ${item.tagId}.`);
     }
 
-    async function saveScanLog(tagId, found, item = null){
+    async function saveScanLog(tagId, found, item = null, locationSnapshot = null){
       pushDebugLine(`Writing scan log for ${tagId} (${found ? 'found' : 'not found'}).`);
       await addDoc(collection(db, LOGS_COLLECTION), {
         tagId,
         found,
         itemStatus: item?.status || '',
         itemType: item?.itemType || '',
+        lastSeenLocation: locationSnapshot || item?.lastSeenLocation || null,
+        lastSeenAt: locationSnapshot?.capturedAt || item?.lastSeenAt || '',
         time: new Date().toLocaleString(),
         sortTime: new Date().toISOString()
       });
@@ -1326,6 +1452,7 @@
           const stateText = log.found ? t('logFound') : t('logNotFound');
           const statusText = log.found && effectiveStatus ? translateStatus(effectiveStatus) : '';
           const typeText = effectiveType ? translateType(effectiveType) : '';
+          const locationText = log.lastSeenLocation?.label || formatLocationSnapshot(log.lastSeenLocation);
           return `
             <div class="${itemClass}">
               <div class="log-top">
@@ -1337,6 +1464,7 @@
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
               ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
+              ${locationText ? `<div>${lt('lastSeenLocation')}: ${locationText}</div>` : ''}
             </div>
           `;
         }).join('');
@@ -1632,6 +1760,7 @@
       el('scanItemStatus').textContent = translateStatus(item.status);
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
+      el('scanLastSeenLocation').textContent = getLastSeenLocationText(item);
       el('scanResult').classList.add('active');
       populateScanEditForm(item);
     }
@@ -1750,7 +1879,9 @@
         nextInspection: el('nextInspection').value,
         status: el('itemStatus').value,
         notes: el('notes').value.trim(),
-      imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
+        imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
+        lastSeenLocation: existing?.lastSeenLocation || null,
+        lastSeenAt: existing?.lastSeenAt || '',
         createdAt: existing?.createdAt || new Date().toLocaleString(),
         updatedAt: new Date().toLocaleString()
       };
@@ -1784,10 +1915,13 @@
         }
 
         const item = getNewestItem(items) || items[0];
-        await saveScanLog(item.tagId, true, item);
-        pushDebugLine(`Demo scan used newest item ${item.tagId}.`);
-        el('scanStatus').textContent = t('demoMode');
-        fillScanCard(item);
+        el('scanStatus').textContent = `${t('demoMode')} • ${lt('locationPending')}`;
+        const locationSnapshot = await getCurrentLocationSnapshot();
+        const displayItem = await attachLastSeenToItem(item, locationSnapshot);
+        await saveScanLog(displayItem.tagId, true, displayItem, locationSnapshot);
+        pushDebugLine(`Demo scan used newest item ${displayItem.tagId}.`);
+        el('scanStatus').textContent = locationSnapshot ? `${t('demoMode')} • ${lt('locationSaved')}` : t('demoMode');
+        fillScanCard(displayItem);
         renderScanLogs();
       } catch (e) {
         pushDebugLine(`Demo scan error: ${e.message}`);
@@ -1822,25 +1956,28 @@
 
           try {
             const found = await getItemByTag(tagId);
-            await saveScanLog(tagId, !!found, found);
+            statusEl.textContent = lt('locationPending');
+            const locationSnapshot = await getCurrentLocationSnapshot();
+            const locatedItem = found ? await attachLastSeenToItem(found, locationSnapshot) : null;
+            await saveScanLog(tagId, !!found, locatedItem, locationSnapshot);
 
             if(mode === 'scan'){
-              if(found){
-                statusEl.textContent = t('itemFound');
-                fillScanCard(found);
+              if(locatedItem){
+                statusEl.textContent = locationSnapshot ? `${t('itemFound')} • ${lt('locationSaved')}` : t('itemFound');
+                fillScanCard(locatedItem);
               } else {
                 currentScannedItem = null;
                 populateScanEditForm(null);
                 el('scanResult').classList.remove('active');
-                statusEl.textContent = t('itemNotFound');
+                statusEl.textContent = locationSnapshot ? `${t('itemNotFound')} • ${lt('locationSaved')}` : t('itemNotFound');
               }
             } else {
               el('tagId').value = tagId;
-              if(found){
-                statusEl.textContent = t('existingTag');
-                fillRegisterForm(found);
+              if(locatedItem){
+                statusEl.textContent = locationSnapshot ? `${t('existingTag')} • ${lt('locationSaved')}` : t('existingTag');
+                fillRegisterForm(locatedItem);
               } else {
-                statusEl.textContent = t('newTag');
+                statusEl.textContent = locationSnapshot ? `${t('newTag')} • ${lt('locationSaved')}` : t('newTag');
                 updateStatusColorSelect();
               }
             }
