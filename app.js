@@ -147,36 +147,6 @@
       }
     };
     LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
-    const LOCATION_TEXT = {
-      he: {
-        lastSeenLocation: 'מיקום אחרון',
-        locationUnavailable: 'לא זמין',
-        locationPending: 'מאתר מיקום...',
-        locationAt: 'נסרק ב-{date} ב-{location}',
-        locationCoords: 'קו רוחב {lat}, קו אורך {lng}',
-        locationAccuracy: 'דיוק משוער {meters} מ׳',
-        locationShared: 'מיקום נשמר עם הסריקה.'
-      },
-      en: {
-        lastSeenLocation: 'Last Seen Location',
-        locationUnavailable: 'Unavailable',
-        locationPending: 'Getting location...',
-        locationAt: 'Scanned on {date} at {location}',
-        locationCoords: 'Lat {lat}, Lng {lng}',
-        locationAccuracy: 'Approx. accuracy {meters}m',
-        locationShared: 'Location saved with the scan.'
-      },
-      ar: {
-        lastSeenLocation: 'آخر موقع',
-        locationUnavailable: 'غير متاح',
-        locationPending: 'جارٍ تحديد الموقع...',
-        locationAt: 'تمت القراءة بتاريخ {date} في {location}',
-        locationCoords: 'خط العرض {lat}، خط الطول {lng}',
-        locationAccuracy: 'دقة تقريبية {meters} م',
-        locationShared: 'تم حفظ الموقع مع عملية المسح.'
-      }
-    };
-
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
     const IMAGE_PATHS = {
@@ -1188,80 +1158,6 @@
 
     function getRegistrationDateValue(item = null){
       return normalizeRegistrationDate(item?.registrationDate || item?.createdAt) || todayIsoDate();
-    }
-
-    function formatLocationSnapshot(location){
-      if(!location?.latitude || !location?.longitude){
-        return lt('locationUnavailable');
-      }
-
-      const coordsText = formatLocationText('locationCoords', {
-        lat: Number(location.latitude).toFixed(5),
-        lng: Number(location.longitude).toFixed(5)
-      });
-      const accuracyText = location.accuracy
-        ? `, ${formatLocationText('locationAccuracy', { meters: Math.round(location.accuracy) })}`
-        : '';
-      return `${coordsText}${accuracyText}`;
-    }
-
-    function formatLastSeenLocation(item){
-      const location = item?.lastSeenLocation;
-      const locationText = location?.label || formatLocationSnapshot(location);
-      if(!location || locationText === lt('locationUnavailable')){
-        return lt('locationUnavailable');
-      }
-      return item?.lastSeenAt
-        ? formatLocationText('locationAt', { date: item.lastSeenAt, location: locationText })
-        : locationText;
-    }
-
-    function getCurrentLocationSnapshot(){
-      return new Promise((resolve) => {
-        if(!navigator.geolocation){
-          pushDebugLine('Geolocation is not available on this device/browser.');
-          resolve(null);
-          return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const snapshot = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy,
-              capturedAt: new Date().toLocaleString()
-            };
-            snapshot.label = formatLocationSnapshot(snapshot);
-            pushDebugLine(`Captured scan location ${snapshot.label}.`);
-            resolve(snapshot);
-          },
-          (error) => {
-            pushDebugLine(`Location capture skipped: ${error.message}`);
-            resolve(null);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 60000
-          }
-        );
-      });
-    }
-
-    async function attachLastSeenToItem(item, locationSnapshot){
-      if(!item || !locationSnapshot){
-        return item;
-      }
-
-      const updatedItem = {
-        ...item,
-        lastSeenLocation: locationSnapshot,
-        lastSeenAt: locationSnapshot.capturedAt,
-        updatedAt: new Date().toLocaleString()
-      };
-      await saveItemToCloud(updatedItem);
-      return updatedItem;
     }
 
     function getInspectionBucket(item){
