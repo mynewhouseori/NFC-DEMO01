@@ -1314,57 +1314,15 @@
           </html>
         `;
 
-        const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
-        const exportDocHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
-
-        if(isMobileDevice){
-          const reportDate = new Date().toISOString().slice(0, 10);
-          const mobileFile = new File(
-            ['\uFEFF', exportDocHtml],
-            `nfc-status-report-${reportDate}.doc`,
-            { type: 'application/msword' }
-          );
-          const shareTitle = rt('reportTitle');
-          const shareText = currentLang === 'en'
-            ? 'Share the equipment status report'
-            : currentLang === 'ar'
-              ? 'مشاركة تقرير حالة المعدات'
-              : 'שתף את דוח מצב הציוד';
-
-          if(navigator.canShare && navigator.canShare({ files: [mobileFile] }) && navigator.share){
-            try {
-              await navigator.share({
-                title: shareTitle,
-                text: shareText,
-                files: [mobileFile]
-              });
-              pushDebugLine(`Shared presentation report for ${items.length} items.`);
-              return;
-            } catch (shareError) {
-              pushDebugLine(`Mobile share fallback: ${shareError.message}`);
-            }
-          }
-
-          const mobileHtml = reportHtml.replace(
-            '<body>',
-            `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
-          );
-          const blob = new Blob([mobileHtml], { type: 'text/html;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          window.open(url, '_blank', 'noopener,noreferrer');
-          setTimeout(() => URL.revokeObjectURL(url), 60000);
-        } else {
-          const blob = new Blob(['\uFEFF', exportDocHtml], { type: 'application/msword' });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = `nfc-status-report-${new Date().toISOString().slice(0, 10)}.doc`;
-          document.body.appendChild(link);
-          link.click();
-          link.remove();
-          URL.revokeObjectURL(url);
-        }
+        const printableHtml = reportHtml.replace(
+          '<body>',
+          `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
+        );
+        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
         pushDebugLine(`Report export error: ${e.message}`);
