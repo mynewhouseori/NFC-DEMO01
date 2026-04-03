@@ -1098,15 +1098,28 @@
           </html>
         `;
 
-        const blob = new Blob(['\uFEFF', reportHtml], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `nfc-status-report-${new Date().toISOString().slice(0, 10)}.doc`;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        URL.revokeObjectURL(url);
+        const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+
+        if(isMobileDevice){
+          const mobileHtml = reportHtml.replace(
+            '<body>',
+            `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
+          );
+          const blob = new Blob([mobileHtml], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank', 'noopener,noreferrer');
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+        } else {
+          const blob = new Blob(['\uFEFF', reportHtml], { type: 'application/msword' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `nfc-status-report-${new Date().toISOString().slice(0, 10)}.doc`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          URL.revokeObjectURL(url);
+        }
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
         pushDebugLine(`Report export error: ${e.message}`);
