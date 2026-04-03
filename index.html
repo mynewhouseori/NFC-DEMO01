@@ -6,7 +6,7 @@
   <title>NFC Safety Demo Cloud Table</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
-  <link rel="stylesheet" href="./styles.css?v=20260403logo10" />
+  <link rel="stylesheet" href="./styles.css?v=20260403logo11" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -14,7 +14,7 @@
   <div id="homeScreen" class="home-screen">
     <div class="home-topbar">
       <div class="home-logo-wrap">
-        <img class="home-logo" src="./logo-tight.jpg" alt="Logo">
+        <img class="home-logo" src="./logo-transparent.png" alt="Logo">
       </div>
       <div class="lang-switch">
         <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="עברית">
@@ -209,6 +209,16 @@
 
           <div class="visit-grid visit-grid-single">
             <div>
+              <div class="signature-canvas-header">
+                <label id="visitSignaturePadLabelText"></label>
+                <button class="mini-btn" onclick="clearVisitSignaturePad()" id="visitSignatureClearBtn" type="button"></button>
+              </div>
+              <canvas id="visitSignaturePad" class="signature-pad" width="640" height="180"></canvas>
+            </div>
+          </div>
+
+          <div class="visit-grid visit-grid-single">
+            <div>
               <label for="visitNotes" id="visitNotesLabelText"></label>
               <textarea id="visitNotes" rows="3"></textarea>
             </div>
@@ -397,7 +407,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260403logo10';
+      script.src = './app.js?v=20260403logo11';
       document.body.appendChild(script);
     })();
   </script>

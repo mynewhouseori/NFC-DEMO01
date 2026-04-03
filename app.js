@@ -218,6 +218,7 @@
     let customImageSrc = '';
     let pendingImageTask = null;
     let activeVisit = null;
+    let visitSignaturePadState = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
       visible: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -305,6 +306,7 @@
       el('visitSite').value = visit?.site || '';
       el('visitSignature').value = visit?.signature || '';
       el('visitNotes').value = visit?.notes || '';
+      loadVisitSignatureDataUrl(visit?.signatureDataUrl || '');
     }
 
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
@@ -347,6 +349,147 @@
         return null;
       }
       return activeVisit;
+    }
+
+    function getVisitSignatureCanvas(){
+      return el('visitSignaturePad');
+    }
+
+    function setupVisitSignaturePad(){
+      const canvas = getVisitSignatureCanvas();
+      if(!canvas){
+        return;
+      }
+
+      const context = canvas.getContext('2d');
+      context.lineWidth = 2.2;
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
+      context.strokeStyle = '#0f172a';
+
+      const resizeCanvas = () => {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        const bounds = canvas.getBoundingClientRect();
+        const width = Math.max(Math.round(bounds.width * ratio), 1);
+        const height = Math.max(Math.round(bounds.height * ratio), 1);
+        const snapshot = canvas.toDataURL('image/png');
+        canvas.width = width;
+        canvas.height = height;
+        context.setTransform(ratio, 0, 0, ratio, 0, 0);
+        context.lineWidth = 2.2;
+        context.lineCap = 'round';
+        context.lineJoin = 'round';
+        context.strokeStyle = '#0f172a';
+        if(snapshot && snapshot !== 'data:,'){
+          const image = new Image();
+          image.onload = () => {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            context.drawImage(image, 0, 0, bounds.width, bounds.height);
+          };
+          image.src = snapshot;
+        } else {
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
+      };
+
+      const pointerPosition = (event) => {
+        const rect = canvas.getBoundingClientRect();
+        return {
+          x: event.clientX - rect.left,
+          y: event.clientY - rect.top
+        };
+      };
+
+      visitSignaturePadState = {
+        drawing: false,
+        dirty: false,
+        lastPoint: null,
+        resizeCanvas
+      };
+
+      canvas.addEventListener('pointerdown', (event) => {
+        visitSignaturePadState.drawing = true;
+        visitSignaturePadState.dirty = true;
+        visitSignaturePadState.lastPoint = pointerPosition(event);
+        canvas.setPointerCapture(event.pointerId);
+      });
+
+      canvas.addEventListener('pointermove', (event) => {
+        if(!visitSignaturePadState?.drawing || !visitSignaturePadState.lastPoint){
+          return;
+        }
+        const nextPoint = pointerPosition(event);
+        context.beginPath();
+        context.moveTo(visitSignaturePadState.lastPoint.x, visitSignaturePadState.lastPoint.y);
+        context.lineTo(nextPoint.x, nextPoint.y);
+        context.stroke();
+        visitSignaturePadState.lastPoint = nextPoint;
+      });
+
+      const stopDrawing = (event) => {
+        if(!visitSignaturePadState){
+          return;
+        }
+        visitSignaturePadState.drawing = false;
+        visitSignaturePadState.lastPoint = null;
+        if(event?.pointerId !== undefined){
+          try { canvas.releasePointerCapture(event.pointerId); } catch {}
+        }
+      };
+
+      canvas.addEventListener('pointerup', stopDrawing);
+      canvas.addEventListener('pointerleave', stopDrawing);
+      canvas.addEventListener('pointercancel', stopDrawing);
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+    }
+
+    function clearVisitSignaturePad(){
+      const canvas = getVisitSignatureCanvas();
+      const context = canvas?.getContext('2d');
+      if(!canvas || !context){
+        return;
+      }
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      if(visitSignaturePadState){
+        visitSignaturePadState.dirty = false;
+      }
+      if(activeVisit){
+        activeVisit.signatureDataUrl = '';
+        persistActiveVisit();
+      }
+    }
+
+    function getVisitSignatureDataUrl(){
+      const canvas = getVisitSignatureCanvas();
+      if(!canvas || !visitSignaturePadState?.dirty){
+        return '';
+      }
+      return canvas.toDataURL('image/png');
+    }
+
+    function loadVisitSignatureDataUrl(dataUrl){
+      const canvas = getVisitSignatureCanvas();
+      const context = canvas?.getContext('2d');
+      if(!canvas || !context){
+        return;
+      }
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      visitSignaturePadState.dirty = false;
+      if(!dataUrl){
+        return;
+      }
+
+      const image = new Image();
+      image.onload = () => {
+        const width = canvas.getBoundingClientRect().width || canvas.width;
+        const height = canvas.getBoundingClientRect().height || canvas.height;
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, width, height);
+        visitSignaturePadState.dirty = true;
+      };
+      image.src = dataUrl;
     }
 
     function csvValue(value){
@@ -794,10 +937,12 @@
       el('visitClientLabelText').textContent = t('visitClientLabel');
       el('visitSiteLabelText').textContent = t('visitSiteLabel');
       el('visitSignatureLabelText').textContent = t('visitSignatureLabel');
+      el('visitSignaturePadLabelText').textContent = t('visitSignaturePadLabel');
       el('visitNotesLabelText').textContent = t('visitNotesLabel');
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
+      el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
       el('visitSite').placeholder = t('visitSitePlaceholder');
@@ -1232,7 +1377,7 @@
         return reportLogoDataUrlPromise;
       }
 
-      reportLogoDataUrlPromise = fetch('./logo-tight.jpg')
+      reportLogoDataUrlPromise = fetch('./logo-transparent.png')
         .then((response) => {
           if(!response.ok){
             throw new Error(`Logo request failed with status ${response.status}`);
@@ -1312,7 +1457,7 @@
       try {
         const items = sortItems(getFilteredItems(await getItems()));
         const reportLogoSrc = await getReportLogoDataUrl();
-        const reportLogoUrl = new URL('./logo-tight.jpg', window.location.href).href;
+        const reportLogoUrl = new URL('./logo-transparent.png', window.location.href).href;
         const total = items.length;
         const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
         const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
@@ -1814,6 +1959,7 @@
         site: draft.site,
         signature: draft.signature || draft.engineer,
         notes: draft.notes,
+        signatureDataUrl: getVisitSignatureDataUrl() || activeVisit?.signatureDataUrl || '',
         startedAt: startNewVisit ? now.toLocaleString() : activeVisit.startedAt,
         startedAtIso: startNewVisit ? now.toISOString() : activeVisit.startedAtIso,
         endedAt: '',
@@ -1823,6 +1969,7 @@
       persistActiveVisit();
       populateVisitForm(activeVisit);
       renderVisitStatus(t('visitStatusSaved'));
+      updateRegisterAccessUi();
       pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
     }
 
@@ -1846,6 +1993,7 @@
       };
       persistActiveVisit();
       renderVisitStatus(t('visitStatusClosedMessage'));
+      updateRegisterAccessUi();
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
     }
 
@@ -2016,6 +2164,7 @@
 
             <div class="signature">
               <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              ${activeVisit.signatureDataUrl ? `<p><img src="${activeVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
               <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
             </div>
 
@@ -2434,6 +2583,7 @@
     window.saveVisitSession = saveVisitSession;
     window.closeVisitSession = closeVisitSession;
     window.exportVisitReport = exportVisitReport;
+    window.clearVisitSignaturePad = clearVisitSignaturePad;
     window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
     window.deleteTableRow = deleteTableRow;
@@ -2449,6 +2599,7 @@
 
     async function bootApp(){
       ensureScanLocationRow();
+      setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm(activeVisit);
       setLang(currentLang);
