@@ -1101,6 +1101,33 @@
         const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
 
         if(isMobileDevice){
+          const reportDate = new Date().toISOString().slice(0, 10);
+          const mobileFile = new File(
+            ['\uFEFF', reportHtml],
+            `nfc-status-report-${reportDate}.doc`,
+            { type: 'application/msword' }
+          );
+          const shareTitle = rt('reportTitle');
+          const shareText = currentLang === 'en'
+            ? 'Share the equipment status report'
+            : currentLang === 'ar'
+              ? 'مشاركة تقرير حالة المعدات'
+              : 'שתף את דוח מצב הציוד';
+
+          if(navigator.canShare && navigator.canShare({ files: [mobileFile] }) && navigator.share){
+            try {
+              await navigator.share({
+                title: shareTitle,
+                text: shareText,
+                files: [mobileFile]
+              });
+              pushDebugLine(`Shared presentation report for ${items.length} items.`);
+              return;
+            } catch (shareError) {
+              pushDebugLine(`Mobile share fallback: ${shareError.message}`);
+            }
+          }
+
           const mobileHtml = reportHtml.replace(
             '<body>',
             `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
