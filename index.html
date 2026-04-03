@@ -6,25 +6,30 @@
   <title>NFC Safety Demo Cloud Table</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
-  <link rel="stylesheet" href="./styles.css?v=20260403rights1" />
+  <link rel="stylesheet" href="./styles.css?v=20260403logo4" />
 </head>
 <body>
   <div class="overlay"></div>
 
   <div id="homeScreen" class="home-screen">
-    <div class="lang-switch">
-      <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="עברית">
-        <span class="flag-mark" aria-hidden="true"></span>
-        <span class="flag-label">עבר</span>
-      </button>
-      <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
-        <span class="flag-mark" aria-hidden="true"></span>
-        <span class="flag-label">EN</span>
-      </button>
-      <button class="flag-btn flag-btn-ar" data-lang="ar" onclick="setLang('ar')" aria-label="العربية">
-        <span class="flag-mark" aria-hidden="true"></span>
-        <span class="flag-label">عرب</span>
-      </button>
+    <div class="home-topbar">
+      <div class="home-logo-wrap">
+        <img class="home-logo" src="./logo.jpg" alt="Logo">
+      </div>
+      <div class="lang-switch">
+        <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="עברית">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">עבר</span>
+        </button>
+        <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">EN</span>
+        </button>
+        <button class="flag-btn flag-btn-ar" data-lang="ar" onclick="setLang('ar')" aria-label="العربية">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">عرب</span>
+        </button>
+      </div>
     </div>
 
     <div class="actions">
@@ -337,7 +342,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260403rights1';
+      script.src = './app.js?v=20260403logo4';
       document.body.appendChild(script);
     })();
   </script>

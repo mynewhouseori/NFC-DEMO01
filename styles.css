@@ -50,10 +50,39 @@
       background:url('background.jpeg') center center / cover no-repeat;
     }
 
-    .lang-switch{
+    .home-topbar {
       position:absolute;
       top:16px;
+      left:16px;
       right:16px;
+      z-index:4;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      direction:ltr;
+    }
+
+    .home-logo-wrap {
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      flex:0 0 auto;
+    }
+
+    .home-logo {
+      display:block;
+      width:120px;
+      height:120px;
+      object-fit:contain;
+      border-radius:18px;
+      background:rgba(255,255,255,.92);
+      padding:10px;
+      box-shadow:0 10px 24px rgba(0,0,0,.2);
+    }
+
+    .lang-switch{
+      position:static;
       z-index:4;
       display:flex;
       direction:ltr;
@@ -441,6 +470,66 @@
       overflow-x:hidden;
       background:rgba(245,247,250,.97);
       padding:16px;
+    }
+
+    body.modal-open {
+      overflow:hidden;
+    }
+
+    html[dir="rtl"] .site-legal-bar {
+      flex-direction:row-reverse;
+    }
+
+    @media (max-width: 720px) {
+      .home-screen {
+        padding-bottom:168px;
+      }
+
+      .home-topbar {
+        top:12px;
+        left:12px;
+        right:12px;
+        align-items:center;
+      }
+
+      .home-logo {
+        width:92px;
+        height:92px;
+        padding:8px;
+      }
+
+      .lang-switch {
+        gap:8px;
+        padding:7px 8px;
+      }
+
+      .actions {
+        margin-bottom:0;
+      }
+
+      .site-legal-bar {
+        left:6px;
+        right:6px;
+        bottom:6px;
+        flex-direction:row;
+        align-items:center;
+      }
+
+      .legal-link-btn {
+        width:auto;
+        flex:0 0 auto;
+      }
+
+      .legal-dialog {
+        width:calc(100% - 18px);
+        margin-top:2vh;
+        max-height:88vh;
+        padding:18px 16px 16px;
+      }
+
+      .legal-header h2 {
+        font-size:20px;
+      }
     }
 
     .screen.active { display:block; }

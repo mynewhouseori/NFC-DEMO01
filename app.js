@@ -147,6 +147,35 @@
       }
     };
     LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
+    const LOCATION_TEXT = {
+      he: {
+        lastSeenLocation: 'מיקום אחרון',
+        locationUnavailable: 'לא זמין',
+        locationPending: 'מאתר מיקום...',
+        locationAt: 'נסרק ב-{date} ב-{location}',
+        locationCoords: 'קו רוחב {lat}, קו אורך {lng}',
+        locationAccuracy: 'דיוק משוער {meters} מ׳',
+        locationShared: 'מיקום נשמר עם הסריקה.'
+      },
+      en: {
+        lastSeenLocation: 'Last Seen Location',
+        locationUnavailable: 'Unavailable',
+        locationPending: 'Getting location...',
+        locationAt: 'Scanned on {date} at {location}',
+        locationCoords: 'Lat {lat}, Lng {lng}',
+        locationAccuracy: 'Approx. accuracy {meters}m',
+        locationShared: 'Location saved with the scan.'
+      },
+      ar: {
+        lastSeenLocation: 'آخر موقع',
+        locationUnavailable: 'غير متاح',
+        locationPending: 'جارٍ تحديد الموقع...',
+        locationAt: 'تمت القراءة بتاريخ {date} في {location}',
+        locationCoords: 'خط العرض {lat}، خط الطول {lng}',
+        locationAccuracy: 'دقة تقريبية {meters} م',
+        locationShared: 'تم حفظ الموقع مع عملية المسح.'
+      }
+    };
 
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
@@ -237,14 +266,14 @@
       return REPORT_TEXT[currentLang]?.[key] || REPORT_TEXT.he[key] || key;
     }
 
+    function lt(key){
+      return LOCATION_TEXT[currentLang]?.[key] || LOCATION_TEXT.he[key] || key;
+    }
+
     function formatReportText(key, replacements = {}){
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, rt(key));
-    }
-
-    function lt(key){
-      return LOCATION_TEXT[currentLang]?.[key] || LOCATION_TEXT.he[key] || key;
     }
 
     function formatLocationText(key, replacements = {}){
@@ -1104,6 +1133,34 @@
       return parsed.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
     }
 
+    let reportLogoDataUrlPromise = null;
+
+    function getReportLogoDataUrl(){
+      if(reportLogoDataUrlPromise){
+        return reportLogoDataUrlPromise;
+      }
+
+      reportLogoDataUrlPromise = fetch('./logo.jpg')
+        .then((response) => {
+          if(!response.ok){
+            throw new Error(`Logo request failed with status ${response.status}`);
+          }
+          return response.blob();
+        })
+        .then((blob) => new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result || '');
+          reader.onerror = () => reject(new Error('Failed to read logo file.'));
+          reader.readAsDataURL(blob);
+        }))
+        .catch((error) => {
+          pushDebugLine(`Report logo unavailable: ${error.message}`);
+          return '';
+        });
+
+      return reportLogoDataUrlPromise;
+    }
+
     function todayIsoDate(){
       const now = new Date();
       const year = now.getFullYear();
@@ -1131,6 +1188,80 @@
 
     function getRegistrationDateValue(item = null){
       return normalizeRegistrationDate(item?.registrationDate || item?.createdAt) || todayIsoDate();
+    }
+
+    function formatLocationSnapshot(location){
+      if(!location?.latitude || !location?.longitude){
+        return lt('locationUnavailable');
+      }
+
+      const coordsText = formatLocationText('locationCoords', {
+        lat: Number(location.latitude).toFixed(5),
+        lng: Number(location.longitude).toFixed(5)
+      });
+      const accuracyText = location.accuracy
+        ? `, ${formatLocationText('locationAccuracy', { meters: Math.round(location.accuracy) })}`
+        : '';
+      return `${coordsText}${accuracyText}`;
+    }
+
+    function formatLastSeenLocation(item){
+      const location = item?.lastSeenLocation;
+      const locationText = location?.label || formatLocationSnapshot(location);
+      if(!location || locationText === lt('locationUnavailable')){
+        return lt('locationUnavailable');
+      }
+      return item?.lastSeenAt
+        ? formatLocationText('locationAt', { date: item.lastSeenAt, location: locationText })
+        : locationText;
+    }
+
+    function getCurrentLocationSnapshot(){
+      return new Promise((resolve) => {
+        if(!navigator.geolocation){
+          pushDebugLine('Geolocation is not available on this device/browser.');
+          resolve(null);
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const snapshot = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy,
+              capturedAt: new Date().toLocaleString()
+            };
+            snapshot.label = formatLocationSnapshot(snapshot);
+            pushDebugLine(`Captured scan location ${snapshot.label}.`);
+            resolve(snapshot);
+          },
+          (error) => {
+            pushDebugLine(`Location capture skipped: ${error.message}`);
+            resolve(null);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 60000
+          }
+        );
+      });
+    }
+
+    async function attachLastSeenToItem(item, locationSnapshot){
+      if(!item || !locationSnapshot){
+        return item;
+      }
+
+      const updatedItem = {
+        ...item,
+        lastSeenLocation: locationSnapshot,
+        lastSeenAt: locationSnapshot.capturedAt,
+        updatedAt: new Date().toLocaleString()
+      };
+      await saveItemToCloud(updatedItem);
+      return updatedItem;
     }
 
     function getInspectionBucket(item){
@@ -1162,6 +1293,8 @@
     async function exportPresentationReport(){
       try {
         const items = sortItems(getFilteredItems(await getItems()));
+        const reportLogoSrc = await getReportLogoDataUrl();
+        const reportLogoUrl = new URL('./logo.jpg', window.location.href).href;
         const total = items.length;
         const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
         const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
@@ -1201,13 +1334,17 @@
             }).join('')
           : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
-        const reportHtml = `
+        const buildReportHtml = (logoSrc) => `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
           <head>
             <meta charset="UTF-8">
             <title>${escapeHtml(rt('reportTitle'))}</title>
             <style>
               body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#ffffff; }
+              .report-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; direction:${currentLang === 'en' ? 'ltr' : 'rtl'}; }
+              .report-logo-wrap { flex:0 0 auto; }
+              .report-logo { display:block; width:180px; height:180px; object-fit:contain; }
+              .report-title-wrap { flex:1 1 auto; }
               h1 { margin:0 0 8px; color:#0f766e; font-size:28px; }
               h2 { margin:28px 0 12px; font-size:18px; color:#111827; }
               p { margin:0 0 10px; line-height:1.7; }
@@ -1235,8 +1372,13 @@
             </style>
           </head>
           <body>
-            <h1>${escapeHtml(rt('reportTitle'))}</h1>
-            <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
+            <div class="report-header">
+              ${logoSrc ? `<div class="report-logo-wrap"><img class="report-logo" src="${logoSrc}" alt="Logo"></div>` : ''}
+              <div class="report-title-wrap">
+                <h1>${escapeHtml(rt('reportTitle'))}</h1>
+                <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
+              </div>
+            </div>
 
             <div class="section">
               <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
@@ -1277,11 +1419,13 @@
         `;
 
         const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
+        const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
+        const exportDocHtml = buildReportHtml(reportLogoUrl || reportLogoSrc);
 
         if(isMobileDevice){
           const reportDate = new Date().toISOString().slice(0, 10);
           const mobileFile = new File(
-            ['\uFEFF', reportHtml],
+            ['\uFEFF', exportDocHtml],
             `nfc-status-report-${reportDate}.doc`,
             { type: 'application/msword' }
           );
@@ -1315,7 +1459,7 @@
           window.open(url, '_blank', 'noopener,noreferrer');
           setTimeout(() => URL.revokeObjectURL(url), 60000);
         } else {
-          const blob = new Blob(['\uFEFF', reportHtml], { type: 'application/msword' });
+          const blob = new Blob(['\uFEFF', exportDocHtml], { type: 'application/msword' });
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
@@ -1464,7 +1608,7 @@
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
               ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
-              ${locationText ? `<div>${lt('lastSeenLocation')}: ${locationText}</div>` : ''}
+              ${locationText && locationText !== lt('locationUnavailable') ? `<div>${lt('lastSeenLocation')}: ${locationText}</div>` : ''}
             </div>
           `;
         }).join('');
@@ -1678,6 +1822,22 @@
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
+    }
+
+    function ensureScanLocationRow(){
+      if(el('scanLastSeenLocation') && el('lblLastSeenLocation')){
+        return;
+      }
+
+      const detailsColumn = document.querySelector('#scanResult .result-grid > div:last-child');
+      const notesLine = el('scanNotes')?.closest('div');
+      if(!detailsColumn || !notesLine){
+        return;
+      }
+
+      const line = document.createElement('div');
+      line.innerHTML = `<span id="lblLastSeenLocation"></span>: <span id="scanLastSeenLocation"></span>`;
+      detailsColumn.insertBefore(line, notesLine.nextSibling);
     }
 
     function clearTableFilters(){
@@ -2067,6 +2227,7 @@
     window.renderScanLogs = renderScanLogs;
 
     async function bootApp(){
+      ensureScanLocationRow();
       setLang(currentLang);
       clearStatuses();
       clearForm();
