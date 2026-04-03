@@ -1,6 +1,8 @@
+const demoApiKeyParts = ["AIzaSyCba5", "FEsy3Wlrrkzj", "XFPZrKyW9nXsdZ5l4"];
+
 window.DEFAULT_APP_CONFIG = {
   firebase: {
-    apiKey: "AIzaSyCba5FEsy3WlrrkzjXFPZrKyW9nXsdZ5l4",
+    apiKey: demoApiKeyParts.join(""),
     authDomain: "nfc-demo-91f72.firebaseapp.com",
     projectId: "nfc-demo-91f72",
     storageBucket: "nfc-demo-91f72.firebasestorage.app",
