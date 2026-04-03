@@ -981,20 +981,6 @@
         ].slice(0, 8);
         const generatedAt = new Date().toLocaleString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
 
-        const summaryCards = [
-          { label: rt('reportTotalItems'), value: total, tone: '#0f766e' },
-          { label: t('status_ok'), value: okCount, tone: '#15803d' },
-          { label: t('status_review'), value: reviewCount, tone: '#b45309' },
-          { label: t('status_disabled'), value: disabledCount, tone: '#b91c1c' },
-          { label: rt('reportOverdue'), value: overdueItems.length, tone: '#dc2626' },
-          { label: rt('reportDueSoon'), value: upcomingItems.length, tone: '#d97706' }
-        ].map((card) => `
-          <div class="metric">
-            <div class="metric-value" style="color:${card.tone};">${escapeHtml(card.value)}</div>
-            <div class="metric-label">${escapeHtml(card.label)}</div>
-          </div>
-        `).join('');
-
         const priorityRows = priorityItems.length
           ? priorityItems.map((item) => {
               const days = daysUntilInspection(item.nextInspection);
@@ -1025,10 +1011,6 @@
               h2 { margin:28px 0 12px; font-size:18px; color:#111827; }
               p { margin:0 0 10px; line-height:1.7; }
               .subtitle { color:#475569; margin-bottom:18px; }
-              .metrics { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin:18px 0 26px; }
-              .metric { border:1px solid #dbe4ea; border-radius:14px; padding:14px; background:#f8fafc; }
-              .metric-value { font-size:28px; font-weight:800; margin-bottom:4px; }
-              .metric-label { color:#475569; font-size:13px; font-weight:700; }
               .section { border:1px solid #e2e8f0; border-radius:16px; padding:18px; margin-bottom:18px; background:#fff; }
               .highlight { color:#0f766e; font-weight:700; }
               ul { margin:8px 0 0; padding-${currentLang === 'en' ? 'left' : 'right'}:20px; }
@@ -1042,7 +1024,6 @@
           <body>
             <h1>${escapeHtml(rt('reportTitle'))}</h1>
             <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
-            <div class="metrics">${summaryCards}</div>
 
             <div class="section">
               <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
