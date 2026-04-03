@@ -342,6 +342,7 @@
       el('visitStatusText').textContent = message || (!activeVisit ? t('visitStatusNoVisit') : activeVisit.status === 'closed' ? t('visitStatusClosedMessage') : t('visitStatusSaved'));
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
+      el('exportVisitReportBtn').disabled = !activeVisit;
     }
 
     function getCurrentVisitForLogs(){
@@ -856,6 +857,9 @@
 
     function updateRegisterAccessUi(){
       const canEdit = canEditRegister();
+      const registerTabButton = el('tabRegisterBtn');
+      const registerPane = el('registerPane');
+      const visitPanel = document.querySelector('.visit-panel');
 
       [
         'visitDate',
@@ -885,6 +889,15 @@
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !activeVisit;
+      el('scanNewTagBtn').hidden = !canEdit;
+      registerTabButton.hidden = !canEdit;
+      if(visitPanel){
+        visitPanel.hidden = !canEdit;
+      }
+
+      if(!canEdit && registerPane.classList.contains('active')){
+        openRegisterTab('tablePane');
+      }
 
       if(registerAccessRole === 'foreman'){
         el('registerStatus').textContent = t('scanReadOnlyNote');
@@ -942,6 +955,7 @@
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
+      el('exportVisitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
@@ -1923,11 +1937,14 @@
       el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
       openScreen('registerScreen');
-      openRegisterTab('registerPane');
+      openRegisterTab(role === 'engineer' ? 'registerPane' : 'tablePane');
       updateRegisterAccessUi();
     }
 
     function openRegisterTab(tabId){
+      if(tabId === 'registerPane' && !canEditRegister()){
+        tabId = 'tablePane';
+      }
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       el(tabId).classList.add('active');
