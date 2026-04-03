@@ -710,6 +710,24 @@
       return type || t('scanItemDefault');
     }
 
+    function getSafetyTipKeys(type){
+      if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2'];
+      if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2'];
+      if(type === '׳©׳¨׳©׳¨׳×') return ['safety_chain_1', 'safety_chain_2'];
+      if(type === '׳˜׳‘׳¢׳×') return ['safety_ring_1', 'safety_ring_2'];
+      if(type === '׳•׳•') return ['safety_hook_1', 'safety_hook_2'];
+      if(type === 'מטף כיבוי אש') return ['safety_fire_1', 'safety_fire_2'];
+      if(type === 'מדחס אויר') return ['safety_aircomp_1', 'safety_aircomp_2'];
+      return ['safety_other_1', 'safety_other_2'];
+    }
+
+    function renderScanSafetyTips(itemType){
+      el('scanSafetyTitle').textContent = t('scanSafetyTitle');
+      el('scanSafetyList').innerHTML = getSafetyTipKeys(itemType)
+        .map((key) => `<li>${escapeHtml(t(key))}</li>`)
+        .join('');
+    }
+
     function translateStatus(status){
       const normalized = normalizeStatus(status);
       if(normalized === 'ok') return t('status_ok');
@@ -1062,6 +1080,7 @@
       el('refreshTableBtn').textContent = t('refresh');
       el('captureImageBtn').textContent = t('captureImage');
       el('clearImageBtn').textContent = t('clearImage');
+      el('scanSafetyTitle').textContent = t('scanSafetyTitle');
 
       updateTypeOptions();
       updateStatusOptions();
@@ -2299,6 +2318,7 @@
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
       el('scanLastSeenLocation').textContent = getLastSeenLocationText(item);
+      renderScanSafetyTips(item.itemType);
       el('scanResult').classList.add('active');
       populateScanEditForm(item);
     }

@@ -718,6 +718,32 @@
       align-items:start;
     }
 
+    .scan-safety-card {
+      margin-top:16px;
+      padding:14px 16px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px solid #dbe4ee;
+    }
+
+    .scan-safety-title {
+      font-size:15px;
+      font-weight:800;
+      color:#0f172a;
+      margin-bottom:8px;
+    }
+
+    .scan-safety-list {
+      margin:0;
+      padding-inline-start:20px;
+      color:#334155;
+      line-height:1.65;
+    }
+
+    .scan-safety-list li + li {
+      margin-top:4px;
+    }
+
     .scan-access-bar {
       display:flex;
       align-items:center;

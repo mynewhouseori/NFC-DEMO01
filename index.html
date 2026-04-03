@@ -6,7 +6,7 @@
   <title>NFC Safety Demo Cloud Table</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
-  <link rel="stylesheet" href="./styles.css?v=20260403logo11" />
+  <link rel="stylesheet" href="./styles.css?v=20260403logo12" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -95,6 +95,11 @@
             <div><span id="lblNotes"></span>: <span id="scanNotes"></span></div>
             <div><span id="lblLastSeenLocation"></span>: <span id="scanLastSeenLocation"></span></div>
           </div>
+        </div>
+
+        <div class="scan-safety-card">
+          <div class="scan-safety-title" id="scanSafetyTitle"></div>
+          <ul class="scan-safety-list" id="scanSafetyList"></ul>
         </div>
 
         <div id="scanEditPanel" class="scan-edit-panel">
@@ -408,7 +413,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260403logo11';
+      script.src = './app.js?v=20260403logo12';
       document.body.appendChild(script);
     })();
   </script>
