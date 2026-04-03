@@ -58,6 +58,65 @@
       review: [STATUS_VALUES.review, 'לבדיקה', 'needs review', 'review', 'בבדיקה', 'بحاجة إلى فحص'],
       disabled: [STATUS_VALUES.disabled, 'מושבת', 'disabled', 'out of service', 'معطّل']
     };
+    const REPORT_TEXT = {
+      he: {
+        exportReport: 'דוח מצב',
+        reportTitle: 'דוח מצב ציוד',
+        reportGeneratedAt: 'הדוח הופק בתאריך {date}',
+        reportExecutiveSummary: 'סיכום מנהלים',
+        reportExecutiveText: 'נכון לעכשיו קיימים {total} פריטים במערכת: {ok} תקינים, {review} לבדיקה ו-{disabled} מושבתים.',
+        reportTotalItems: 'סה״כ פריטים',
+        reportOverdue: 'באיחור לבדיקה',
+        reportDueSoon: 'בדיקה ב-30 הימים הקרובים',
+        reportOverdueLine: '{count} פריטים עברו את תאריך הבדיקה הבא.',
+        reportUpcomingLine: '{count} פריטים צפויים לבדיקה במהלך 30 הימים הקרובים.',
+        reportMissingDateLine: '{count} פריטים ללא תאריך בדיקה הבא.',
+        reportPriorityTable: 'פריטים הדורשים תשומת לב',
+        reportUrgency: 'דחיפות',
+        reportOverdueDays: 'איחור של {days} ימים',
+        reportUpcomingDays: 'בעוד {days} ימים',
+        reportNoUrgentItems: 'אין כרגע פריטים דחופים להצגה.',
+        reportFooter: 'הדוח נוצר אוטומטית ממסך הטבלה לצורכי הצגה, בקרה ושיתוף.'
+      },
+      en: {
+        exportReport: 'Status Report',
+        reportTitle: 'Equipment Status Report',
+        reportGeneratedAt: 'Report generated on {date}',
+        reportExecutiveSummary: 'Executive Summary',
+        reportExecutiveText: 'There are currently {total} items in the system: {ok} OK, {review} needing review, and {disabled} disabled.',
+        reportTotalItems: 'Total Items',
+        reportOverdue: 'Overdue for Inspection',
+        reportDueSoon: 'Due Within 30 Days',
+        reportOverdueLine: '{count} items are past their next inspection date.',
+        reportUpcomingLine: '{count} items are due for inspection within the next 30 days.',
+        reportMissingDateLine: '{count} items are missing a next inspection date.',
+        reportPriorityTable: 'Priority Items',
+        reportUrgency: 'Urgency',
+        reportOverdueDays: 'Overdue by {days} days',
+        reportUpcomingDays: 'Due in {days} days',
+        reportNoUrgentItems: 'There are currently no urgent items to display.',
+        reportFooter: 'This report was generated automatically from the table view for presentation and follow-up.'
+      },
+      ar: {
+        exportReport: 'تقرير حالة',
+        reportTitle: 'تقرير حالة المعدات',
+        reportGeneratedAt: 'تم إنشاء التقرير بتاريخ {date}',
+        reportExecutiveSummary: 'ملخص تنفيذي',
+        reportExecutiveText: 'يوجد حالياً {total} معدة في النظام: {ok} سليمة، {review} بحاجة إلى فحص، و {disabled} معطلة.',
+        reportTotalItems: 'إجمالي المعدات',
+        reportOverdue: 'متأخرة للفحص',
+        reportDueSoon: 'فحص خلال 30 يوماً',
+        reportOverdueLine: '{count} معدات تجاوزت تاريخ الفحص القادم.',
+        reportUpcomingLine: '{count} معدات مطلوب فحصها خلال 30 يوماً القادمة.',
+        reportMissingDateLine: '{count} معدات بدون تاريخ فحص قادم.',
+        reportPriorityTable: 'معدات تحتاج إلى متابعة',
+        reportUrgency: 'الأولوية',
+        reportOverdueDays: 'متأخر {days} يوماً',
+        reportUpcomingDays: 'خلال {days} يوماً',
+        reportNoUrgentItems: 'لا توجد حالياً معدات عاجلة للعرض.',
+        reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
+      }
+    };
 
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
@@ -141,6 +200,16 @@
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, t(key));
+    }
+
+    function rt(key){
+      return REPORT_TEXT[currentLang]?.[key] || REPORT_TEXT.he[key] || key;
+    }
+
+    function formatReportText(key, replacements = {}){
+      return Object.entries(replacements).reduce((text, [name, value]) => {
+        return text.replaceAll(`{${name}}`, String(value));
+      }, rt(key));
     }
 
     function csvValue(value){
@@ -567,6 +636,7 @@
       el('tableSearchInput').setAttribute('aria-label', t('tableSearchPlaceholder'));
       el('tableStatusFilter').setAttribute('aria-label', t('tableStatusFilterLabel'));
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
+      el('exportReportBtn').textContent = rt('exportReport');
       el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
       el('captureImageBtn').textContent = t('captureImage');
@@ -856,6 +926,173 @@
         pushDebugLine(`Exported ${filteredItems.length} table rows.`);
       } catch (e) {
         pushDebugLine(`Table export error: ${e.message}`);
+        console.error(e);
+      }
+    }
+
+    function parseInspectionDate(value){
+      const text = String(value || '').trim();
+      if(!text) return null;
+      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if(!match) return null;
+      const [, year, month, day] = match;
+      return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+
+    function startOfToday(){
+      const today = new Date();
+      return new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    }
+
+    function daysUntilInspection(value){
+      const parsed = parseInspectionDate(value);
+      if(!parsed) return null;
+      const diff = parsed.getTime() - startOfToday().getTime();
+      return Math.round(diff / 86400000);
+    }
+
+    function formatReportDate(value){
+      const parsed = parseInspectionDate(value);
+      if(!parsed) return value || '-';
+      return parsed.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
+    }
+
+    function getInspectionBucket(item){
+      const days = daysUntilInspection(item.nextInspection);
+      if(days === null) return 'missing';
+      if(days < 0) return 'overdue';
+      if(days <= 30) return 'upcoming';
+      return 'future';
+    }
+
+    async function exportPresentationReport(){
+      try {
+        const items = sortItems(getFilteredItems(await getItems()));
+        const total = items.length;
+        const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
+        const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
+        const disabledCount = items.filter((item) => normalizeStatus(item.status) === 'disabled').length;
+        const overdueItems = items.filter((item) => getInspectionBucket(item) === 'overdue');
+        const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
+        const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
+        const priorityItems = [
+          ...overdueItems,
+          ...upcomingItems.filter((item) => !overdueItems.some((current) => current.tagId === item.tagId))
+        ].slice(0, 8);
+        const generatedAt = new Date().toLocaleString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
+
+        const summaryCards = [
+          { label: rt('reportTotalItems'), value: total, tone: '#0f766e' },
+          { label: t('status_ok'), value: okCount, tone: '#15803d' },
+          { label: t('status_review'), value: reviewCount, tone: '#b45309' },
+          { label: t('status_disabled'), value: disabledCount, tone: '#b91c1c' },
+          { label: rt('reportOverdue'), value: overdueItems.length, tone: '#dc2626' },
+          { label: rt('reportDueSoon'), value: upcomingItems.length, tone: '#d97706' }
+        ].map((card) => `
+          <div class="metric">
+            <div class="metric-value" style="color:${card.tone};">${escapeHtml(card.value)}</div>
+            <div class="metric-label">${escapeHtml(card.label)}</div>
+          </div>
+        `).join('');
+
+        const priorityRows = priorityItems.length
+          ? priorityItems.map((item) => {
+              const days = daysUntilInspection(item.nextInspection);
+              const urgencyText = days < 0
+                ? formatReportText('reportOverdueDays', { days: Math.abs(days) })
+                : formatReportText('reportUpcomingDays', { days });
+              return `
+                <tr>
+                  <td>${escapeHtml(item.tagId || '-')}</td>
+                  <td>${escapeHtml(translateType(item.itemType))}</td>
+                  <td>${escapeHtml(item.description || '-')}</td>
+                  <td>${escapeHtml(translateStatus(item.status))}</td>
+                  <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
+                  <td>${escapeHtml(urgencyText)}</td>
+                </tr>
+              `;
+            }).join('')
+          : `<tr><td colspan="6">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+
+        const reportHtml = `
+          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+          <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(rt('reportTitle'))}</title>
+            <style>
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#ffffff; }
+              h1 { margin:0 0 8px; color:#0f766e; font-size:28px; }
+              h2 { margin:28px 0 12px; font-size:18px; color:#111827; }
+              p { margin:0 0 10px; line-height:1.7; }
+              .subtitle { color:#475569; margin-bottom:18px; }
+              .metrics { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px; margin:18px 0 26px; }
+              .metric { border:1px solid #dbe4ea; border-radius:14px; padding:14px; background:#f8fafc; }
+              .metric-value { font-size:28px; font-weight:800; margin-bottom:4px; }
+              .metric-label { color:#475569; font-size:13px; font-weight:700; }
+              .section { border:1px solid #e2e8f0; border-radius:16px; padding:18px; margin-bottom:18px; background:#fff; }
+              .highlight { color:#0f766e; font-weight:700; }
+              ul { margin:8px 0 0; padding-${currentLang === 'en' ? 'left' : 'right'}:20px; }
+              li { margin-bottom:6px; }
+              table { width:100%; border-collapse:collapse; margin-top:12px; }
+              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; }
+              th { background:#f1f5f9; font-size:13px; }
+              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <h1>${escapeHtml(rt('reportTitle'))}</h1>
+            <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
+            <div class="metrics">${summaryCards}</div>
+
+            <div class="section">
+              <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
+              <p>${escapeHtml(formatReportText('reportExecutiveText', {
+                total,
+                ok: okCount,
+                review: reviewCount,
+                disabled: disabledCount
+              }))}</p>
+              <ul>
+                <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
+                <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
+                <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
+              </ul>
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(rt('reportPriorityTable'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(rt('reportUrgency'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${priorityRows}</tbody>
+              </table>
+            </div>
+
+            <div class="footer">${escapeHtml(rt('reportFooter'))}</div>
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob(['\uFEFF', reportHtml], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `nfc-status-report-${new Date().toISOString().slice(0, 10)}.doc`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        pushDebugLine(`Exported presentation report for ${items.length} items.`);
+      } catch (e) {
+        pushDebugLine(`Report export error: ${e.message}`);
         console.error(e);
       }
     }
@@ -1548,6 +1785,7 @@
     window.clearCustomImage = clearCustomImage;
     window.toggleTableSort = toggleTableSort;
     window.exportTableCsv = exportTableCsv;
+    window.exportPresentationReport = exportPresentationReport;
     window.demoScan = demoScan;
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
