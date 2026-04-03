@@ -219,7 +219,7 @@
       flex-direction:column;
       gap:16px;
       margin-inline:auto;
-      margin-bottom:18px;
+      margin-bottom:clamp(58px, 10vh, 110px);
     }
 
     .demo-badge-bottom {
