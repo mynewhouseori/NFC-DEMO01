@@ -237,15 +237,15 @@
 
     .site-legal-bar {
       position:fixed;
-      left:11px;
-      right:11px;
-      bottom:7px;
+      left:10px;
+      right:10px;
+      bottom:6px;
       z-index:6;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:7px;
-      padding:5px 7px;
+      gap:6px;
+      padding:4px 6px;
       border:1px solid rgba(255,255,255,.18);
       border-radius:10px;
       background:rgba(15,23,42,.72);
@@ -255,7 +255,7 @@
     }
 
     .site-legal-copy {
-      font-size:9px;
+      font-size:8px;
       line-height:1.2;
       color:rgba(248,250,252,.92);
     }
@@ -272,8 +272,8 @@
     }
 
     .legal-link-btn {
-      padding:5px 9px;
-      font-size:10px;
+      padding:4px 8px;
+      font-size:9px;
       white-space:nowrap;
     }
 
@@ -396,9 +396,9 @@
 
     @media (max-width: 720px) {
       .site-legal-bar {
-        left:7px;
-        right:7px;
-        bottom:7px;
+        left:6px;
+        right:6px;
+        bottom:6px;
         flex-direction:row;
         align-items:center;
       }
