@@ -961,13 +961,22 @@
       const days = daysUntilInspection(item.nextInspection);
       if(days === null) return 'missing';
       if(days < 0) return 'overdue';
-      if(days <= 30) return 'upcoming';
+      if(days <= 7) return 'upcoming';
       return 'future';
     }
 
     function compareInspectionUrgency(itemA, itemB){
+      const rankForDays = (days) => {
+        if(days === null) return 2;
+        if(days < 0) return 0;
+        if(days <= 7) return 1;
+        return 2;
+      };
       const daysA = daysUntilInspection(itemA.nextInspection);
       const daysB = daysUntilInspection(itemB.nextInspection);
+      const rankA = rankForDays(daysA);
+      const rankB = rankForDays(daysB);
+      if(rankA !== rankB) return rankA - rankB;
       if(daysA === null && daysB === null) return 0;
       if(daysA === null) return 1;
       if(daysB === null) return -1;
@@ -984,20 +993,24 @@
         const overdueItems = items.filter((item) => getInspectionBucket(item) === 'overdue');
         const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
         const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
-        const priorityItems = [
-          ...overdueItems,
-          ...upcomingItems.filter((item) => !overdueItems.some((current) => current.tagId === item.tagId))
-        ].sort(compareInspectionUrgency).slice(0, 8);
+        const reportItems = [...items].sort(compareInspectionUrgency);
         const generatedAt = new Date().toLocaleString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
 
-        const priorityRows = priorityItems.length
-          ? priorityItems.map((item) => {
+        const priorityRows = reportItems.length
+          ? reportItems.map((item) => {
               const days = daysUntilInspection(item.nextInspection);
               const bucket = getInspectionBucket(item);
-              const urgencyText = days < 0
+              const urgencyText = bucket === 'overdue'
                 ? formatReportText('reportOverdueDays', { days: Math.abs(days) })
-                : formatReportText('reportUpcomingDays', { days });
-              const rowClass = bucket === 'overdue' ? 'overdue-row' : bucket === 'upcoming' ? 'upcoming-row' : '';
+                : bucket === 'upcoming'
+                  ? formatReportText('reportUpcomingDays', { days })
+                  : '-';
+              const rowClass = bucket === 'overdue' ? 'overdue-row' : bucket === 'upcoming' ? 'upcoming-row' : 'normal-row';
+              const badgeClass = bucket === 'overdue'
+                ? 'urgency-badge urgency-badge-overdue'
+                : bucket === 'upcoming'
+                  ? 'urgency-badge urgency-badge-upcoming'
+                  : 'urgency-badge urgency-badge-normal';
               return `
                 <tr class="${rowClass}">
                   <td>${escapeHtml(item.tagId || '-')}</td>
@@ -1005,7 +1018,7 @@
                   <td>${escapeHtml(item.description || '-')}</td>
                   <td>${escapeHtml(translateStatus(item.status))}</td>
                   <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
-                  <td><span class="${bucket === 'overdue' ? 'urgency-badge urgency-badge-overdue' : 'urgency-badge urgency-badge-upcoming'}">${escapeHtml(urgencyText)}</span></td>
+                  <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
                 </tr>
               `;
             }).join('')
@@ -1029,11 +1042,13 @@
               table { width:100%; border-collapse:collapse; margin-top:12px; }
               th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; }
               th { background:#f1f5f9; font-size:13px; }
-              .overdue-row { background:#fef2f2; }
-              .upcoming-row { background:#fff7ed; }
+              .normal-row { background:#ffffff; }
+              .overdue-row { background:#fff1f2; }
+              .upcoming-row { background:#fdf2f8; }
               .urgency-badge { display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; }
+              .urgency-badge-normal { background:#ffffff; color:#64748b; border:1px solid #dbe4ea; }
               .urgency-badge-overdue { background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; animation:reportPulse 1.2s ease-in-out infinite; }
-              .urgency-badge-upcoming { background:#ffedd5; color:#b45309; border:1px solid #fdba74; }
+              .urgency-badge-upcoming { background:#fce7f3; color:#be185d; border:1px solid #f9a8d4; }
               @keyframes reportPulse {
                 0% { opacity:1; box-shadow:0 0 0 0 rgba(220,38,38,.30); }
                 50% { opacity:.78; box-shadow:0 0 0 6px rgba(220,38,38,.08); }
