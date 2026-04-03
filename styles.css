@@ -507,6 +507,30 @@
       color:#0f766e;
     }
 
+    .role-login-grid {
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+      margin-bottom:10px;
+    }
+
+    .role-login-card {
+      border:1px solid #dbe4ea;
+      border-radius:16px;
+      padding:14px;
+      background:#f8fafc;
+    }
+
+    .role-login-title {
+      font-size:17px;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .role-login-btn {
+      margin-top:10px;
+    }
+
     .scan-edit-panel {
       display:none;
       margin-top:14px;
@@ -534,6 +558,7 @@
     @media (max-width:600px){
       .result-grid { grid-template-columns:1fr; }
       .scan-edit-grid { grid-template-columns:1fr; }
+      .role-login-grid { grid-template-columns:1fr; }
     }
 
     .mono {

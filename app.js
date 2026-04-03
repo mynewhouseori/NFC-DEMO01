@@ -112,7 +112,6 @@
     };
     let lastSavedTagId = '';
     let passwordContext = 'register';
-    let pendingRegisterRole = 'engineer';
     let registerAccessRole = '';
     let currentScannedItem = null;
     let customImageSrc = '';
@@ -411,9 +410,6 @@
 
     function updateRegisterAccessUi(){
       const canEdit = canEditRegister();
-      const selectedRole = pendingRegisterRole || registerAccessRole || 'engineer';
-      el('engineerAccessBtn').classList.toggle('active', selectedRole === 'engineer');
-      el('foremanAccessBtn').classList.toggle('active', selectedRole === 'foreman');
 
       [
         'tagId',
@@ -479,23 +475,29 @@
 
       el('passwordBackBtn').textContent = t('back');
       if(passwordContext === 'register'){
-        el('passwordTitle').textContent = pendingRegisterRole === 'foreman' ? t('foremanLoginTitle') : t('engineerLoginTitle');
-        el('passwordLabel').textContent = pendingRegisterRole === 'foreman' ? t('foremanPasswordLabel') : t('engineerPasswordLabel');
-        el('passwordRoleHint').textContent = getAccessRoleLabel(pendingRegisterRole);
+        el('passwordTitle').textContent = t('passwordTitle');
+        el('passwordRoleHint').textContent = '';
+        el('engineerLoginTitleText').textContent = t('engineerLoginTitle');
+        el('engineerPasswordLabelText').textContent = t('engineerPasswordLabel');
+        el('engineerEnterBtn').textContent = t('passwordEnter');
+        el('foremanLoginTitleText').textContent = t('foremanLoginTitle');
+        el('foremanPasswordLabelText').textContent = t('foremanPasswordLabel');
+        el('foremanEnterBtn').textContent = t('passwordEnter');
       } else {
         el('passwordTitle').textContent = t('passwordTitle');
-        el('passwordLabel').textContent = t('passwordLabel');
         el('passwordRoleHint').textContent = '';
       }
-      el('passwordInput').placeholder = t('passwordPlaceholder');
-      el('passwordEnterBtn').textContent = t('passwordEnter');
+      if(el('engineerPasswordInput')){
+        el('engineerPasswordInput').placeholder = t('passwordPlaceholder');
+      }
+      if(el('foremanPasswordInput')){
+        el('foremanPasswordInput').placeholder = t('passwordPlaceholder');
+      }
 
       el('scanBackBtn').textContent = t('back');
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
       el('demoScanBtn').textContent = t('demoScan');
-      el('engineerAccessBtn').textContent = t('engineerAccessBtn');
-      el('foremanAccessBtn').textContent = t('foremanAccessBtn');
       el('scanEditTitle').textContent = t('scanEditTitle');
       el('scanEditTagIdLabel').textContent = t('tagId');
       el('scanEditItemTypeLabel').textContent = t('itemType');
@@ -1092,7 +1094,6 @@
       clearStatuses();
       currentScannedItem = null;
       registerAccessRole = '';
-      pendingRegisterRole = 'engineer';
       populateScanEditForm(null);
       updateRegisterAccessUi();
     }
@@ -1122,30 +1123,26 @@
 
     function openPasswordScreen(){
       passwordContext = 'register';
-      pendingRegisterRole = 'engineer';
       openScreen('passwordScreen');
-      el('passwordInput').value = '';
+      el('engineerPasswordInput').value = '';
+      el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
       setLang(currentLang);
     }
 
-    function selectRegisterRole(role){
-      pendingRegisterRole = role;
-      setLang(currentLang);
-    }
-
-    function checkPassword(){
-      const enteredPassword = String(el('passwordInput').value || '').trim();
-      const expectedPassword = pendingRegisterRole === 'foreman' ? FOREMAN_PASSWORD : ENGINEER_PASSWORD;
+    function checkPassword(role){
+      const enteredPassword = String(role === 'foreman' ? el('foremanPasswordInput').value : el('engineerPasswordInput').value || '').trim();
+      const expectedPassword = role === 'foreman' ? FOREMAN_PASSWORD : ENGINEER_PASSWORD;
 
       if(enteredPassword !== expectedPassword){
         el('passwordStatus').textContent = t('passwordWrong');
         return;
       }
 
-      pushDebugLine(`Register access granted for ${pendingRegisterRole || 'engineer'}.`);
-      registerAccessRole = pendingRegisterRole || 'engineer';
-      el('passwordInput').value = '';
+      pushDebugLine(`Register access granted for ${role}.`);
+      registerAccessRole = role;
+      el('engineerPasswordInput').value = '';
+      el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
       openScreen('registerScreen');
       openRegisterTab('registerPane');

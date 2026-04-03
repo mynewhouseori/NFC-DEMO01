@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
-  <link rel="stylesheet" href="./styles.css?v=20260403a" />
+  <link rel="stylesheet" href="./styles.css?v=20260403b" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -44,13 +44,20 @@
     </div>
     <div class="card">
       <div id="passwordRoleHint" class="access-note"></div>
-      <div class="scan-access-actions">
-        <button class="mini-btn role-btn" onclick="selectRegisterRole('engineer')" id="engineerAccessBtn"></button>
-        <button class="mini-btn role-btn" onclick="selectRegisterRole('foreman')" id="foremanAccessBtn"></button>
+      <div class="role-login-grid">
+        <div class="role-login-card">
+          <div class="role-login-title" id="engineerLoginTitleText"></div>
+          <label for="engineerPasswordInput" id="engineerPasswordLabelText"></label>
+          <input id="engineerPasswordInput" type="password">
+          <button class="password-btn role-login-btn" onclick="checkPassword('engineer')" id="engineerEnterBtn"></button>
+        </div>
+        <div class="role-login-card">
+          <div class="role-login-title" id="foremanLoginTitleText"></div>
+          <label for="foremanPasswordInput" id="foremanPasswordLabelText"></label>
+          <input id="foremanPasswordInput" type="password">
+          <button class="password-btn role-login-btn" onclick="checkPassword('foreman')" id="foremanEnterBtn"></button>
+        </div>
       </div>
-      <label for="passwordInput" id="passwordLabel"></label>
-      <input id="passwordInput" type="password">
-      <button class="password-btn" onclick="checkPassword()" id="passwordEnterBtn"></button>
       <div id="passwordStatus" class="status error-text"></div>
     </div>
   </div>
@@ -262,8 +269,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260403a"></script>
-  <script src="./config.local.js?v=20260403a"></script>
+  <script src="./config.demo.js?v=20260403b"></script>
+  <script src="./config.local.js?v=20260403b"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -287,7 +294,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260403a';
+      script.src = './app.js?v=20260403b';
       document.body.appendChild(script);
     })();
   </script>
