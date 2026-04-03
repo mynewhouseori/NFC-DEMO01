@@ -197,6 +197,7 @@
     const savedLang = localStorage.getItem('lang');
     let currentLang = LANG[savedLang] ? savedLang : 'he';
     const APP_COPYRIGHT_YEAR = new Date().getFullYear();
+    const VISIT_STORAGE_KEY = 'nfc_demo_active_visit_v1';
     const tableFilters = {
       query: '',
       status: 'all'
@@ -216,6 +217,7 @@
     let currentScannedItem = null;
     let customImageSrc = '';
     let pendingImageTask = null;
+    let activeVisit = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
       visible: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -250,6 +252,101 @@
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, lt(key));
+    }
+
+    function getLocaleTag(){
+      return currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL';
+    }
+
+    function visitBadgeText(){
+      if(!activeVisit){
+        return t('visitStatusIdle');
+      }
+      return activeVisit.status === 'closed' ? t('visitStatusClosed') : t('visitStatusActive');
+    }
+
+    function createVisitId(){
+      return `visit-${Date.now()}`;
+    }
+
+    function loadActiveVisit(){
+      try {
+        const raw = localStorage.getItem(VISIT_STORAGE_KEY);
+        activeVisit = raw ? JSON.parse(raw) : null;
+      } catch (error) {
+        pushDebugLine(`Visit storage read failed: ${error.message}`);
+        activeVisit = null;
+      }
+    }
+
+    function persistActiveVisit(){
+      if(!activeVisit){
+        localStorage.removeItem(VISIT_STORAGE_KEY);
+        return;
+      }
+      localStorage.setItem(VISIT_STORAGE_KEY, JSON.stringify(activeVisit));
+    }
+
+    function getVisitFormData(){
+      return {
+        date: String(el('visitDate')?.value || todayIsoDate()).trim() || todayIsoDate(),
+        engineer: String(el('visitEngineer')?.value || '').trim(),
+        client: String(el('visitClient')?.value || '').trim(),
+        site: String(el('visitSite')?.value || '').trim(),
+        signature: String(el('visitSignature')?.value || '').trim(),
+        notes: String(el('visitNotes')?.value || '').trim()
+      };
+    }
+
+    function populateVisitForm(visit = null){
+      el('visitDate').value = visit?.date || todayIsoDate();
+      el('visitEngineer').value = visit?.engineer || '';
+      el('visitClient').value = visit?.client || '';
+      el('visitSite').value = visit?.site || '';
+      el('visitSignature').value = visit?.signature || '';
+      el('visitNotes').value = visit?.notes || '';
+    }
+
+    function getVisitRelevantLogs(logs = dataCache.logs.value || []){
+      if(!activeVisit?.id){
+        return [];
+      }
+      return logs.filter((log) => log.visitId === activeVisit.id && ['register_new', 'register_update', 'check'].includes(log.actionType));
+    }
+
+    function getVisitLogCounts(logs = dataCache.logs.value || []){
+      const visitLogs = getVisitRelevantLogs(logs);
+      return {
+        newCount: visitLogs.filter((log) => log.actionType === 'register_new').length,
+        checkedCount: visitLogs.filter((log) => log.actionType === 'check' || log.actionType === 'register_update').length
+      };
+    }
+
+    function renderVisitStatus(message = ''){
+      const badge = el('visitStatusBadge');
+      badge.textContent = visitBadgeText();
+      badge.classList.toggle('active', !!activeVisit && activeVisit.status !== 'closed');
+      badge.classList.toggle('closed', !!activeVisit && activeVisit.status === 'closed');
+
+      const summary = activeVisit
+        ? formatText('visitSummaryLine', {
+            date: activeVisit.date || todayIsoDate(),
+            engineer: activeVisit.engineer || '-',
+            ...getVisitLogCounts()
+          })
+        : t('visitSummaryEmpty');
+
+      el('visitSummaryText').textContent = summary;
+      el('visitStatusText').textContent = message || (!activeVisit ? t('visitStatusNoVisit') : activeVisit.status === 'closed' ? t('visitStatusClosedMessage') : t('visitStatusSaved'));
+      el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
+      el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
+    }
+
+    function getCurrentVisitForLogs(){
+      if(!activeVisit || activeVisit.status === 'closed'){
+        return null;
+      }
+      return activeVisit;
     }
 
     function csvValue(value){
@@ -618,6 +715,12 @@
       const canEdit = canEditRegister();
 
       [
+        'visitDate',
+        'visitEngineer',
+        'visitClient',
+        'visitSite',
+        'visitSignature',
+        'visitNotes',
         'tagId',
         'itemType',
         'description',
@@ -636,6 +739,9 @@
       el('clearFormBtn').disabled = !canEdit;
       el('captureImageBtn').disabled = !canEdit;
       el('clearImageBtn').disabled = !canEdit;
+      el('visitSaveBtn').disabled = !canEdit;
+      el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
+      el('visitReportBtn').disabled = !activeVisit;
 
       if(registerAccessRole === 'foreman'){
         el('registerStatus').textContent = t('scanReadOnlyNote');
@@ -681,6 +787,21 @@
 
       el('homeCheckText').textContent = t('homeCheck');
       el('homeRegisterText').textContent = t('homeRegister');
+      el('visitPanelTitleText').textContent = t('visitPanelTitle');
+      el('visitPanelSubtitleText').textContent = t('visitPanelSubtitle');
+      el('visitDateLabelText').textContent = t('visitDateLabel');
+      el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
+      el('visitClientLabelText').textContent = t('visitClientLabel');
+      el('visitSiteLabelText').textContent = t('visitSiteLabel');
+      el('visitSignatureLabelText').textContent = t('visitSignatureLabel');
+      el('visitNotesLabelText').textContent = t('visitNotesLabel');
+      el('visitSaveBtn').textContent = t('visitSave');
+      el('visitCloseBtn').textContent = t('visitClose');
+      el('visitReportBtn').textContent = t('visitReport');
+      el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
+      el('visitClient').placeholder = t('visitClientPlaceholder');
+      el('visitSite').placeholder = t('visitSitePlaceholder');
+      el('visitSignature').placeholder = t('visitSignaturePlaceholder');
       el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
       el('legalOpenBtn').textContent = t('legalOpen');
       el('legalTitleText').textContent = t('legalTitle');
@@ -792,6 +913,7 @@
       renderScanLogs();
       renderItemsTable();
       refreshDebugPanel();
+      renderVisitStatus();
 
       if(!el('scanStatus').textContent.trim()) el('scanStatus').textContent = t('waitingForScan');
       if(!el('registerStatus').textContent.trim()) el('registerStatus').textContent = t('waitingForScan');
@@ -1110,7 +1232,7 @@
         return reportLogoDataUrlPromise;
       }
 
-      reportLogoDataUrlPromise = fetch('./logo.jpg')
+      reportLogoDataUrlPromise = fetch('./logo-tight.jpg')
         .then((response) => {
           if(!response.ok){
             throw new Error(`Logo request failed with status ${response.status}`);
@@ -1190,7 +1312,7 @@
       try {
         const items = sortItems(getFilteredItems(await getItems()));
         const reportLogoSrc = await getReportLogoDataUrl();
-        const reportLogoUrl = new URL('./logo.jpg', window.location.href).href;
+        const reportLogoUrl = new URL('./logo-tight.jpg', window.location.href).href;
         const total = items.length;
         const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
         const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
@@ -1378,15 +1500,28 @@
       pushDebugLine(`Saved item ${item.tagId}.`);
     }
 
-    async function saveScanLog(tagId, found, item = null, locationSnapshot = null){
+    async function saveScanLog(tagId, found, item = null, locationSnapshot = null, options = {}){
       pushDebugLine(`Writing scan log for ${tagId} (${found ? 'found' : 'not found'}).`);
+      const visit = getCurrentVisitForLogs();
       await addDoc(collection(db, LOGS_COLLECTION), {
         tagId,
         found,
+        actionType: options.actionType || '',
         itemStatus: item?.status || '',
         itemType: item?.itemType || '',
+        itemDescription: item?.description || '',
+        itemSerialNumber: item?.serialNumber || '',
+        itemWll: item?.wll || '',
+        itemNextInspection: item?.nextInspection || '',
+        itemNotes: item?.notes || '',
         lastSeenLocation: locationSnapshot || item?.lastSeenLocation || null,
         lastSeenAt: locationSnapshot?.capturedAt || item?.lastSeenAt || '',
+        visitId: visit?.id || '',
+        visitDate: visit?.date || '',
+        visitEngineer: visit?.engineer || '',
+        visitClient: visit?.client || '',
+        visitSite: visit?.site || '',
+        visitSignature: visit?.signature || '',
         time: new Date().toLocaleString(),
         sortTime: new Date().toISOString()
       });
@@ -1432,6 +1567,7 @@
 
         if(!logs.length){
           container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
+          renderVisitStatus();
           return;
         }
 
@@ -1466,6 +1602,7 @@
             </div>
           `;
         }).join('');
+        renderVisitStatus();
       } catch (e) {
         container.innerHTML = `<div class="empty-text">${t('logLoadError')}</div>`;
         pushDebugLine(`Scan log load error: ${e.message}`);
@@ -1659,6 +1796,59 @@
       }
     }
 
+    function saveVisitSession(){
+      const draft = getVisitFormData();
+      if(!draft.engineer){
+        renderVisitStatus(t('visitStatusNeedEngineer'));
+        return;
+      }
+
+      const now = new Date();
+      const startNewVisit = !activeVisit || activeVisit.status === 'closed';
+      activeVisit = {
+        id: startNewVisit ? createVisitId() : activeVisit.id,
+        status: 'active',
+        date: draft.date,
+        engineer: draft.engineer,
+        client: draft.client,
+        site: draft.site,
+        signature: draft.signature || draft.engineer,
+        notes: draft.notes,
+        startedAt: startNewVisit ? now.toLocaleString() : activeVisit.startedAt,
+        startedAtIso: startNewVisit ? now.toISOString() : activeVisit.startedAtIso,
+        endedAt: '',
+        endedAtIso: '',
+        updatedAt: now.toLocaleString()
+      };
+      persistActiveVisit();
+      populateVisitForm(activeVisit);
+      renderVisitStatus(t('visitStatusSaved'));
+      pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
+    }
+
+    function closeVisitSession(){
+      if(!activeVisit){
+        renderVisitStatus(t('visitStatusNoVisit'));
+        return;
+      }
+      if(activeVisit.status === 'closed'){
+        renderVisitStatus(t('visitStatusClosedMessage'));
+        return;
+      }
+
+      const now = new Date();
+      activeVisit = {
+        ...activeVisit,
+        status: 'closed',
+        endedAt: now.toLocaleString(),
+        endedAtIso: now.toISOString(),
+        updatedAt: now.toLocaleString()
+      };
+      persistActiveVisit();
+      renderVisitStatus(t('visitStatusClosedMessage'));
+      pushDebugLine(`Visit ${activeVisit.id} closed.`);
+    }
+
     function clearForm(){
       el('tagId').value = '';
       el('itemType').value = '׳©׳׳§׳';
@@ -1676,6 +1866,174 @@
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
+    }
+
+    function buildVisitEntries(logs, items){
+      const itemMap = new Map(items.map((item) => [normalizeTagId(item.tagId), item]));
+      const relevantLogs = getVisitRelevantLogs(logs)
+        .sort((a, b) => String(b.sortTime || '').localeCompare(String(a.sortTime || '')));
+      const priority = { register_new: 3, register_update: 2, check: 1 };
+      const entryMap = new Map();
+
+      relevantLogs.forEach((log) => {
+        const existing = entryMap.get(log.tagId);
+        if(existing && (priority[existing.actionType] || 0) >= (priority[log.actionType] || 0)){
+          return;
+        }
+        entryMap.set(log.tagId, log);
+      });
+
+      return [...entryMap.values()]
+        .map((log) => {
+          const fallbackItem = itemMap.get(normalizeTagId(log.tagId));
+          const isNew = log.actionType === 'register_new';
+          return {
+            tagId: log.tagId || fallbackItem?.tagId || '',
+            actionType: log.actionType || 'check',
+            actionLabel: isNew ? t('visitActionNew') : t('visitActionChecked'),
+            itemType: log.itemType || fallbackItem?.itemType || '',
+            description: log.itemDescription || fallbackItem?.description || '',
+            serialNumber: log.itemSerialNumber || fallbackItem?.serialNumber || '',
+            wll: log.itemWll || fallbackItem?.wll || '',
+            status: log.itemStatus || fallbackItem?.status || '',
+            nextInspection: log.itemNextInspection || fallbackItem?.nextInspection || '',
+            notes: log.itemNotes || fallbackItem?.notes || '',
+            time: log.time || ''
+          };
+        })
+        .sort((a, b) => a.tagId.localeCompare(b.tagId));
+    }
+
+    async function exportVisitReport(){
+      if(!activeVisit){
+        renderVisitStatus(t('visitReportNoVisit'));
+        return;
+      }
+
+      try {
+        const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
+        const entries = buildVisitEntries(logs, items);
+        const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
+        const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
+        const generatedAt = new Date().toLocaleString(getLocaleTag());
+
+        const renderRows = (rows) => rows.length ? rows.map((entry) => `
+          <tr>
+            <td>${escapeHtml(entry.tagId || '-')}</td>
+            <td>${escapeHtml(entry.actionLabel)}</td>
+            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(entry.description || '-')}</td>
+            <td>${escapeHtml(entry.serialNumber || '-')}</td>
+            <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
+            <td>${escapeHtml(entry.notes || '-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="9">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+
+        const html = `
+          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+          <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(t('visitReportTitle'))}</title>
+            <style>
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+              .logo { width:140px; height:140px; object-fit:contain; }
+              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
+              p { margin:0 0 10px; line-height:1.7; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
+              table { width:100%; border-collapse:collapse; margin-top:12px; }
+              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
+              th { background:#f8fafc; }
+              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
+              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
+                <p>${escapeHtml(t('visitReportIntro'))}</p>
+                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
+              </div>
+              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
+            </div>
+
+            <div class="meta">
+              <div class="meta-grid">
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(activeVisit.date || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(activeVisit.startedAt || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(activeVisit.endedAt || '-')}</div>
+              </div>
+              ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(newEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(checkedEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="signature">
+              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
+            </div>
+
+            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+          </body>
+          </html>
+        `;
+
+        const printableHtml = `<!doctype html>${html}`;
+        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderVisitStatus();
+      } catch (error) {
+        pushDebugLine(`Visit report export error: ${error.message}`);
+        renderVisitStatus(t('cloudReadError'));
+      }
     }
 
     function ensureScanLocationRow(){
@@ -1902,6 +2260,9 @@
 
       try {
         await saveItemToCloud(item);
+        await saveScanLog(tagId, true, item, item.lastSeenLocation, {
+          actionType: existing ? 'register_update' : 'register_new'
+        });
         pushDebugLine(`Save flow completed for ${tagId}.`);
         el('saveStatus').textContent = existing ? t('itemUpdated') : t('itemSaved');
         lastSavedTagId = tagId;
@@ -1909,6 +2270,7 @@
         clearTableFilters();
         openRegisterTab('tablePane');
         await renderItemsTable();
+        await renderScanLogs();
       } catch (e) {
         pushDebugLine(`Save error for ${tagId}: ${e.message}`);
         el('saveStatus').textContent = t('cloudSaveError');
@@ -1932,7 +2294,7 @@
         el('scanStatus').textContent = `${t('demoMode')} • ${lt('locationPending')}`;
         const locationSnapshot = await getCurrentLocationSnapshot();
         const displayItem = await attachLastSeenToItem(item, locationSnapshot);
-        await saveScanLog(displayItem.tagId, true, displayItem, locationSnapshot);
+        await saveScanLog(displayItem.tagId, true, displayItem, locationSnapshot, { actionType: 'check' });
         pushDebugLine(`Demo scan used newest item ${displayItem.tagId}.`);
         el('scanStatus').textContent = locationSnapshot ? `${t('demoMode')} • ${lt('locationSaved')}` : t('demoMode');
         fillScanCard(displayItem);
@@ -1973,7 +2335,9 @@
             statusEl.textContent = lt('locationPending');
             const locationSnapshot = await getCurrentLocationSnapshot();
             const locatedItem = found ? await attachLastSeenToItem(found, locationSnapshot) : null;
-            await saveScanLog(tagId, !!found, locatedItem, locationSnapshot);
+            await saveScanLog(tagId, !!found, locatedItem, locationSnapshot, {
+              actionType: mode === 'scan' ? 'check' : found ? 'register_update' : 'register_lookup'
+            });
 
             if(mode === 'scan'){
               if(locatedItem){
@@ -2067,6 +2431,9 @@
     window.toggleDebugPanel = toggleDebugPanel;
     window.copyDebugInfo = copyDebugInfo;
     window.saveItem = saveItem;
+    window.saveVisitSession = saveVisitSession;
+    window.closeVisitSession = closeVisitSession;
+    window.exportVisitReport = exportVisitReport;
     window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
     window.deleteTableRow = deleteTableRow;
@@ -2082,6 +2449,8 @@
 
     async function bootApp(){
       ensureScanLocationRow();
+      loadActiveVisit();
+      populateVisitForm(activeVisit);
       setLang(currentLang);
       clearStatuses();
       clearForm();
