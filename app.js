@@ -478,9 +478,11 @@
         el('passwordTitle').textContent = t('passwordTitle');
         el('passwordRoleHint').textContent = '';
         el('engineerLoginTitleText').textContent = t('engineerLoginTitle');
+        el('engineerRoleHintText').textContent = t('engineerRoleHint');
         el('engineerPasswordLabelText').textContent = t('engineerPasswordLabel');
         el('engineerEnterBtn').textContent = t('passwordEnter');
         el('foremanLoginTitleText').textContent = t('foremanLoginTitle');
+        el('foremanRoleHintText').textContent = t('foremanRoleHint');
         el('foremanPasswordLabelText').textContent = t('foremanPasswordLabel');
         el('foremanEnterBtn').textContent = t('passwordEnter');
       } else {
