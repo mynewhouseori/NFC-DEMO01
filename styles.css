@@ -395,8 +395,12 @@
     }
 
     @media (max-width: 720px) {
+      .home-screen {
+        padding-bottom:168px;
+      }
+
       .actions {
-        margin-bottom:clamp(108px, 18vh, 168px);
+        margin-bottom:0;
       }
 
       .site-legal-bar {
