@@ -59,39 +59,50 @@
       disabled: [STATUS_VALUES.disabled, 'מושבת', 'disabled', 'out of service', 'معطّل']
     };
 
+    const IMAGE_VERSION = '20260403f';
+    const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
+    const IMAGE_PATHS = {
+      shackle: './תמונות/shackle.jpg',
+      strap: './תמונות/strap.jpg',
+      chain: './תמונות/chain.jpg',
+      ring: './תמונות/ring.jpg',
+      hook: './תמונות/hook.jpg',
+      fire: './תמונות/fire.jpg',
+      aircomp: './תמונות/aircomp.jpg'
+    };
     const IMAGE_LIBRARY = {
-      "׳©׳׳§׳":"./תמונות/shackle.jpg",
-      "׳¨׳¦׳•׳¢׳”":"./תמונות/strap.jpg",
-      "׳©׳¨׳©׳¨׳×":"./תמונות/chain.jpg",
-      "׳˜׳‘׳¢׳×":"./תמונות/ring.jpg",
-      "׳•׳•":"./תמונות/hook.jpg",
-      "מטף כיבוי אש":"./תמונות/fire.jpg",
-      "מדחס אויר":"./תמונות/aircomp.jpg",
-      "׳׳—׳¨":"./תמונות/shackle.jpg"
+      "׳©׳׳§׳": withImageVersion(IMAGE_PATHS.shackle),
+      "׳¨׳¦׳•׳¢׳”": withImageVersion(IMAGE_PATHS.strap),
+      "׳©׳¨׳©׳¨׳×": withImageVersion(IMAGE_PATHS.chain),
+      "׳˜׳‘׳¢׳×": withImageVersion(IMAGE_PATHS.ring),
+      "׳•׳•": withImageVersion(IMAGE_PATHS.hook),
+      "מטף כיבוי אש": withImageVersion(IMAGE_PATHS.fire),
+      "מדחס אויר": withImageVersion(IMAGE_PATHS.aircomp),
+      "׳׳—׳¨": withImageVersion(IMAGE_PATHS.shackle)
     };
     const IMAGE_TYPE_ALIASES = {
-      "׳©׳׳§׳": "./תמונות/shackle.jpg",
-      "שאקל": "./תמונות/shackle.jpg",
-      "shackle": "./תמונות/shackle.jpg",
-      "׳¨׳¦׳•׳¢׳”": "./תמונות/strap.jpg",
-      "רצועה": "./תמונות/strap.jpg",
-      "strap": "./תמונות/strap.jpg",
-      "׳©׳¨׳©׳¨׳×": "./תמונות/chain.jpg",
-      "שרשרת": "./תמונות/chain.jpg",
-      "chain": "./תמונות/chain.jpg",
-      "׳˜׳‘׳¢׳×": "./תמונות/ring.jpg",
-      "טבעת": "./תמונות/ring.jpg",
-      "ring": "./תמונות/ring.jpg",
-      "׳•׳•": "./תמונות/hook.jpg",
-      "וו": "./תמונות/hook.jpg",
-      "hook": "./תמונות/hook.jpg",
-      "מטף כיבוי אש": "./תמונות/fire.jpg",
-      "fire extinguisher": "./תמונות/fire.jpg",
-      "מדחס אויר": "./תמונות/aircomp.jpg",
-      "air compressor": "./תמונות/aircomp.jpg",
-      "׳׳—׳¨": "./תמונות/shackle.jpg",
-      "אחר": "./תמונות/shackle.jpg",
-      "other": "./תמונות/shackle.jpg"
+      "׳©׳׳§׳": withImageVersion(IMAGE_PATHS.shackle),
+      "שאקל": withImageVersion(IMAGE_PATHS.shackle),
+      "shackle": withImageVersion(IMAGE_PATHS.shackle),
+      "׳¨׳¦׳•׳¢׳”": withImageVersion(IMAGE_PATHS.strap),
+      "רצועה": withImageVersion(IMAGE_PATHS.strap),
+      "strap": withImageVersion(IMAGE_PATHS.strap),
+      "׳©׳¨׳©׳¨׳×": withImageVersion(IMAGE_PATHS.chain),
+      "שרשרת": withImageVersion(IMAGE_PATHS.chain),
+      "chain": withImageVersion(IMAGE_PATHS.chain),
+      "׳˜׳‘׳¢׳×": withImageVersion(IMAGE_PATHS.ring),
+      "טבעת": withImageVersion(IMAGE_PATHS.ring),
+      "ring": withImageVersion(IMAGE_PATHS.ring),
+      "׳•׳•": withImageVersion(IMAGE_PATHS.hook),
+      "וו": withImageVersion(IMAGE_PATHS.hook),
+      "hook": withImageVersion(IMAGE_PATHS.hook),
+      "מטף כיבוי אש": withImageVersion(IMAGE_PATHS.fire),
+      "fire extinguisher": withImageVersion(IMAGE_PATHS.fire),
+      "מדחס אויר": withImageVersion(IMAGE_PATHS.aircomp),
+      "air compressor": withImageVersion(IMAGE_PATHS.aircomp),
+      "׳׳—׳¨": withImageVersion(IMAGE_PATHS.shackle),
+      "אחר": withImageVersion(IMAGE_PATHS.shackle),
+      "other": withImageVersion(IMAGE_PATHS.shackle)
     };
 
     const el = (id) => document.getElementById(id);
@@ -137,7 +148,9 @@
     }
 
     function isLibraryImageSrc(src){
-      return Object.values(IMAGE_LIBRARY).includes(src) || String(src || '').startsWith('data:image/svg+xml;utf8,');
+      const srcText = String(src || '');
+      const normalizedSrc = srcText.split('?')[0];
+      return Object.values(IMAGE_PATHS).includes(normalizedSrc) || Object.values(IMAGE_LIBRARY).includes(srcText) || srcText.startsWith('data:image/svg+xml;utf8,');
     }
 
     function getDefaultImageForType(type){
