@@ -168,6 +168,7 @@
     const el = (id) => document.getElementById(id);
     const savedLang = localStorage.getItem('lang');
     let currentLang = LANG[savedLang] ? savedLang : 'he';
+    const APP_COPYRIGHT_YEAR = new Date().getFullYear();
     const tableFilters = {
       query: '',
       status: 'all'
@@ -558,6 +559,17 @@
 
       el('homeCheckText').textContent = t('homeCheck');
       el('homeRegisterText').textContent = t('homeRegister');
+      el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
+      el('legalOpenBtn').textContent = t('legalOpen');
+      el('legalTitleText').textContent = t('legalTitle');
+      el('legalCloseBtn').textContent = t('legalClose');
+      el('legalIntroText').textContent = t('legalIntro');
+      el('legalLine1Text').textContent = t('legalLine1');
+      el('legalLine2Text').textContent = t('legalLine2');
+      el('legalLine3Text').textContent = t('legalLine3');
+      el('legalLine4Text').textContent = t('legalLine4');
+      el('legalLine5Text').textContent = t('legalLine5');
+      el('legalDisclaimerText').textContent = t('legalDisclaimer');
 
       el('passwordBackBtn').textContent = t('back');
       if(passwordContext === 'register'){
@@ -1444,6 +1456,16 @@
       }
     }
 
+    function openLegalNotice(){
+      el('legalModal').hidden = false;
+      document.body.classList.add('modal-open');
+    }
+
+    function closeLegalNotice(){
+      el('legalModal').hidden = true;
+      document.body.classList.remove('modal-open');
+    }
+
     function goHome(){
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el('homeScreen').style.display = 'flex';
@@ -1875,8 +1897,16 @@
       pushDebugLine(`Unhandled promise rejection: ${reason}`);
     });
 
+    window.addEventListener('keydown', (event) => {
+      if(event.key === 'Escape' && !el('legalModal').hidden){
+        closeLegalNotice();
+      }
+    });
+
     window.setLang = setLang;
     window.openScreen = openScreen;
+    window.openLegalNotice = openLegalNotice;
+    window.closeLegalNotice = closeLegalNotice;
     window.openPasswordScreen = openPasswordScreen;
     window.goHome = goHome;
     window.checkPassword = checkPassword;

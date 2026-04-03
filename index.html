@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NFC Safety Demo Cloud Table</title>
+  <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
+  <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
   <link rel="stylesheet" href="./styles.css?v=20260403e" />
 </head>
 <body>
@@ -253,6 +255,30 @@
       <div id="logsPane" class="tab-pane">
         <div id="logsList" class="log-list"></div>
       </div>
+    </div>
+  </div>
+
+  <footer class="site-legal-bar">
+    <div class="site-legal-copy" id="legalCopyrightText"></div>
+    <button class="legal-link-btn" onclick="openLegalNotice()" id="legalOpenBtn" type="button"></button>
+  </footer>
+
+  <div id="legalModal" class="legal-modal" hidden>
+    <div class="legal-backdrop" onclick="closeLegalNotice()"></div>
+    <div class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="legalTitleText">
+      <div class="legal-header">
+        <h2 id="legalTitleText"></h2>
+        <button class="legal-close-btn" onclick="closeLegalNotice()" id="legalCloseBtn" type="button"></button>
+      </div>
+      <p class="legal-intro" id="legalIntroText"></p>
+      <ul class="legal-list">
+        <li id="legalLine1Text"></li>
+        <li id="legalLine2Text"></li>
+        <li id="legalLine3Text"></li>
+        <li id="legalLine4Text"></li>
+        <li id="legalLine5Text"></li>
+      </ul>
+      <div class="legal-note" id="legalDisclaimerText"></div>
     </div>
   </div>
 
