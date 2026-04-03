@@ -1316,7 +1316,7 @@
 
         const isMobileDevice = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '');
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
-        const exportDocHtml = buildReportHtml(reportLogoUrl || reportLogoSrc);
+        const exportDocHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
 
         if(isMobileDevice){
           const reportDate = new Date().toISOString().slice(0, 10);
