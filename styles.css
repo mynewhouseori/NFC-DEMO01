@@ -521,6 +521,34 @@
       background:#f8fafc;
     }
 
+    .role-login-engineer {
+      border-color:rgba(15,118,110,.28);
+      background:linear-gradient(180deg, rgba(204,251,241,.75), rgba(248,250,252,1));
+    }
+
+    .role-login-engineer .role-login-title {
+      color:#0f766e;
+    }
+
+    .role-login-engineer .role-login-btn {
+      background:#0f766e;
+      color:#fff;
+    }
+
+    .role-login-foreman {
+      border-color:rgba(217,119,6,.28);
+      background:linear-gradient(180deg, rgba(254,243,199,.78), rgba(248,250,252,1));
+    }
+
+    .role-login-foreman .role-login-title {
+      color:#b45309;
+    }
+
+    .role-login-foreman .role-login-btn {
+      background:#d97706;
+      color:#fff;
+    }
+
     .role-login-title {
       font-size:17px;
       font-weight:800;
