@@ -627,3 +627,39 @@ Object.assign(LANG.ar, {
   demoGalleryCard: 'بطاقة معدّة',
   demoGalleryCount: 'العنصر {index} من {total}'
 });
+
+Object.assign(LANG.he, {
+  scanSafetyIntro: 'לפני שימוש או הצגה ללקוח, מומלץ לעבור על שלוש נקודות קצרות: תקינות חזותית, התאמה לעומס, ותיעוד בדיקה מעודכן.',
+  safety_shackle_3: 'ודא שהפין תואם לדגם המקורי, שההברגה מלאה, ושאין סימני עיקום באזור החיבור.',
+  safety_strap_3: 'בדוק שתווית הזיהוי קריאה, שאין חשיפה לכימיקלים או שמש חזקה לאורך זמן, ושהרצועה יבשה ונקייה.',
+  safety_chain_3: 'וודא שכל אביזרי הקצה תואמים לשרשרת, שאין קיצור מאולתר, ושסימון הכושר עדיין קריא.',
+  safety_ring_3: 'בדוק שאין שחיקה חריגה בנקודת המגע עם העומס ושכל החיבורים סביב הטבעת יושבים במרכז.',
+  safety_hook_3: 'וודא שאין מרווח חריג בפתח הוו, שהלשונית נסגרת לבד, ושהעומס לא יושב על הקצה.',
+  safety_fire_3: 'אשר שמיקום המטף נגיש וברור, שמדבקת השירות מעודכנת, ושהגוף נקי מפגיעות או חלודה.',
+  safety_aircomp_3: 'בדוק את כבל החשמל, ודא שאין התחממות חריגה, ורוקן לחץ ושאריות לחות לפי הנחיות היצרן.',
+  safety_other_3: 'אשר זיהוי ברור של הפריט, בדוק שהוראות היצרן זמינות, ואל תשתמש אם חסר נתון חשוב לבטיחות.'
+});
+
+Object.assign(LANG.en, {
+  scanSafetyIntro: 'Before use or presentation, review three quick checks: visual condition, load suitability, and up-to-date inspection status.',
+  safety_shackle_3: 'Confirm the pin matches the original model, the thread is fully engaged, and there is no bending near the connection point.',
+  safety_strap_3: 'Make sure the identification label is readable, the strap is dry and clean, and there is no chemical or sun damage.',
+  safety_chain_3: 'Verify that all end fittings match the chain, no improvised shortening was done, and the capacity marking is still readable.',
+  safety_ring_3: 'Check for unusual wear at the load contact point and make sure connected parts sit centered around the ring.',
+  safety_hook_3: 'Confirm the hook opening has not widened, the latch closes by itself, and the load is not resting on the tip.',
+  safety_fire_3: 'Confirm the extinguisher is easy to access, the service label is current, and the body shows no impact or corrosion damage.',
+  safety_aircomp_3: 'Inspect the power cable, confirm there is no unusual overheating, and release pressure and moisture as required by the manufacturer.',
+  safety_other_3: 'Confirm the item is clearly identified, the manufacturer guidance is available, and do not use it if key safety information is missing.'
+});
+
+Object.assign(LANG.ar, {
+  scanSafetyIntro: 'قبل الاستخدام أو العرض، راجع ثلاث نقاط سريعة: السلامة الظاهرية، ملاءمة الحمولة، وحداثة حالة الفحص.',
+  safety_shackle_3: 'تأكد من أن المسمار مطابق للطراز الأصلي، وأن اللولب مغلق بالكامل، ولا يوجد انحناء قرب نقطة التوصيل.',
+  safety_strap_3: 'تأكد من أن بطاقة التعريف مقروءة، وأن الحزام جاف ونظيف، ولا توجد أضرار من مواد كيميائية أو من الشمس.',
+  safety_chain_3: 'تحقق من أن جميع الملحقات الطرفية مطابقة للسلسلة، ولا يوجد تقصير مرتجل، وأن علامة الحمولة ما زالت مقروءة.',
+  safety_ring_3: 'افحص وجود تآكل غير عادي عند نقطة ملامسة الحمل وتأكد من أن الأجزاء المتصلة متمركزة حول الحلقة.',
+  safety_hook_3: 'تأكد من أن فتحة الخطاف لم تتسع، وأن لسان الأمان يغلق تلقائياً، وأن الحمل لا يرتكز على الطرف.',
+  safety_fire_3: 'تأكد من سهولة الوصول إلى الطفاية، وأن ملصق الخدمة محدث، وأن الجسم خالٍ من الصدمات أو التآكل.',
+  safety_aircomp_3: 'افحص سلك الكهرباء، وتأكد من عدم وجود سخونة غير طبيعية، وقم بتفريغ الضغط والرطوبة حسب تعليمات الشركة المصنعة.',
+  safety_other_3: 'تأكد من تعريف المعدة بوضوح، وأن تعليمات الشركة المصنعة متوفرة، ولا تستخدمها إذا كانت معلومات السلامة الأساسية ناقصة.'
+});

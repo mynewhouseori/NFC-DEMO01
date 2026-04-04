@@ -193,6 +193,16 @@
       "אחר": withImageVersion(IMAGE_PATHS.shackle),
       "other": withImageVersion(IMAGE_PATHS.shackle)
     };
+    const DEMO_ISRAEL_LOCATIONS = [
+      { he: 'נמל אשדוד', en: 'Ashdod Port', ar: 'ميناء أشدود', latitude: 31.80152, longitude: 34.64042 },
+      { he: 'נמל חיפה', en: 'Haifa Port', ar: 'ميناء حيفا', latitude: 32.83038, longitude: 34.98854 },
+      { he: 'אזור תעשייה חולון', en: 'Holon Industrial Zone', ar: 'المنطقة الصناعية حولون', latitude: 32.01045, longitude: 34.77984 },
+      { he: 'קריית עתידים תל אביב', en: 'Kiryat Atidim, Tel Aviv', ar: 'كريات عتيديم تل أبيب', latitude: 32.11303, longitude: 34.84072 },
+      { he: 'פארק תעשיות קיסריה', en: 'Caesarea Industrial Park', ar: 'المنطقة الصناعية قيسارية', latitude: 32.48474, longitude: 34.90493 },
+      { he: 'אזור תעשייה באר שבע', en: 'Beersheba Industrial Area', ar: 'المنطقة الصناعية بئر السبع', latitude: 31.24384, longitude: 34.7913 },
+      { he: 'נמל אילת', en: 'Eilat Port', ar: 'ميناء إيلات', latitude: 29.54746, longitude: 34.9565 },
+      { he: 'אזור תעשייה פתח תקווה', en: 'Petah Tikva Industrial Area', ar: 'المنطقة الصناعية بيتاح تكفا', latitude: 32.09174, longitude: 34.88753 }
+    ];
 
     const el = (id) => document.getElementById(id);
     const savedLang = localStorage.getItem('lang');
@@ -556,6 +566,28 @@
       return parts.join(' • ');
     }
 
+    function getDemoLocationLabel(location){
+      if(!location){
+        return '';
+      }
+      return currentLang === 'en' ? location.en : currentLang === 'ar' ? location.ar : location.he;
+    }
+
+    function getDemoLocationSnapshot(index){
+      const location = DEMO_ISRAEL_LOCATIONS[index % DEMO_ISRAEL_LOCATIONS.length];
+      if(!location){
+        return null;
+      }
+
+      return {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: 30 + ((index % 5) * 7),
+        capturedAt: new Date(Date.now() - (index * 45 * 60000)).toISOString(),
+        label: getDemoLocationLabel(location)
+      };
+    }
+
     function getLastSeenLocationText(item){
       if(!item?.lastSeenLocation){
         return lt('locationUnavailable');
@@ -747,27 +779,31 @@
     }
 
     function getSafetyTipKeys(type){
-      if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2'];
-      if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2'];
-      if(type === '׳©׳¨׳©׳¨׳×') return ['safety_chain_1', 'safety_chain_2'];
-      if(type === '׳˜׳‘׳¢׳×') return ['safety_ring_1', 'safety_ring_2'];
-      if(type === '׳•׳•') return ['safety_hook_1', 'safety_hook_2'];
-      if(type === 'מטף כיבוי אש') return ['safety_fire_1', 'safety_fire_2'];
-      if(type === 'מדחס אויר') return ['safety_aircomp_1', 'safety_aircomp_2'];
-      return ['safety_other_1', 'safety_other_2'];
+      if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
+      if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
+      if(type === '׳©׳¨׳©׳¨׳×') return ['safety_chain_1', 'safety_chain_2', 'safety_chain_3'];
+      if(type === '׳˜׳‘׳¢׳×') return ['safety_ring_1', 'safety_ring_2', 'safety_ring_3'];
+      if(type === '׳•׳•') return ['safety_hook_1', 'safety_hook_2', 'safety_hook_3'];
+      if(type === 'מטף כיבוי אש') return ['safety_fire_1', 'safety_fire_2', 'safety_fire_3'];
+      if(type === 'מדחס אויר') return ['safety_aircomp_1', 'safety_aircomp_2', 'safety_aircomp_3'];
+      return ['safety_other_1', 'safety_other_2', 'safety_other_3'];
     }
 
     function renderScanSafetyTips(itemType){
       el('scanSafetyTitle').textContent = t('scanSafetyTitle');
+      el('scanSafetyIntro').textContent = t('scanSafetyIntro');
       el('scanSafetyList').innerHTML = getSafetyTipKeys(itemType)
         .map((key) => `<li>${escapeHtml(t(key))}</li>`)
         .join('');
     }
 
     function getSafetyTipsMarkup(itemType){
-      return getSafetyTipKeys(itemType)
+      return `
+        <div class="scan-safety-intro">${escapeHtml(t('scanSafetyIntro'))}</div>
+        <ul class="scan-safety-list">${getSafetyTipKeys(itemType)
         .map((key) => `<li>${escapeHtml(t(key))}</li>`)
-        .join('');
+        .join('')}</ul>
+      `;
     }
     function translateStatus(status){
       const normalized = normalizeStatus(status);
@@ -815,7 +851,12 @@
       const total = items.length;
 
       gallery.innerHTML = items.map((item, index) => {
+        const demoItem = {
+          ...item,
+          lastSeenLocation: getDemoLocationSnapshot(index)
+        };
         const statusClass = statusPillClass(item.status || '');
+        const demoLocationUrl = getLocationMapUrl(demoItem.lastSeenLocation);
         return `
           <article class="scan-demo-card">
             <div class="scan-demo-card-header">
@@ -823,23 +864,25 @@
               <div class="scan-demo-card-index">${escapeHtml(formatText('demoGalleryCount', { index: index + 1, total }))}</div>
             </div>
             <div class="result-grid">
-              <div class="thumb"><img src="${escapeHtml(getDisplayImageSrc(item))}" alt="Item image"></div>
+              <div class="thumb"><img src="${escapeHtml(getDisplayImageSrc(demoItem))}" alt="Item image"></div>
               <div>
-                <h3>${escapeHtml(translateType(item.itemType))}</h3>
-                <div>${escapeHtml(t('tagId'))}: <span class="mono">${escapeHtml(item.tagId || '-')}</span></div>
-                <div>${escapeHtml(t('description'))}: ${escapeHtml(item.description || '-')}</div>
-                <div>${escapeHtml(t('serial'))}: ${escapeHtml(item.serialNumber || '-')}</div>
-                <div>${escapeHtml(t('wll'))}: ${escapeHtml(item.wll || '-')}</div>
-                <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(item.nextInspection || '-')}</div>
-                <div>${escapeHtml(t('status'))}: <span class="${statusClass}">${escapeHtml(translateStatus(item.status))}</span></div>
-                <div>${escapeHtml(t('notes'))}: ${escapeHtml(item.notes || '-')}</div>
-                <div>${escapeHtml(lt('lastSeenLocation'))}: ${escapeHtml(getLastSeenLocationText(item))}</div>
+                <h3>${escapeHtml(translateType(demoItem.itemType))}</h3>
+                <div>${escapeHtml(t('tagId'))}: <span class="mono">${escapeHtml(demoItem.tagId || '-')}</span></div>
+                <div>${escapeHtml(t('description'))}: ${escapeHtml(demoItem.description || '-')}</div>
+                <div>${escapeHtml(t('serial'))}: ${escapeHtml(demoItem.serialNumber || '-')}</div>
+                <div>${escapeHtml(t('wll'))}: ${escapeHtml(demoItem.wll || '-')}</div>
+                <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(demoItem.nextInspection || '-')}</div>
+                <div>${escapeHtml(t('status'))}: <span class="${statusClass}">${escapeHtml(translateStatus(demoItem.status))}</span></div>
+                <div>${escapeHtml(t('notes'))}: ${escapeHtml(demoItem.notes || '-')}</div>
+                <div>${escapeHtml(lt('lastSeenLocation'))}: ${demoLocationUrl
+                  ? `<a class="map-link" href="${escapeHtml(demoLocationUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(getLastSeenLocationText(demoItem))}</a>`
+                  : escapeHtml(getLastSeenLocationText(demoItem))}</div>
               </div>
             </div>
-            <div class="scan-safety-card">
-              <div class="scan-safety-title">${escapeHtml(t('scanSafetyTitle'))}</div>
-              <ul class="scan-safety-list">${getSafetyTipsMarkup(item.itemType)}</ul>
-            </div>
+            <details class="scan-safety-card">
+              <summary class="scan-safety-toggle">${escapeHtml(t('scanSafetyTitle'))}</summary>
+              <div class="scan-safety-body">${getSafetyTipsMarkup(demoItem.itemType)}</div>
+            </details>
           </article>
         `;
       }).join('');
@@ -2342,6 +2385,7 @@
       const langParam = params.get('lang');
       const screenParam = params.get('screen');
       const tabParam = params.get('tab');
+      const demoParam = params.get('demo');
 
       if (langParam && LANG[langParam]) {
         setLang(langParam);
@@ -2354,6 +2398,9 @@
 
       if (screenParam === 'scan') {
         openScreen('scanScreen');
+        if(demoParam === '1'){
+          await demoScan();
+        }
         return;
       }
 

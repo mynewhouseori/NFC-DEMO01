@@ -763,17 +763,66 @@
 
     .scan-safety-card {
       margin-top:16px;
-      padding:14px 16px;
-      border-radius:16px;
-      background:#f8fafc;
-      border:1px solid #dbe4ee;
+      border-radius:18px;
+      background:linear-gradient(180deg, rgba(236,253,245,1) 0%, rgba(239,246,255,1) 100%);
+      border:1px solid #99f6e4;
+      box-shadow:0 12px 28px rgba(15, 118, 110, .08);
+      overflow:hidden;
     }
 
-    .scan-safety-title {
+    .scan-safety-card[open] {
+      border-color:#2dd4bf;
+      box-shadow:0 16px 34px rgba(15, 118, 110, .14);
+    }
+
+    .scan-safety-toggle {
+      list-style:none;
+      cursor:pointer;
+      padding:14px 16px;
       font-size:15px;
       font-weight:800;
       color:#0f172a;
-      margin-bottom:8px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      background:linear-gradient(90deg, rgba(15,118,110,.12), rgba(59,130,246,.08));
+    }
+
+    .scan-safety-toggle::-webkit-details-marker {
+      display:none;
+    }
+
+    .scan-safety-toggle::after {
+      content:'+';
+      width:28px;
+      height:28px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      background:#ffffff;
+      color:#0f766e;
+      font-size:18px;
+      font-weight:900;
+      flex-shrink:0;
+      box-shadow:0 4px 12px rgba(15, 118, 110, .12);
+    }
+
+    .scan-safety-card[open] .scan-safety-toggle::after {
+      content:'-';
+    }
+
+    .scan-safety-body {
+      padding:14px 16px 16px;
+      border-top:1px solid rgba(45, 212, 191, .22);
+    }
+
+    .scan-safety-intro {
+      color:#155e75;
+      font-size:14px;
+      line-height:1.7;
+      font-weight:600;
+      margin-bottom:10px;
     }
 
     .scan-safety-list {
