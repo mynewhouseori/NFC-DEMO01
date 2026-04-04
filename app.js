@@ -9,6 +9,7 @@
       getDocs,
       addDoc,
       query,
+      where,
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
@@ -211,10 +212,17 @@
       items: { value: null, loadedAt: 0, promise: null },
       logs: { value: null, loadedAt: 0, promise: null }
     };
+    const reportArchiveState = {
+      from: '',
+      to: '',
+      visits: [],
+      logsByKey: new Map()
+    };
     let lastSavedTagId = '';
     let passwordContext = 'register';
     let registerAccessRole = '';
     let currentScannedItem = null;
+    let scanDemoGalleryMode = false;
     let customImageSrc = '';
     let pendingImageTask = null;
     let activeVisit = null;
@@ -556,6 +564,34 @@
       return item.lastSeenLocation.label || formatLocationSnapshot(item.lastSeenLocation) || lt('locationUnavailable');
     }
 
+    function getLocationMapUrl(location){
+      if(!location || typeof location.latitude !== 'number' || typeof location.longitude !== 'number'){
+        return '';
+      }
+
+      const lat = Number(location.latitude).toFixed(6);
+      const lng = Number(location.longitude).toFixed(6);
+      return `https://www.google.com/maps?q=${encodeURIComponent(`${lat},${lng}`)}`;
+    }
+
+    function updateLastSeenLocationLink(item){
+      const link = el('scanLastSeenLocation');
+      if(!link){
+        return;
+      }
+
+      const mapUrl = getLocationMapUrl(item?.lastSeenLocation);
+      if(mapUrl){
+        link.textContent = t('locationMapLink');
+        link.href = mapUrl;
+        link.classList.remove('is-disabled');
+      } else {
+        link.textContent = getLastSeenLocationText(item);
+        link.href = '#';
+        link.classList.add('is-disabled');
+      }
+    }
+
     function getCurrentLocationSnapshot(){
       return new Promise((resolve) => {
         if(!navigator.geolocation){
@@ -728,6 +764,11 @@
         .join('');
     }
 
+    function getSafetyTipsMarkup(itemType){
+      return getSafetyTipKeys(itemType)
+        .map((key) => `<li>${escapeHtml(t(key))}</li>`)
+        .join('');
+    }
     function translateStatus(status){
       const normalized = normalizeStatus(status);
       if(normalized === 'ok') return t('status_ok');
@@ -761,6 +802,52 @@
       } else if(normalized === 'disabled'){
         node.classList.add('pill', 'pill-bad');
       }
+    }
+
+    function hideScanDemoGallery(){
+      scanDemoGalleryMode = false;
+      el('scanDemoGallery').classList.remove('active');
+      el('scanDemoGallery').innerHTML = '';
+    }
+
+    function renderScanDemoGallery(items){
+      const gallery = el('scanDemoGallery');
+      const total = items.length;
+
+      gallery.innerHTML = items.map((item, index) => {
+        const statusClass = statusPillClass(item.status || '');
+        return `
+          <article class="scan-demo-card">
+            <div class="scan-demo-card-header">
+              <div class="scan-demo-card-title">${escapeHtml(t('demoGalleryCard'))}</div>
+              <div class="scan-demo-card-index">${escapeHtml(formatText('demoGalleryCount', { index: index + 1, total }))}</div>
+            </div>
+            <div class="result-grid">
+              <div class="thumb"><img src="${escapeHtml(getDisplayImageSrc(item))}" alt="Item image"></div>
+              <div>
+                <h3>${escapeHtml(translateType(item.itemType))}</h3>
+                <div>${escapeHtml(t('tagId'))}: <span class="mono">${escapeHtml(item.tagId || '-')}</span></div>
+                <div>${escapeHtml(t('description'))}: ${escapeHtml(item.description || '-')}</div>
+                <div>${escapeHtml(t('serial'))}: ${escapeHtml(item.serialNumber || '-')}</div>
+                <div>${escapeHtml(t('wll'))}: ${escapeHtml(item.wll || '-')}</div>
+                <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(item.nextInspection || '-')}</div>
+                <div>${escapeHtml(t('status'))}: <span class="${statusClass}">${escapeHtml(translateStatus(item.status))}</span></div>
+                <div>${escapeHtml(t('notes'))}: ${escapeHtml(item.notes || '-')}</div>
+                <div>${escapeHtml(lt('lastSeenLocation'))}: ${escapeHtml(getLastSeenLocationText(item))}</div>
+              </div>
+            </div>
+            <div class="scan-safety-card">
+              <div class="scan-safety-title">${escapeHtml(t('scanSafetyTitle'))}</div>
+              <ul class="scan-safety-list">${getSafetyTipsMarkup(item.itemType)}</ul>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      scanDemoGalleryMode = true;
+      gallery.classList.add('active');
+      el('scanResult').classList.remove('active');
+      populateScanEditForm(null);
     }
 
     function normalizeStatus(status){
@@ -1088,6 +1175,9 @@
       updateRegisterAccessUi();
       updateTableFilterOptions();
       selectImageByType();
+      if(scanDemoGalleryMode && dataCache.items.value?.length){
+        renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
+      }
       renderScanLogs();
       renderItemsTable();
       refreshDebugPanel();
@@ -1891,6 +1981,7 @@
       clearStatuses();
 
       if(screenId === 'scanScreen'){
+        hideScanDemoGallery();
         el('scanResult').classList.remove('active');
         currentScannedItem = null;
         populateScanEditForm(null);
@@ -1911,6 +2002,7 @@
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el('homeScreen').style.display = 'flex';
       clearStatuses();
+      hideScanDemoGallery();
       currentScannedItem = null;
       registerAccessRole = '';
       populateScanEditForm(null);
@@ -2233,7 +2325,7 @@
       }
 
       const line = document.createElement('div');
-      line.innerHTML = `<span id="lblLastSeenLocation"></span>: <span id="scanLastSeenLocation"></span>`;
+      line.innerHTML = `<span id="lblLastSeenLocation"></span>: <a id="scanLastSeenLocation" class="map-link" href="#" target="_blank" rel="noopener noreferrer"></a>`;
       detailsColumn.insertBefore(line, notesLine.nextSibling);
     }
 
@@ -2306,6 +2398,7 @@
     }
 
     function fillScanCard(item){
+      hideScanDemoGallery();
       currentScannedItem = item;
       el('scanItemImage').src = getDisplayImageSrc(item);
       el('scanItemType').textContent = translateType(item.itemType);
@@ -2317,7 +2410,7 @@
       el('scanItemStatus').textContent = translateStatus(item.status);
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
-      el('scanLastSeenLocation').textContent = getLastSeenLocationText(item);
+      updateLastSeenLocationLink(item);
       renderScanSafetyTips(item.itemType);
       el('scanResult').classList.add('active');
       populateScanEditForm(item);
@@ -2469,6 +2562,7 @@
         const items = await getItems();
 
         if(!items.length){
+          hideScanDemoGallery();
           currentScannedItem = null;
           populateScanEditForm(null);
           el('scanResult').classList.remove('active');
@@ -2476,15 +2570,11 @@
           return;
         }
 
-        const item = getNewestItem(items) || items[0];
-        el('scanStatus').textContent = `${t('demoMode')} • ${lt('locationPending')}`;
-        const locationSnapshot = await getCurrentLocationSnapshot();
-        const displayItem = await attachLastSeenToItem(item, locationSnapshot);
-        await saveScanLog(displayItem.tagId, true, displayItem, locationSnapshot, { actionType: 'check' });
-        pushDebugLine(`Demo scan used newest item ${displayItem.tagId}.`);
-        el('scanStatus').textContent = locationSnapshot ? `${t('demoMode')} • ${lt('locationSaved')}` : t('demoMode');
-        fillScanCard(displayItem);
-        renderScanLogs();
+        const sortedItems = [...items].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || ''));
+        renderScanDemoGallery(sortedItems);
+        currentScannedItem = null;
+        el('scanStatus').textContent = t('demoGalleryReady');
+        pushDebugLine(`Demo gallery rendered with ${sortedItems.length} items.`);
       } catch (e) {
         pushDebugLine(`Demo scan error: ${e.message}`);
         el('scanStatus').textContent = t('cloudReadError');

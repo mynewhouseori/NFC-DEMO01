@@ -178,7 +178,8 @@ export const LANG = {
     visitReportEmpty: 'אין עדיין פריטים מתאימים בדוח הביקור הזה.',
     visitReportSignature: 'חתימת מהנדס',
     visitReportGenerated: 'הדוח הופק בתאריך {date}',
-    visitReportFooter: 'הדוח נוצר מתוך יומן ביקור מהנדס במערכת.'
+    visitReportFooter: 'הדוח נוצר מתוך יומן ביקור מהנדס במערכת.',
+    locationMapLink: 'פתח מפה'
   },
   en: {
     dir: 'ltr',
@@ -359,7 +360,8 @@ export const LANG = {
     visitReportEmpty: 'There are no matching items in this visit report yet.',
     visitReportSignature: 'Engineer Signature',
     visitReportGenerated: 'Report generated on {date}',
-    visitReportFooter: 'This report was generated from the engineer visit log in the app.'
+    visitReportFooter: 'This report was generated from the engineer visit log in the app.',
+    locationMapLink: 'Open Map'
   },
   ar: {
     dir: 'rtl',
@@ -544,4 +546,84 @@ Object.assign(LANG.ar, {
   visitReportSignature: 'توقيع المهندس',
   visitReportGenerated: 'تم إنشاء التقرير بتاريخ {date}',
   visitReportFooter: 'تم إنشاء هذا التقرير من سجل زيارة المهندس في التطبيق.'
+});
+Object.assign(LANG.he, {
+  reportArchiveTitle: 'ארכיון דוחות לפי תאריך',
+  reportArchiveSubtitle: 'בחר טווח תאריכים כדי למשוך ביקורים שמורים ולפתוח את הדוח של כל ביקור.',
+  reportDateFrom: 'מתאריך',
+  reportDateTo: 'עד תאריך',
+  reportArchiveLoad: 'משוך דוחות',
+  reportArchiveReset: 'אפס טווח',
+  reportArchiveLoading: 'טוען דוחות לפי תאריך...',
+  reportArchiveInvalidRange: 'תאריך ההתחלה חייב להיות מוקדם או שווה לתאריך הסיום.',
+  reportArchiveEmpty: 'לא נמצאו דוחות בטווח התאריכים שנבחר.',
+  reportArchiveSummary: 'נמצאו {count} ביקורים בין {from} ל-{to}.',
+  reportArchiveExport: 'פתח דוח ביקור',
+  reportArchiveMetaEngineer: 'מהנדס',
+  reportArchiveMetaClient: 'לקוח',
+  reportArchiveMetaSite: 'אתר',
+  reportArchiveMetaItems: 'פריטים בדוח',
+  reportArchiveMetaClosed: 'סיום ביקור',
+  reportArchiveLoadError: 'לא ניתן היה למשוך דוחות כעת.',
+  logsHistoryTitle: 'יומן סריקות אחרון'
+});
+
+Object.assign(LANG.en, {
+  reportArchiveTitle: 'Report Archive by Date',
+  reportArchiveSubtitle: 'Choose a date range to pull saved visits and open the report for each visit.',
+  reportDateFrom: 'From Date',
+  reportDateTo: 'To Date',
+  reportArchiveLoad: 'Load Reports',
+  reportArchiveReset: 'Reset Range',
+  reportArchiveLoading: 'Loading reports by date...',
+  reportArchiveInvalidRange: 'The start date must be earlier than or equal to the end date.',
+  reportArchiveEmpty: 'No reports were found in the selected date range.',
+  reportArchiveSummary: 'Found {count} visits between {from} and {to}.',
+  reportArchiveExport: 'Open Visit Report',
+  reportArchiveMetaEngineer: 'Engineer',
+  reportArchiveMetaClient: 'Client',
+  reportArchiveMetaSite: 'Site',
+  reportArchiveMetaItems: 'Items in Report',
+  reportArchiveMetaClosed: 'Visit Closed',
+  reportArchiveLoadError: 'Could not load reports right now.',
+  logsHistoryTitle: 'Recent Scan Log'
+});
+
+Object.assign(LANG.ar, {
+  reportArchiveTitle: 'أرشيف التقارير حسب التاريخ',
+  reportArchiveSubtitle: 'اختر نطاق تاريخ لسحب الزيارات المحفوظة وفتح تقرير كل زيارة.',
+  reportDateFrom: 'من تاريخ',
+  reportDateTo: 'إلى تاريخ',
+  reportArchiveLoad: 'سحب التقارير',
+  reportArchiveReset: 'إعادة ضبط النطاق',
+  reportArchiveLoading: 'جارٍ تحميل التقارير حسب التاريخ...',
+  reportArchiveInvalidRange: 'يجب أن يكون تاريخ البداية أقدم من أو مساوياً لتاريخ النهاية.',
+  reportArchiveEmpty: 'لم يتم العثور على تقارير ضمن نطاق التاريخ المحدد.',
+  reportArchiveSummary: 'تم العثور على {count} زيارات بين {from} و {to}.',
+  reportArchiveExport: 'فتح تقرير الزيارة',
+  reportArchiveMetaEngineer: 'المهندس',
+  reportArchiveMetaClient: 'العميل',
+  reportArchiveMetaSite: 'الموقع',
+  reportArchiveMetaItems: 'العناصر في التقرير',
+  reportArchiveMetaClosed: 'إغلاق الزيارة',
+  reportArchiveLoadError: 'تعذر تحميل التقارير الآن.',
+  logsHistoryTitle: 'سجل المسح الأخير'
+});
+
+Object.assign(LANG.he, {
+  demoGalleryReady: 'מצב הדמיה פעיל. גוללים בין כל כרטיסי הציוד.',
+  demoGalleryCard: 'כרטיס ציוד',
+  demoGalleryCount: 'פריט {index} מתוך {total}'
+});
+
+Object.assign(LANG.en, {
+  demoGalleryReady: 'Demo presentation mode is active. Scroll through all equipment cards.',
+  demoGalleryCard: 'Equipment Card',
+  demoGalleryCount: 'Item {index} of {total}'
+});
+
+Object.assign(LANG.ar, {
+  demoGalleryReady: 'وضع العرض التجريبي نشط. مرر بين جميع بطاقات المعدات.',
+  demoGalleryCard: 'بطاقة معدّة',
+  demoGalleryCount: 'العنصر {index} من {total}'
 });

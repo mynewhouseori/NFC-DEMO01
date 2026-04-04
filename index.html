@@ -80,6 +80,7 @@
       <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
       <button class="secondary-btn" onclick="demoScan()" id="demoScanBtn"></button>
       <div id="scanStatus" class="status muted"></div>
+      <div id="scanDemoGallery" class="scan-demo-gallery"></div>
 
       <div id="scanResult" class="result-card">
         <div class="result-grid">
@@ -93,7 +94,7 @@
             <div><span id="lblNextInspection"></span>: <span id="scanNextInspection"></span></div>
             <div><span id="lblStatus"></span>: <span id="scanItemStatus"></span></div>
             <div><span id="lblNotes"></span>: <span id="scanNotes"></span></div>
-            <div><span id="lblLastSeenLocation"></span>: <span id="scanLastSeenLocation"></span></div>
+            <div><span id="lblLastSeenLocation"></span>: <a id="scanLastSeenLocation" class="map-link" href="#" target="_blank" rel="noopener noreferrer"></a></div>
           </div>
         </div>
 
@@ -170,7 +171,7 @@
       <div class="tabs">
         <button class="tab-btn active" id="tabRegisterBtn" onclick="openRegisterTab('registerPane')"></button>
         <button class="tab-btn" id="tabTableBtn" onclick="openRegisterTab('tablePane'); renderItemsTable()"></button>
-        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane'); renderScanLogs()"></button>
+        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane'); renderReportArchive(); renderScanLogs()"></button>
       </div>
 
       <div id="registerPane" class="tab-pane active">
@@ -330,6 +331,33 @@
       </div>
 
       <div id="logsPane" class="tab-pane">
+        <div class="report-archive-panel">
+          <div class="table-toolbar">
+            <div>
+              <div class="report-archive-title" id="reportArchiveTitleText"></div>
+              <div class="report-archive-subtitle" id="reportArchiveSubtitleText"></div>
+            </div>
+          </div>
+          <div class="table-toolbar">
+            <div class="report-archive-filters">
+              <div>
+                <label for="reportDateFrom" id="reportDateFromLabel"></label>
+                <input id="reportDateFrom" class="toolbar-input" type="date">
+              </div>
+              <div>
+                <label for="reportDateTo" id="reportDateToLabel"></label>
+                <input id="reportDateTo" class="toolbar-input" type="date">
+              </div>
+              <button class="mini-btn" onclick="renderReportArchive()" id="reportArchiveLoadBtn" type="button"></button>
+              <button class="mini-btn" onclick="resetReportArchiveFilters()" id="reportArchiveResetBtn" type="button"></button>
+            </div>
+          </div>
+          <div id="reportArchiveStatus" class="status muted"></div>
+          <div id="reportArchiveList" class="report-archive-list"></div>
+        </div>
+        <div class="table-toolbar">
+          <div class="report-archive-title" id="logsHistoryTitleText"></div>
+        </div>
         <div id="logsList" class="log-list"></div>
       </div>
     </div>
