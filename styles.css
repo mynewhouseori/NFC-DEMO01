@@ -1273,10 +1273,10 @@
     }
 
     .visit-primary-action .mini-btn.active-visit {
-      background:#166534;
-      border-color:#166534;
+      background:#ea580c;
+      border-color:#ea580c;
       color:#ffffff;
-      box-shadow:0 0 0 3px rgba(34,197,94,.18), 0 10px 24px rgba(22,101,52,.22);
+      box-shadow:0 0 0 3px rgba(249,115,22,.22), 0 10px 24px rgba(194,65,12,.28);
     }
 
     .visit-actions {
