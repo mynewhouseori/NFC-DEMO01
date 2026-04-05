@@ -371,7 +371,10 @@
       } else {
         statusText.classList.add('status-ok');
       }
-      el('visitSaveBtn').textContent = !activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate');
+      const visitSaveBtn = el('visitSaveBtn');
+      const isActiveVisit = !!activeVisit && activeVisit.status !== 'closed';
+      visitSaveBtn.textContent = isActiveVisit ? t('visitSaveActive') : (!activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate'));
+      visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('exportVisitReportBtn').disabled = !activeVisit;

@@ -1272,6 +1272,13 @@
       justify-self:start;
     }
 
+    .visit-primary-action .mini-btn.active-visit {
+      background:#166534;
+      border-color:#166534;
+      color:#ffffff;
+      box-shadow:0 0 0 3px rgba(34,197,94,.18), 0 10px 24px rgba(22,101,52,.22);
+    }
+
     .visit-actions {
       display:grid;
       grid-template-columns:repeat(2, minmax(0, 1fr));
