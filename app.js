@@ -391,6 +391,15 @@
       return el('visitSignaturePad');
     }
 
+    function refreshVisitSignaturePad(){
+      if(!visitSignaturePadState?.resizeCanvas){
+        return;
+      }
+      requestAnimationFrame(() => {
+        visitSignaturePadState?.resizeCanvas?.();
+      });
+    }
+
     function setupVisitSignaturePad(){
       const canvas = getVisitSignatureCanvas();
       if(!canvas){
@@ -2961,6 +2970,7 @@
       openScreen('registerScreen');
       openRegisterTab(role === 'engineer' ? 'registerPane' : 'tablePane');
       updateRegisterAccessUi();
+      refreshVisitSignaturePad();
     }
 
     function openRegisterTab(tabId){
@@ -2973,6 +2983,7 @@
 
       if(tabId === 'registerPane'){
         el('tabRegisterBtn').classList.add('active');
+        refreshVisitSignaturePad();
       } else if(tabId === 'tablePane'){
         el('tabTableBtn').classList.add('active');
       } else {
