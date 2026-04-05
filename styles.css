@@ -1344,7 +1344,7 @@
   gap:10px;
 }
 
-#logsPane {
+.tab-pane#logsPane.active {
   display:flex;
   flex-direction:column;
   gap:14px;
