@@ -397,6 +397,11 @@
         return;
       }
 
+      if(canvas.dataset.signatureBound === '1'){
+        visitSignaturePadState?.resizeCanvas?.();
+        return;
+      }
+
       const context = canvas.getContext('2d');
       context.lineWidth = 2.2;
       context.lineCap = 'round';
@@ -428,11 +433,14 @@
         }
       };
 
-      const pointerPosition = (event) => {
+      const eventPosition = (event) => {
         const rect = canvas.getBoundingClientRect();
+        const touch = event.touches?.[0] || event.changedTouches?.[0] || null;
+        const clientX = touch ? touch.clientX : event.clientX;
+        const clientY = touch ? touch.clientY : event.clientY;
         return {
-          x: event.clientX - rect.left,
-          y: event.clientY - rect.top
+          x: clientX - rect.left,
+          y: clientY - rect.top
         };
       };
 
@@ -468,80 +476,65 @@
         drawing: false,
         dirty: false,
         lastPoint: null,
-        activePointerId: null,
-        mouseFallback: false,
+        activeInput: '',
         resizeCanvas
       };
 
-      canvas.addEventListener('pointerdown', (event) => {
-        if(event.pointerType === 'mouse' && event.button !== 0){
+      const startDrawing = (event, source) => {
+        if(source === 'mouse' && event.button !== 0){
           return;
         }
         event.preventDefault();
         canvas.focus?.();
-        visitSignaturePadState.mouseFallback = false;
-        visitSignaturePadState.activePointerId = event.pointerId;
-        startStroke(pointerPosition(event));
-        try { canvas.setPointerCapture(event.pointerId); } catch {}
-      });
+        visitSignaturePadState.activeInput = source;
+        startStroke(eventPosition(event));
+      };
 
-      canvas.addEventListener('pointermove', (event) => {
-        if(event.pointerId !== visitSignaturePadState?.activePointerId){
+      const continueDrawing = (event, source) => {
+        if(!visitSignaturePadState?.drawing || visitSignaturePadState.activeInput !== source){
           return;
         }
-        if(event.pointerType === 'mouse' && (event.buttons & 1) !== 1){
-          stopDrawing(event);
+        if(source === 'mouse' && (event.buttons & 1) !== 1){
+          stopDrawing();
           return;
         }
-        moveStroke(pointerPosition(event));
-      });
+        event.preventDefault();
+        moveStroke(eventPosition(event));
+      };
 
-      const stopDrawing = (event) => {
+      const stopDrawing = () => {
         if(!visitSignaturePadState){
           return;
         }
         visitSignaturePadState.drawing = false;
         visitSignaturePadState.lastPoint = null;
-        visitSignaturePadState.activePointerId = null;
-        visitSignaturePadState.mouseFallback = false;
-        if(event?.pointerId !== undefined){
-          try { canvas.releasePointerCapture(event.pointerId); } catch {}
-        }
+        visitSignaturePadState.activeInput = '';
       };
 
       canvas.addEventListener('mousedown', (event) => {
-        if(event.button !== 0){
-          return;
-        }
-        if(visitSignaturePadState?.activePointerId !== null){
-          return;
-        }
-        event.preventDefault();
-        visitSignaturePadState.mouseFallback = true;
-        startStroke(pointerPosition(event));
+        startDrawing(event, 'mouse');
       });
 
-      canvas.addEventListener('mousemove', (event) => {
-        if(!visitSignaturePadState?.mouseFallback){
-          return;
-        }
-        if((event.buttons & 1) !== 1){
-          stopDrawing();
-          return;
-        }
-        moveStroke(pointerPosition(event));
+      window.addEventListener('mousemove', (event) => {
+        continueDrawing(event, 'mouse');
       });
 
       window.addEventListener('mouseup', () => {
-        if(visitSignaturePadState?.mouseFallback){
-          stopDrawing();
-        }
+        stopDrawing();
       });
 
-      canvas.addEventListener('pointerup', stopDrawing);
-      canvas.addEventListener('pointercancel', stopDrawing);
-      window.addEventListener('pointerup', stopDrawing);
+      canvas.addEventListener('touchstart', (event) => {
+        startDrawing(event, 'touch');
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (event) => {
+        continueDrawing(event, 'touch');
+      }, { passive: false });
+
+      window.addEventListener('touchend', stopDrawing, { passive: true });
+      window.addEventListener('touchcancel', stopDrawing, { passive: true });
       window.addEventListener('resize', resizeCanvas);
+      canvas.dataset.signatureBound = '1';
       resizeCanvas();
     }
 
