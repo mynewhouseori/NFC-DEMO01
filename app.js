@@ -321,7 +321,7 @@
     }
 
     function populateVisitForm(visit = null){
-      el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
+      el('visitDate').value = visit?.date ? formatDateInputValue(visit.date) : '';
       el('visitEngineer').value = visit?.engineer || '';
       el('visitClient').value = visit?.client || '';
       el('visitSite').value = visit?.site || '';
@@ -2971,6 +2971,9 @@
       el('engineerPasswordInput').value = '';
       el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
+      if(role === 'engineer' && (!activeVisit || activeVisit.status === 'closed')){
+        populateVisitForm(null);
+      }
       openScreen('registerScreen');
       openRegisterTab(role === 'engineer' ? 'registerPane' : 'tablePane');
       updateRegisterAccessUi();
