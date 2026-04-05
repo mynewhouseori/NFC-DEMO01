@@ -1443,6 +1443,23 @@
       });
 
       container.addEventListener('click', (event) => {
+        const clearNoteButton = event.target.closest('.table-clear-note-btn');
+        if(clearNoteButton){
+          event.preventDefault();
+          event.stopPropagation();
+          const tagId = clearNoteButton.dataset.tagId || '';
+          const safeTagId = CSS.escape(String(tagId));
+          const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
+          if(notesInput){
+            notesInput.value = '';
+            const draft = pendingTableEdits.get(tagId) || {};
+            draft.notes = '';
+            pendingTableEdits.set(tagId, draft);
+            notesInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+          return;
+        }
+
         const saveButton = event.target.closest('.table-save-btn');
         if(saveButton){
           event.preventDefault();
@@ -2310,7 +2327,10 @@
                       : `<span>${escapeHtml(formatDisplayDate(draftNextInspection))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('notes')}">
-                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(draftNotes)}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
+                    <div class="table-notes-wrap">
+                      <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(draftNotes)}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
+                      ${canEditRegister() ? `<button class="table-clear-note-btn" type="button" data-tag-id="${escapeHtml(item.tagId || '')}" aria-label="${escapeHtml(t('clearNote'))}" title="${escapeHtml(t('clearNote'))}">×</button>` : ''}
+                    </div>
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">

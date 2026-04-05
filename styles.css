@@ -1589,6 +1589,25 @@
       font-weight:700;
     }
 
+    .table-notes-wrap {
+      display:grid;
+      gap:6px;
+    }
+
+    .table-clear-note-btn {
+      justify-self:end;
+      min-width:28px;
+      height:28px;
+      padding:0;
+      border-radius:999px;
+      border:1px solid #fecaca;
+      background:#fff1f2;
+      color:#b91c1c;
+      font-size:16px;
+      line-height:1;
+      cursor:pointer;
+    }
+
     .table-actions-cell {
       display:grid;
       gap:4px;
