@@ -1297,11 +1297,16 @@
     }
 
     .map-link {
-      color:var(--accent);
+      color:#0b57d0;
       font-weight:700;
       text-decoration:underline;
       text-underline-offset:2px;
       word-break:break-word;
+    }
+
+    .map-link:hover,
+    .map-link:focus-visible {
+      color:#0842a0;
     }
 
     .map-link.is-disabled {
