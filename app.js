@@ -352,7 +352,7 @@
 
       const summary = activeVisit
         ? formatText('visitSummaryLine', {
-            date: activeVisit.date || todayIsoDate(),
+            date: formatDisplayDate(activeVisit.date || todayIsoDate()),
             engineer: activeVisit.engineer || '-',
             ...getVisitLogCounts()
           })
@@ -561,7 +561,7 @@
 
       if(location.capturedAt){
         parts.push(formatLocationText('locationAt', {
-          time: new Date(location.capturedAt).toLocaleString()
+          time: formatDisplayDateTime(location.capturedAt)
         }));
       }
 
@@ -880,7 +880,7 @@
                 <div>${escapeHtml(t('description'))}: ${escapeHtml(demoItem.description || '-')}</div>
                 <div>${escapeHtml(t('serial'))}: ${escapeHtml(demoItem.serialNumber || '-')}</div>
                 <div>${escapeHtml(t('wll'))}: ${escapeHtml(demoItem.wll || '-')}</div>
-                <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(demoItem.nextInspection || '-')}</div>
+                <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(formatDisplayDate(demoItem.nextInspection))}</div>
                 <div>${escapeHtml(t('status'))}: <span class="${statusClass}">${escapeHtml(translateStatus(demoItem.status))}</span></div>
                 <div class="${noteClass}">${escapeHtml(t('notes'))}: ${escapeHtml(demoItem.notes || '-')}</div>
                 <div>${escapeHtml(lt('lastSeenLocation'))}: ${demoLocationUrl
@@ -1614,9 +1614,26 @@
     }
 
     function formatReportDate(value){
-      const parsed = parseInspectionDate(value);
-      if(!parsed) return value || '-';
-      return parsed.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
+      return formatDisplayDate(value);
+    }
+
+    function formatDisplayDate(value){
+      const normalizedDate = normalizeRegistrationDate(value);
+      if(!normalizedDate) return value || '-';
+      const [year, month, day] = normalizedDate.split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function formatDisplayDateTime(value){
+      const timeValue = toTimeValue(value);
+      if(!timeValue) return value || '-';
+      const parsed = new Date(timeValue);
+      const day = String(parsed.getDate()).padStart(2, '0');
+      const month = String(parsed.getMonth() + 1).padStart(2, '0');
+      const year = parsed.getFullYear();
+      const hours = String(parsed.getHours()).padStart(2, '0');
+      const minutes = String(parsed.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
     }
 
     let reportLogoDataUrlPromise = null;
@@ -1746,7 +1763,7 @@
         const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
         const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
         const reportItems = [...items].sort(compareInspectionUrgency);
-        const generatedAt = new Date().toLocaleString(currentLang === 'en' ? 'en-US' : currentLang === 'ar' ? 'ar' : 'he-IL');
+        const generatedAt = formatDisplayDateTime(new Date());
 
         const priorityRows = reportItems.length
           ? reportItems.map((item) => {
@@ -2025,7 +2042,7 @@
                   <span class="${foundClass}">${stateText}</span>
                   ${statusText ? `<span class="${statusClass}">${t('status')}: ${statusText}</span>` : ''}
                 </div>
-                <span class="log-time">${log.time}</span>
+                <span class="log-time">${escapeHtml(formatDisplayDateTime(log.time))}</span>
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
               ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
@@ -2102,10 +2119,14 @@
                     <input class="toolbar-input table-inline-input table-site-name-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.siteName || '')}" placeholder="${escapeHtml(t('siteNamePlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
                   <td class="table-edit-cell" data-label="${t('registrationDate')}">
-                    <input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(getRegistrationDateValue(item))}" ${canEditRegister() ? '' : 'disabled'}>
+                    ${canEditRegister()
+                      ? `<input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(getRegistrationDateValue(item))}">`
+                      : `<span>${escapeHtml(formatDisplayDate(getRegistrationDateValue(item)))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
-                    <input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}" ${canEditRegister() ? '' : 'disabled'}>
+                    ${canEditRegister()
+                      ? `<input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}">`
+                      : `<span>${escapeHtml(formatDisplayDate(item.nextInspection))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('notes')}">
                     <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
@@ -2366,7 +2387,7 @@
         const entries = buildVisitEntries(logs, items);
         const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
-        const generatedAt = new Date().toLocaleString(getLocaleTag());
+        const generatedAt = formatDisplayDateTime(new Date());
 
         const renderRows = (rows) => rows.length ? rows.map((entry) => `
           <tr>
@@ -2417,12 +2438,12 @@
 
             <div class="meta">
               <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(activeVisit.date || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(activeVisit.date || '-'))}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(activeVisit.startedAt || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(activeVisit.endedAt || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.endedAt || '-'))}</div>
               </div>
               ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
             </div>
@@ -2594,7 +2615,7 @@
       el('scanSerial').textContent = item.serialNumber || '-';
       el('scanWll').textContent = item.wll || '-';
       el('scanSiteName').textContent = item.siteName || '-';
-      el('scanNextInspection').textContent = item.nextInspection || '-';
+      el('scanNextInspection').textContent = formatDisplayDate(item.nextInspection);
       el('scanItemStatus').textContent = translateStatus(item.status);
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
