@@ -311,7 +311,7 @@
 
     function getVisitFormData(){
       return {
-        date: String(el('visitDate')?.value || todayIsoDate()).trim() || todayIsoDate(),
+        date: normalizeRegistrationDate(el('visitDate')?.value) || todayIsoDate(),
         engineer: String(el('visitEngineer')?.value || '').trim(),
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
@@ -321,7 +321,7 @@
     }
 
     function populateVisitForm(visit = null){
-      el('visitDate').value = visit?.date || todayIsoDate();
+      el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
       el('visitEngineer').value = visit?.engineer || '';
       el('visitClient').value = visit?.client || '';
       el('visitSite').value = visit?.site || '';
@@ -1084,8 +1084,8 @@
       el('scanEditDescription').value = item.description || '';
       el('scanEditSerial').value = item.serialNumber || '';
       el('scanEditWll').value = item.wll || '';
-      el('scanEditRegistrationDate').value = getRegistrationDateValue(item);
-      el('scanEditNextInspection').value = item.nextInspection || '';
+      el('scanEditRegistrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
+      el('scanEditNextInspection').value = formatDateInputValue(item.nextInspection);
       el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
       el('scanEditSiteName').value = item.siteName || '';
       el('scanEditNotes').value = item.notes || '';
@@ -1543,8 +1543,8 @@
         const updatedItem = {
           ...existing,
           status: statusInput.value,
-          registrationDate: registrationDateInput.value,
-          nextInspection: dateInput.value,
+          registrationDate: normalizeRegistrationDate(registrationDateInput.value),
+          nextInspection: normalizeRegistrationDate(dateInput.value),
           siteName: siteNameInput.value.trim(),
           notes: notesInput.value.trim(),
           updatedAt: new Date().toLocaleString()
@@ -1654,9 +1654,9 @@
     }
 
     function parseInspectionDate(value){
-      const text = String(value || '').trim();
-      if(!text) return null;
-      const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const normalizedDate = normalizeRegistrationDate(value);
+      if(!normalizedDate) return null;
+      const match = normalizedDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
       if(!match) return null;
       const [, year, month, day] = match;
       return new Date(Number(year), Number(month) - 1, Number(day));
@@ -1678,6 +1678,11 @@
       return formatDisplayDate(value);
     }
 
+    function formatDateInputValue(value){
+      const normalizedDate = normalizeRegistrationDate(value);
+      return normalizedDate ? formatDisplayDate(normalizedDate) : '';
+    }
+
     function formatDisplayDate(value){
       const normalizedDate = normalizeRegistrationDate(value);
       if(!normalizedDate) return value || '-';
@@ -1695,6 +1700,32 @@
       const hours = String(parsed.getHours()).padStart(2, '0');
       const minutes = String(parsed.getMinutes()).padStart(2, '0');
       return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+
+    function formatDateDigits(value){
+      const digits = String(value || '').replace(/\D/g, '').slice(0, 8);
+      if(digits.length <= 2) return digits;
+      if(digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+      return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+    }
+
+    function bindDateTextInputs(){
+      document.querySelectorAll('.date-text-input').forEach((input) => {
+        if(input.dataset.dateBound === '1'){
+          return;
+        }
+        input.dataset.dateBound = '1';
+        input.addEventListener('input', () => {
+          const formatted = formatDateDigits(input.value);
+          if(input.value !== formatted){
+            input.value = formatted;
+          }
+        });
+        input.addEventListener('blur', () => {
+          const normalizedDate = normalizeRegistrationDate(input.value);
+          input.value = normalizedDate ? formatDisplayDate(normalizedDate) : String(input.value || '').trim();
+        });
+      });
     }
 
     let reportLogoDataUrlPromise = null;
@@ -1739,6 +1770,13 @@
       if(/^\d{4}-\d{2}-\d{2}$/.test(text)){
         return text;
       }
+      const displayMatch = text.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+      if(displayMatch){
+        const [, dayText, monthText, year] = displayMatch;
+        const day = String(dayText).padStart(2, '0');
+        const month = String(monthText).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
       const timeValue = toTimeValue(text);
       if(!timeValue){
         return '';
@@ -1782,7 +1820,7 @@
     function applyNextInspectionOffset(targetId, monthsToAdd){
       const target = el(targetId);
       if(!target) return;
-      target.value = addMonthsToIsoDate(getNextInspectionBaseDate(targetId), monthsToAdd);
+      target.value = formatDisplayDate(addMonthsToIsoDate(getNextInspectionBaseDate(targetId), monthsToAdd));
     }
 
     function getInspectionBucket(item){
@@ -2188,12 +2226,12 @@
                   </td>
                   <td class="table-edit-cell" data-label="${t('registrationDate')}">
                     ${canEditRegister()
-                      ? `<input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(draftRegistrationDate)}">`
+                      ? `<input class="toolbar-input table-inline-input table-registration-date-input date-text-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" value="${escapeHtml(formatDateInputValue(draftRegistrationDate))}">`
                       : `<span>${escapeHtml(formatDisplayDate(draftRegistrationDate))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
                     ${canEditRegister()
-                      ? `<input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(draftNextInspection)}">`
+                      ? `<input class="toolbar-input table-inline-input table-date-input date-text-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" value="${escapeHtml(formatDateInputValue(draftNextInspection))}">`
                       : `<span>${escapeHtml(formatDisplayDate(draftNextInspection))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('notes')}">
@@ -2212,6 +2250,7 @@
             </tbody>
           </table>
         `;
+        bindDateTextInputs();
         bindTableEditors();
         if(lastSavedTagId){
           const row = container.querySelector(`tr[data-tag-id="${CSS.escape(lastSavedTagId)}"]`);
@@ -2393,7 +2432,7 @@
       el('serialNumber').value = '';
       el('contractor').value = '';
       el('wll').value = '';
-      el('registrationDate').value = todayIsoDate();
+      el('registrationDate').value = formatDateInputValue(todayIsoDate());
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
       el('siteName').value = '';
@@ -2731,8 +2770,8 @@
           description: el('scanEditDescription').value.trim(),
           serialNumber: el('scanEditSerial').value.trim(),
           wll: el('scanEditWll').value.trim(),
-          registrationDate: el('scanEditRegistrationDate').value || getRegistrationDateValue(currentScannedItem),
-          nextInspection: el('scanEditNextInspection').value,
+          registrationDate: normalizeRegistrationDate(el('scanEditRegistrationDate').value) || getRegistrationDateValue(currentScannedItem),
+          nextInspection: normalizeRegistrationDate(el('scanEditNextInspection').value),
           status: el('scanEditStatus').value,
           siteName: el('scanEditSiteName').value.trim(),
           notes: el('scanEditNotes').value.trim(),
@@ -2764,8 +2803,8 @@
       el('serialNumber').value = item.serialNumber || '';
       el('contractor').value = item.contractor || '';
       el('wll').value = item.wll || '';
-      el('registrationDate').value = getRegistrationDateValue(item);
-      el('nextInspection').value = item.nextInspection || '';
+      el('registrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
+      el('nextInspection').value = formatDateInputValue(item.nextInspection);
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('siteName').value = item.siteName || '';
       el('notes').value = item.notes || '';
@@ -2808,8 +2847,8 @@
         serialNumber: el('serialNumber').value.trim(),
         contractor: el('contractor').value.trim(),
         wll: el('wll').value.trim(),
-        registrationDate: el('registrationDate').value || getRegistrationDateValue(existing),
-        nextInspection: el('nextInspection').value,
+        registrationDate: normalizeRegistrationDate(el('registrationDate').value) || getRegistrationDateValue(existing),
+        nextInspection: normalizeRegistrationDate(el('nextInspection').value),
         status: el('itemStatus').value,
         siteName: el('siteName').value.trim(),
         notes: el('notes').value.trim(),
@@ -3011,6 +3050,7 @@
     async function bootApp(){
       ensureScanLocationRow();
       bindTableActionDelegation();
+      bindDateTextInputs();
       setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm(activeVisit);

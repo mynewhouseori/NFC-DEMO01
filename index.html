@@ -133,7 +133,7 @@
           <div class="scan-edit-grid">
             <div>
               <label for="scanEditRegistrationDate" id="scanEditRegistrationDateLabel"></label>
-              <input id="scanEditRegistrationDate" type="date">
+              <input id="scanEditRegistrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
             </div>
             <div>
               <label for="scanEditWll" id="scanEditWllLabel"></label>
@@ -143,7 +143,7 @@
           <div class="scan-edit-grid">
             <div>
               <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
-              <input id="scanEditNextInspection" type="date">
+              <input id="scanEditNextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
               <div class="date-quick-actions">
                 <button type="button" class="date-quick-btn" id="scanNextInspectionPlus6Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 6)"></button>
                 <button type="button" class="date-quick-btn" id="scanNextInspectionPlus12Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 12)"></button>
@@ -205,7 +205,7 @@
           <div class="visit-grid">
             <div>
               <label for="visitDate" id="visitDateLabelText"></label>
-              <input id="visitDate" type="date">
+              <input id="visitDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
             </div>
             <div>
               <label for="visitEngineer" id="visitEngineerLabelText"></label>
@@ -314,14 +314,14 @@
           </div>
           <div>
             <label for="registrationDate" id="registrationDateLabel"></label>
-            <input id="registrationDate" type="date">
+            <input id="registrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
           </div>
         </div>
 
         <div class="row">
           <div>
             <label for="nextInspection" id="nextInspectionLabel"></label>
-            <input id="nextInspection" type="date">
+            <input id="nextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
             <div class="date-quick-actions">
               <button type="button" class="date-quick-btn" id="nextInspectionPlus6Btn" onclick="applyNextInspectionOffset('nextInspection', 6)"></button>
               <button type="button" class="date-quick-btn" id="nextInspectionPlus12Btn" onclick="applyNextInspectionOffset('nextInspection', 12)"></button>
@@ -378,11 +378,11 @@
             <div class="report-archive-filters">
               <div>
                 <label for="reportDateFrom" id="reportDateFromLabel"></label>
-                <input id="reportDateFrom" class="toolbar-input" type="date">
+                <input id="reportDateFrom" class="toolbar-input date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
               </div>
               <div>
                 <label for="reportDateTo" id="reportDateToLabel"></label>
-                <input id="reportDateTo" class="toolbar-input" type="date">
+                <input id="reportDateTo" class="toolbar-input date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
               </div>
               <button class="mini-btn" onclick="renderReportArchive()" id="reportArchiveLoadBtn" type="button"></button>
               <button class="mini-btn" onclick="resetReportArchiveFilters()" id="reportArchiveResetBtn" type="button"></button>
@@ -477,7 +477,7 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260405tabledrafts01';
+      script.src = './app.js?v=20260405mobiledate01';
       document.body.appendChild(script);
     })();
   </script>
