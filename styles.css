@@ -680,6 +680,9 @@
 
     .date-input-shell .date-text-input {
       padding-inline-end:48px;
+      direction:ltr;
+      text-align:left;
+      letter-spacing:.02em;
     }
 
     .date-picker-trigger-wrap {
@@ -726,11 +729,11 @@
       .row { grid-template-columns:1fr; }
 
       .mobile-date-balance-row {
-        grid-template-columns:.82fr 1.18fr;
+        grid-template-columns:.78fr 1.22fr;
       }
 
       .mobile-next-inspection-row {
-        grid-template-columns:1.18fr .82fr;
+        grid-template-columns:1.28fr .72fr;
       }
 
       .topbar {
@@ -1595,25 +1598,6 @@
 
     .table-status-select {
       font-weight:700;
-    }
-
-    .table-notes-wrap {
-      display:grid;
-      gap:6px;
-    }
-
-    .table-clear-note-btn {
-      justify-self:end;
-      min-width:28px;
-      height:28px;
-      padding:0;
-      border-radius:999px;
-      border:1px solid #fecaca;
-      background:#fff1f2;
-      color:#b91c1c;
-      font-size:16px;
-      line-height:1;
-      cursor:pointer;
     }
 
     .table-actions-cell {
