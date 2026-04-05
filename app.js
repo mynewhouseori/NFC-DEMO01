@@ -236,6 +236,8 @@
     let customImageSrc = '';
     let pendingImageTask = null;
     let activeVisit = null;
+    let pendingDeleteTagId = '';
+    let pendingDeleteResetTimer = null;
     let visitSignaturePadState = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -1412,9 +1414,46 @@
         if(deleteButton){
           event.preventDefault();
           event.stopPropagation();
-          deleteTableRow(deleteButton.dataset.tagId || '');
+          deleteTableRow(deleteButton.dataset.tagId || '', deleteButton);
         }
       });
+    }
+
+    function clearPendingDeleteIntent(){
+      if(pendingDeleteResetTimer){
+        clearTimeout(pendingDeleteResetTimer);
+        pendingDeleteResetTimer = null;
+      }
+
+      if(!pendingDeleteTagId){
+        return;
+      }
+
+      const safeTagId = CSS.escape(String(pendingDeleteTagId));
+      const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
+      const deleteButton = document.querySelector(`.table-delete-btn[data-tag-id="${safeTagId}"]`);
+
+      if(statusNode && statusNode.textContent === t('deleteItemPending')){
+        statusNode.textContent = '';
+      }
+
+      if(deleteButton){
+        deleteButton.classList.remove('delete-confirm');
+      }
+
+      pendingDeleteTagId = '';
+    }
+
+    function setPendingDeleteIntent(tagId, statusNode, deleteButton){
+      clearPendingDeleteIntent();
+      pendingDeleteTagId = tagId;
+      statusNode.textContent = t('deleteItemPending');
+      if(deleteButton){
+        deleteButton.classList.add('delete-confirm');
+      }
+      pendingDeleteResetTimer = window.setTimeout(() => {
+        clearPendingDeleteIntent();
+      }, 5000);
     }
 
     async function saveTableRow(tagId){
@@ -1461,10 +1500,11 @@
       }
     }
 
-    async function deleteTableRow(tagId){
+    async function deleteTableRow(tagId, triggerButton = null){
       const safeTagId = CSS.escape(String(tagId || ''));
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`)
         || document.querySelector(`tr[data-tag-id="${safeTagId}"] .table-row-status`);
+      const deleteButton = triggerButton || document.querySelector(`.table-delete-btn[data-tag-id="${safeTagId}"]`);
 
       if(!tagId || !statusNode){
         pushDebugLine(`Delete ignored for missing table row: ${tagId || 'empty tag'}.`);
@@ -1476,11 +1516,13 @@
         return;
       }
 
-      if(!window.confirm(t('deleteItemConfirm'))){
-        pushDebugLine(`Delete cancelled for ${tagId}.`);
+      if(pendingDeleteTagId !== tagId){
+        setPendingDeleteIntent(tagId, statusNode, deleteButton);
+        pushDebugLine(`Delete armed for ${tagId}. Click again to confirm.`);
         return;
       }
 
+      clearPendingDeleteIntent();
       statusNode.textContent = t('saving');
 
       try {
@@ -2035,8 +2077,8 @@
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
-                      ${canEditRegister() ? `<button class="mini-btn table-save-btn" type="button" onclick="saveTableRow(this.dataset.tagId)" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
-                      <button class="mini-btn table-delete-btn" type="button" onclick="deleteTableRow(this.dataset.tagId)" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>` : ''}
+                      ${canEditRegister() ? `<button class="mini-btn table-save-btn" type="button" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
+                      <button class="mini-btn table-delete-btn" type="button" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>` : ''}
                       <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
                     </div>
                   </td>

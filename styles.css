@@ -1536,6 +1536,12 @@
       cursor:pointer;
     }
 
+    .table-delete-btn.delete-confirm {
+      border-color:#991b1b;
+      background:#dc2626;
+      color:#fff;
+    }
+
     .table-row-status {
       min-height:18px;
       font-size:12px;
