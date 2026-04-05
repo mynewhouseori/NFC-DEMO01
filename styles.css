@@ -681,7 +681,7 @@
     .date-input-shell .date-text-input {
       padding-inline-end:48px;
       direction:ltr;
-      text-align:left;
+      text-align:right;
       letter-spacing:.02em;
       font-variant-numeric:tabular-nums;
     }
