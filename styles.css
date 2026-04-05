@@ -1523,6 +1523,7 @@
       width:100%;
       font-size:13px;
       padding:8px 12px;
+      cursor:pointer;
     }
 
     .table-delete-btn {
@@ -1532,6 +1533,7 @@
       border-color:rgba(220,38,38,.28);
       background:#fef2f2;
       color:#991b1b;
+      cursor:pointer;
     }
 
     .table-row-status {

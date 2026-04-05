@@ -1392,6 +1392,31 @@
       });
     }
 
+    function bindTableActionDelegation(){
+      const container = el('itemsTableContainer');
+      if(!container || container.dataset.actionsBound === '1'){
+        return;
+      }
+
+      container.dataset.actionsBound = '1';
+      container.addEventListener('click', (event) => {
+        const saveButton = event.target.closest('.table-save-btn');
+        if(saveButton){
+          event.preventDefault();
+          event.stopPropagation();
+          saveTableRow(saveButton.dataset.tagId || '');
+          return;
+        }
+
+        const deleteButton = event.target.closest('.table-delete-btn');
+        if(deleteButton){
+          event.preventDefault();
+          event.stopPropagation();
+          deleteTableRow(deleteButton.dataset.tagId || '');
+        }
+      });
+    }
+
     async function saveTableRow(tagId){
       const safeTagId = CSS.escape(String(tagId || ''));
       const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
@@ -1438,9 +1463,11 @@
 
     async function deleteTableRow(tagId){
       const safeTagId = CSS.escape(String(tagId || ''));
-      const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
+      const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`)
+        || document.querySelector(`tr[data-tag-id="${safeTagId}"] .table-row-status`);
 
       if(!tagId || !statusNode){
+        pushDebugLine(`Delete ignored for missing table row: ${tagId || 'empty tag'}.`);
         return;
       }
 
@@ -1450,6 +1477,7 @@
       }
 
       if(!window.confirm(t('deleteItemConfirm'))){
+        pushDebugLine(`Delete cancelled for ${tagId}.`);
         return;
       }
 
@@ -2814,6 +2842,7 @@
 
     async function bootApp(){
       ensureScanLocationRow();
+      bindTableActionDelegation();
       setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm(activeVisit);
