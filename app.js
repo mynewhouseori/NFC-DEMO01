@@ -469,6 +469,7 @@
         dirty: false,
         lastPoint: null,
         activePointerId: null,
+        mouseFallback: false,
         resizeCanvas
       };
 
@@ -478,6 +479,7 @@
         }
         event.preventDefault();
         canvas.focus?.();
+        visitSignaturePadState.mouseFallback = false;
         visitSignaturePadState.activePointerId = event.pointerId;
         startStroke(pointerPosition(event));
         try { canvas.setPointerCapture(event.pointerId); } catch {}
@@ -501,10 +503,40 @@
         visitSignaturePadState.drawing = false;
         visitSignaturePadState.lastPoint = null;
         visitSignaturePadState.activePointerId = null;
+        visitSignaturePadState.mouseFallback = false;
         if(event?.pointerId !== undefined){
           try { canvas.releasePointerCapture(event.pointerId); } catch {}
         }
       };
+
+      canvas.addEventListener('mousedown', (event) => {
+        if(event.button !== 0){
+          return;
+        }
+        if(visitSignaturePadState?.activePointerId !== null){
+          return;
+        }
+        event.preventDefault();
+        visitSignaturePadState.mouseFallback = true;
+        startStroke(pointerPosition(event));
+      });
+
+      canvas.addEventListener('mousemove', (event) => {
+        if(!visitSignaturePadState?.mouseFallback){
+          return;
+        }
+        if((event.buttons & 1) !== 1){
+          stopDrawing();
+          return;
+        }
+        moveStroke(pointerPosition(event));
+      });
+
+      window.addEventListener('mouseup', () => {
+        if(visitSignaturePadState?.mouseFallback){
+          stopDrawing();
+        }
+      });
 
       canvas.addEventListener('pointerup', stopDrawing);
       canvas.addEventListener('pointercancel', stopDrawing);
