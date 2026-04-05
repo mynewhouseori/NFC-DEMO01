@@ -2898,6 +2898,7 @@
       el('homeScreen').style.display = 'none';
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el(screenId).classList.add('active');
+      document.documentElement.classList.add('screen-open');
       document.body.classList.add('screen-open');
       clearStatuses();
 
@@ -2922,6 +2923,7 @@
     function goHome(){
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       el('homeScreen').style.display = 'flex';
+      document.documentElement.classList.remove('screen-open');
       document.body.classList.remove('screen-open');
       clearStatuses();
       hideScanDemoGallery();

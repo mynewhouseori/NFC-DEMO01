@@ -539,6 +539,7 @@
 
     .screen.active { display:block; }
 
+    html.screen-open,
     body.screen-open {
       overflow:hidden;
     }
