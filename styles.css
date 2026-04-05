@@ -1184,6 +1184,89 @@
     .tab-pane.active {
       display:block;
     }
+    .workspace-hero {
+      margin-bottom:18px;
+      padding:18px;
+      border:1px solid rgba(15,118,110,.16);
+      border-radius:22px;
+      background:
+        linear-gradient(135deg, rgba(240,253,250,1) 0%, rgba(239,246,255,1) 52%, rgba(255,255,255,1) 100%);
+      box-shadow:0 16px 34px rgba(15,23,42,.06);
+    }
+    .workspace-hero-main {
+      margin-bottom:14px;
+    }
+    .workspace-role-row {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:10px;
+    }
+    .workspace-role-label {
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.04em;
+      color:#0f766e;
+      text-transform:uppercase;
+    }
+    .workspace-role-badge {
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:32px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:#ccfbf1;
+      color:#115e59;
+      font-size:13px;
+      font-weight:800;
+    }
+    .workspace-role-badge.foreman {
+      background:#fef3c7;
+      color:#92400e;
+    }
+    .workspace-role-badge.viewer {
+      background:#e2e8f0;
+      color:#334155;
+    }
+    .workspace-hero-title {
+      font-size:26px;
+      line-height:1.2;
+      font-weight:900;
+      color:#0f172a;
+      margin-bottom:6px;
+    }
+    .workspace-hero-subtitle {
+      color:#475569;
+      line-height:1.7;
+      font-size:15px;
+      max-width:760px;
+    }
+    .workspace-hero-actions {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+    }
+    .workspace-hero-btn {
+      width:100%;
+      min-height:44px;
+      background:#ffffff;
+      color:#0f172a;
+      border:1px solid rgba(148,163,184,.42);
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+    }
+    .workspace-hero-btn.active {
+      background:#0f766e;
+      color:#ffffff;
+      border-color:#0f766e;
+      box-shadow:0 14px 28px rgba(15,118,110,.22);
+    }
+    .workspace-hero-btn:disabled {
+      opacity:.55;
+      cursor:not-allowed;
+      box-shadow:none;
+    }
 
     .visit-panel {
       margin-bottom:18px;
@@ -1277,6 +1360,18 @@
       grid-template-columns:repeat(2, minmax(0, 1fr));
       gap:10px;
       margin-bottom:12px;
+    }
+
+    
+
+    @media (max-width: 760px) {
+      .workspace-hero-actions {
+        grid-template-columns:1fr;
+      }
+
+      .workspace-hero-title {
+        font-size:22px;
+      }
     }
 
     .signature-canvas-header {
