@@ -1460,6 +1460,29 @@
       }, 5000);
     }
 
+    function updateCachedItem(updatedItem){
+      if(!dataCache.items.value){
+        return;
+      }
+
+      const index = dataCache.items.value.findIndex((item) => item.tagId === updatedItem.tagId);
+      if(index >= 0){
+        dataCache.items.value[index] = updatedItem;
+      }
+    }
+
+    function highlightSavedTableRow(tagId){
+      const safeTagId = CSS.escape(String(tagId || ''));
+      document.querySelectorAll('#itemsTableContainer tr.recently-saved-row').forEach((row) => {
+        row.classList.remove('recently-saved-row');
+      });
+      const row = document.querySelector(`#itemsTableContainer tr[data-tag-id="${safeTagId}"]`);
+      if(row){
+        row.classList.add('recently-saved-row');
+        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+
     async function saveTableRow(tagId){
       const safeTagId = CSS.escape(String(tagId || ''));
       const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
@@ -1494,9 +1517,11 @@
         };
 
         await saveItemToCloud(updatedItem);
+        updateCachedItem(updatedItem);
+        lastSavedTagId = tagId;
         applySelectStatusClass(statusInput, statusInput.value);
+        highlightSavedTableRow(tagId);
         statusNode.textContent = t('tableRowUpdated');
-        await renderItemsTable();
       } catch (e) {
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
