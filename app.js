@@ -627,6 +627,423 @@
       }
     }
 
+    function ensureLogsSubtitle(){
+      const title = el('logsHistoryTitleText');
+      if(!title){
+        return null;
+      }
+
+      let subtitle = el('logsHistorySubtitleText');
+      if(subtitle){
+        return subtitle;
+      }
+
+      subtitle = document.createElement('div');
+      subtitle.id = 'logsHistorySubtitleText';
+      subtitle.className = 'report-archive-subtitle';
+      title.insertAdjacentElement('afterend', subtitle);
+      return subtitle;
+    }
+
+    function ensureLogsDashboardShell(){
+      const pane = el('logsPane');
+      if(!pane){
+        return {};
+      }
+
+      let summary = el('logsDashboardSummary');
+      if(!summary){
+        summary = document.createElement('div');
+        summary.id = 'logsDashboardSummary';
+        summary.className = 'logs-dashboard-summary';
+        pane.insertBefore(summary, pane.firstElementChild || null);
+      }
+
+      let content = el('logsDashboardContent');
+      if(!content){
+        content = document.createElement('div');
+        content.id = 'logsDashboardContent';
+        content.className = 'logs-dashboard-content';
+        while(summary.nextSibling){
+          content.appendChild(summary.nextSibling);
+        }
+        pane.appendChild(content);
+      }
+
+      let logsPanel = el('logsHistoryPanel');
+      if(!logsPanel){
+        const toolbar = el('logsHistoryTitleText')?.closest('.table-toolbar');
+        const list = el('logsList');
+        if(toolbar && list){
+          logsPanel = document.createElement('section');
+          logsPanel.id = 'logsHistoryPanel';
+          logsPanel.className = 'logs-history-panel';
+          content.appendChild(logsPanel);
+          logsPanel.appendChild(toolbar);
+          logsPanel.appendChild(list);
+        }
+      }
+
+      return { pane, summary, content, logsPanel };
+    }
+
+    function countUniqueTags(logs = []){
+      return new Set(logs.map((log) => normalizeTagId(log.tagId)).filter(Boolean)).size;
+    }
+
+    function formatLogAction(log){
+      const actionType = String(log?.actionType || '').trim();
+      if(actionType === 'register_new') return t('visitActionNew');
+      if(actionType === 'register_update') return t('saveChanges');
+      if(actionType === 'check') return t('visitActionChecked');
+      return log?.found ? t('logFound') : t('logNotFound');
+    }
+
+    function buildLogsSummary(logs = [], visits = []){
+      const totalScans = logs.length;
+      const foundCount = logs.filter((log) => log.found).length;
+      const notFoundCount = totalScans - foundCount;
+      const lastScanTime = logs[0]?.time ? formatDisplayDateTime(logs[0].time) : '-';
+
+      return [
+        { label: t('logsSummaryScans'), value: totalScans || 0, tone: 'teal' },
+        { label: t('logsSummaryVisits'), value: visits.length || 0, tone: 'slate' },
+        { label: t('logsSummaryFound'), value: foundCount || 0, tone: 'green' },
+        { label: t('logsSummaryMissing'), value: notFoundCount || 0, tone: 'rose' },
+        { label: t('logsSummaryTags'), value: countUniqueTags(logs), tone: 'amber' },
+        { label: t('logsSummaryLastScan'), value: lastScanTime, tone: 'blue', compact: true }
+      ];
+    }
+
+    function renderLogsSummary(logs = [], visits = []){
+      const { summary } = ensureLogsDashboardShell();
+      if(!summary){
+        return;
+      }
+
+      const cards = buildLogsSummary(logs, visits);
+      summary.innerHTML = cards.map((card) => `
+        <div class="logs-summary-card logs-summary-${card.tone}">
+          <div class="logs-summary-label">${escapeHtml(card.label)}</div>
+          <div class="logs-summary-value${card.compact ? ' is-compact' : ''}">${escapeHtml(card.value)}</div>
+        </div>
+      `).join('');
+    }
+
+    function updateLogsDashboardHeadings({ totalLogs = 0, shownLogs = 0, visits = [] } = {}){
+      const logsTitle = el('logsHistoryTitleText');
+      const logsSubtitle = ensureLogsSubtitle();
+      const archiveSubtitle = el('reportArchiveSubtitleText');
+
+      if(logsTitle){
+        logsTitle.textContent = formatText('logsHistoryTitleWithCount', { count: shownLogs });
+      }
+
+      if(logsSubtitle){
+        logsSubtitle.textContent = shownLogs
+          ? formatText('logsHistorySubtitleWithCount', { shown: shownLogs, total: totalLogs })
+          : t('logsHistoryEmptyHelp');
+      }
+
+      if(archiveSubtitle){
+        archiveSubtitle.textContent = visits.length
+          ? formatText('reportArchiveSubtitleWithCount', { count: visits.length })
+          : t('reportArchiveEmptyHelp');
+      }
+    }
+
+    function buildVisitArchiveRecords(logs = []){
+      const visitMap = new Map();
+
+      logs.forEach((log) => {
+        const visitId = String(log.visitId || '').trim();
+        if(!visitId){
+          return;
+        }
+
+        const existing = visitMap.get(visitId) || {
+          id: visitId,
+          date: log.visitDate || '',
+          engineer: log.visitEngineer || '',
+          client: log.visitClient || '',
+          site: log.visitSite || '',
+          signature: log.visitSignature || '',
+          startedAt: '',
+          endedAt: '',
+          sortTime: '',
+          logs: []
+        };
+
+        existing.date = existing.date || log.visitDate || '';
+        existing.engineer = existing.engineer || log.visitEngineer || '';
+        existing.client = existing.client || log.visitClient || '';
+        existing.site = existing.site || log.visitSite || '';
+        existing.signature = existing.signature || log.visitSignature || '';
+        existing.logs.push(log);
+
+        const timeValue = String(log.sortTime || log.time || '');
+        if(!existing.sortTime || timeValue > existing.sortTime){
+          existing.sortTime = timeValue;
+        }
+
+        if(log.actionType === 'visit_closed'){
+          existing.endedAt = existing.endedAt || log.time || '';
+        } else if(!existing.startedAt){
+          existing.startedAt = log.time || '';
+        }
+
+        visitMap.set(visitId, existing);
+      });
+
+      return [...visitMap.values()]
+        .map((visit) => {
+          const actionableLogs = visit.logs.filter((log) => ['register_new', 'register_update', 'check'].includes(log.actionType));
+          const newCount = actionableLogs.filter((log) => log.actionType === 'register_new').length;
+          const checkedCount = actionableLogs.filter((log) => log.actionType === 'check' || log.actionType === 'register_update').length;
+          return {
+            ...visit,
+            itemCount: new Set(actionableLogs.map((log) => normalizeTagId(log.tagId)).filter(Boolean)).size,
+            newCount,
+            checkedCount
+          };
+        })
+        .sort((a, b) => String(b.sortTime || '').localeCompare(String(a.sortTime || '')));
+    }
+
+    function isVisitWithinRange(visit, fromDate, toDate){
+      const visitDate = normalizeRegistrationDate(visit.date) || normalizeRegistrationDate(visit.startedAt);
+      if(!visitDate){
+        return false;
+      }
+      if(fromDate && visitDate < fromDate) return false;
+      if(toDate && visitDate > toDate) return false;
+      return true;
+    }
+
+    function getArchiveVisitEntries(visitId, logs, items){
+      const previousVisit = activeVisit;
+      const previousCache = dataCache.logs.value;
+      activeVisit = { id: visitId };
+      dataCache.logs.value = logs;
+      const entries = buildVisitEntries(logs, items);
+      activeVisit = previousVisit;
+      dataCache.logs.value = previousCache;
+      return entries;
+    }
+
+    async function openArchivedVisitReport(visitId){
+      try {
+        const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
+        const visit = buildVisitArchiveRecords(logs).find((entry) => entry.id === visitId);
+        if(!visit){
+          el('reportArchiveStatus').textContent = t('reportArchiveEmpty');
+          return;
+        }
+
+        const entries = getArchiveVisitEntries(visitId, logs, items);
+        const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
+        const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
+        const generatedAt = formatDisplayDateTime(new Date());
+
+        const renderRows = (rows) => rows.length ? rows.map((entry) => `
+          <tr>
+            <td>${escapeHtml(entry.tagId || '-')}</td>
+            <td>${escapeHtml(entry.actionLabel)}</td>
+            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(entry.description || '-')}</td>
+            <td>${escapeHtml(entry.serialNumber || '-')}</td>
+            <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(entry.contractor || '-')}</td>
+            <td>${escapeHtml(entry.siteName || '-')}</td>
+            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
+            <td>${escapeHtml(entry.notes || '-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+
+        const html = `
+          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+          <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(t('visitReportTitle'))}</title>
+            <style>
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+              .logo { width:140px; height:140px; object-fit:contain; }
+              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
+              p { margin:0 0 10px; line-height:1.7; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
+              table { width:100%; border-collapse:collapse; margin-top:12px; }
+              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
+              th { background:#f8fafc; }
+              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
+              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
+                <p>${escapeHtml(t('visitReportIntro'))}</p>
+                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
+              </div>
+              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
+            </div>
+            <div class="meta">
+              <div class="meta-grid">
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(visit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(visit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(visit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(visit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(visit.endedAt || '-'))}</div>
+              </div>
+            </div>
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(newEntries)}</tbody>
+              </table>
+            </div>
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(checkedEntries)}</tbody>
+              </table>
+            </div>
+            <div class="signature">
+              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
+            </div>
+            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+          </body>
+          </html>
+        `;
+
+        const blob = new Blob([`<!doctype html>${html}`], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+      } catch (error) {
+        pushDebugLine(`Archived visit report error: ${error.message}`);
+        el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
+      }
+    }
+
+    async function renderReportArchive(){
+      const list = el('reportArchiveList');
+      const status = el('reportArchiveStatus');
+      if(!list || !status){
+        return;
+      }
+
+      const fromDate = normalizeRegistrationDate(el('reportDateFrom')?.value);
+      const toDate = normalizeRegistrationDate(el('reportDateTo')?.value);
+      if(fromDate && toDate && fromDate > toDate){
+        status.textContent = t('reportArchiveInvalidRange');
+        list.innerHTML = '';
+        return;
+      }
+
+      status.textContent = t('reportArchiveLoading');
+      list.innerHTML = `<div class="empty-text">${t('reportArchiveLoading')}</div>`;
+
+      try {
+        const logs = await getLogs();
+        const visits = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
+
+        reportArchiveState.from = fromDate || '';
+        reportArchiveState.to = toDate || '';
+        reportArchiveState.visits = visits;
+        updateLogsDashboardHeadings({
+          totalLogs: dataCache.logs.value?.length || 0,
+          shownLogs: dataCache.logs.value?.length || 0,
+          visits
+        });
+
+        if(!visits.length){
+          status.textContent = t('reportArchiveEmpty');
+          list.innerHTML = `<div class="empty-text">${t('reportArchiveEmpty')}</div>`;
+          return;
+        }
+
+        status.textContent = formatText('reportArchiveSummary', {
+          count: visits.length,
+          from: formatDisplayDate(fromDate || visits[visits.length - 1]?.date || ''),
+          to: formatDisplayDate(toDate || visits[0]?.date || '')
+        });
+
+        list.innerHTML = visits.map((visit) => `
+          <article class="report-archive-card">
+            <div class="report-archive-card-top">
+              <div>
+                <div class="report-archive-card-title">${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
+                <div class="report-archive-subtitle">${escapeHtml(visit.engineer || '-')}</div>
+              </div>
+              <div class="pill ${visit.endedAt ? 'pill-ok' : 'pill-warn'}">${escapeHtml(visit.endedAt ? t('visitStatusClosed') : t('visitStatusActive'))}</div>
+            </div>
+            <div class="report-archive-card-meta">
+              <div><strong>${escapeHtml(t('reportArchiveMetaClient'))}</strong> ${escapeHtml(visit.client || '-')}</div>
+              <div><strong>${escapeHtml(t('reportArchiveMetaSite'))}</strong> ${escapeHtml(visit.site || '-')}</div>
+              <div><strong>${escapeHtml(t('reportArchiveMetaItems'))}</strong> ${escapeHtml(visit.itemCount || 0)}</div>
+              <div><strong>${escapeHtml(t('reportArchiveMetaClosed'))}</strong> ${escapeHtml(formatDisplayDateTime(visit.endedAt || visit.startedAt || '-'))}</div>
+            </div>
+            <div class="report-archive-card-stats">
+              <span class="mini-stat">${escapeHtml(t('visitActionNew'))}: ${escapeHtml(visit.newCount || 0)}</span>
+              <span class="mini-stat">${escapeHtml(t('visitActionChecked'))}: ${escapeHtml(visit.checkedCount || 0)}</span>
+            </div>
+            <div class="report-archive-card-actions">
+              <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
+            </div>
+          </article>
+        `).join('');
+      } catch (error) {
+        status.textContent = t('reportArchiveLoadError');
+        list.innerHTML = `<div class="empty-text">${t('reportArchiveLoadError')}</div>`;
+        pushDebugLine(`Report archive load error: ${error.message}`);
+      }
+    }
+
+    function resetReportArchiveFilters(){
+      if(el('reportDateFrom')) el('reportDateFrom').value = '';
+      if(el('reportDateTo')) el('reportDateTo').value = '';
+      reportArchiveState.from = '';
+      reportArchiveState.to = '';
+      renderReportArchive();
+    }
+
     function getCurrentLocationSnapshot(){
       return new Promise((resolve) => {
         if(!navigator.geolocation){
@@ -1237,6 +1654,14 @@
       el('captureImageBtn').textContent = t('captureImage');
       el('clearImageBtn').textContent = t('clearImage');
       el('scanSafetyTitle').textContent = t('scanSafetyTitle');
+      el('reportArchiveTitleText').textContent = t('reportArchiveTitle');
+      el('reportArchiveSubtitleText').textContent = t('reportArchiveSubtitle');
+      el('reportDateFromLabel').textContent = t('reportDateFrom');
+      el('reportDateToLabel').textContent = t('reportDateTo');
+      el('reportArchiveLoadBtn').textContent = t('reportArchiveLoad');
+      el('reportArchiveResetBtn').textContent = t('reportArchiveReset');
+      el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
+      ensureLogsSubtitle().textContent = t('logsHistorySubtitle');
 
       updateTypeOptions();
       updateStatusOptions();
@@ -2196,14 +2621,23 @@
 
     async function renderScanLogs(){
       const container = el('logsList');
+      ensureLogsDashboardShell();
       container.innerHTML = `<div class="empty-text">Loading...</div>`;
 
       try {
         const [logs, items] = await Promise.all([getLogs(), getItems()]);
         const itemMap = new Map(items.map((item) => [normalizeTagId(item.tagId), item]));
+        const visits = buildVisitArchiveRecords(logs);
+        renderLogsSummary(logs, visits);
+        updateLogsDashboardHeadings({
+          totalLogs: logs.length,
+          shownLogs: logs.length,
+          visits
+        });
 
         if(!logs.length){
-          container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}</div>`;
+          container.innerHTML = `<div class="empty-text">${t('logTitleEmpty')}<br>${t('logsHistoryEmptyHelp')}</div>`;
+          renderReportArchive();
           renderVisitStatus();
           return;
         }
@@ -2226,23 +2660,33 @@
           const contractorText = log.itemContractor || fallbackItem?.contractor || '';
           const siteText = log.itemSiteName || fallbackItem?.siteName || '';
           const locationText = log.lastSeenLocation?.label || formatLocationSnapshot(log.lastSeenLocation);
+          const locationMapUrl = getLocationMapUrl(log.lastSeenLocation);
+          const actionText = formatLogAction(log);
+          const nextInspectionText = log.itemNextInspection || fallbackItem?.nextInspection || '';
           return `
             <div class="${itemClass}">
               <div class="log-top">
                 <div class="log-pill-row">
                   <span class="${foundClass}">${stateText}</span>
                   ${statusText ? `<span class="${statusClass}">${t('status')}: ${statusText}</span>` : ''}
+                  ${actionText ? `<span class="pill pill-neutral">${escapeHtml(actionText)}</span>` : ''}
                 </div>
                 <span class="log-time">${escapeHtml(formatDisplayDateTime(log.time))}</span>
               </div>
-              <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
-              ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
-              ${contractorText ? `<div>${t('contractor')}: ${escapeHtml(contractorText)}</div>` : ''}
-              ${siteText ? `<div>${t('siteName')}: ${escapeHtml(siteText)}</div>` : ''}
-              ${locationText && locationText !== lt('locationUnavailable') ? `<div>${lt('lastSeenLocation')}: ${locationText}</div>` : ''}
+              <div class="log-meta-grid">
+                <div><strong>${t('logTag')}:</strong> <span class="mono">${log.tagId}</span></div>
+                ${typeText ? `<div><strong>${t('itemType')}:</strong> ${typeText}</div>` : ''}
+                ${contractorText ? `<div><strong>${t('contractor')}:</strong> ${escapeHtml(contractorText)}</div>` : ''}
+                ${siteText ? `<div><strong>${t('siteName')}:</strong> ${escapeHtml(siteText)}</div>` : ''}
+                ${nextInspectionText ? `<div><strong>${t('nextInspection')}:</strong> ${escapeHtml(formatDisplayDate(nextInspectionText))}</div>` : ''}
+                ${locationText && locationText !== lt('locationUnavailable') ? `<div><strong>${lt('lastSeenLocation')}:</strong> ${locationMapUrl
+                  ? `<a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
+                  : escapeHtml(locationText)}</div>` : ''}
+              </div>
             </div>
           `;
         }).join('');
+        renderReportArchive();
         renderVisitStatus();
       } catch (e) {
         container.innerHTML = `<div class="empty-text">${t('logLoadError')}</div>`;
@@ -3141,6 +3585,9 @@
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
     window.renderScanLogs = renderScanLogs;
+    window.renderReportArchive = renderReportArchive;
+    window.resetReportArchiveFilters = resetReportArchiveFilters;
+    window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){
       ensureScanLocationRow();
