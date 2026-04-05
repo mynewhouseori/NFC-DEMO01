@@ -674,6 +674,47 @@
       font-size:16px;
     }
 
+    .date-input-shell {
+      position:relative;
+    }
+
+    .date-input-shell .date-text-input {
+      padding-inline-end:48px;
+    }
+
+    .date-picker-trigger-wrap {
+      position:absolute;
+      inset-inline-end:8px;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      border-radius:10px;
+      border:1px solid #cbd5e1;
+      background:#f8fafc;
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+      box-shadow:0 1px 2px rgba(15, 23, 42, .06);
+    }
+
+    .date-picker-trigger {
+      font-size:15px;
+      line-height:1;
+      pointer-events:none;
+    }
+
+    .native-date-picker {
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }
+
+    .native-date-picker:disabled {
+      cursor:not-allowed;
+    }
+
     .row {
       display:grid;
       grid-template-columns:1fr 1fr;

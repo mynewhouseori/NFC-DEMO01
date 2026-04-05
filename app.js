@@ -1062,6 +1062,8 @@
       } else if(registerAccessRole === 'engineer' && el('registerStatus').textContent === t('scanReadOnlyNote')) {
         el('registerStatus').textContent = t('waitingForScan');
       }
+
+      bindDateTextInputs();
     }
 
     function populateScanEditForm(item){
@@ -1709,6 +1711,68 @@
       return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
     }
 
+    function getDatePickerLabel(){
+      return currentLang === 'en'
+        ? 'Open date picker'
+        : currentLang === 'ar'
+          ? 'افتح التقويم'
+          : 'פתח תאריכון';
+    }
+
+    function syncDatePickerState(input, picker){
+      if(!input || !picker){
+        return;
+      }
+      picker.disabled = input.disabled;
+      picker.value = normalizeRegistrationDate(input.value) || '';
+    }
+
+    function ensureDatePickerField(input){
+      if(!input || input.dataset.datePickerBound === '1'){
+        return;
+      }
+
+      input.dataset.datePickerBound = '1';
+      const parent = input.parentElement;
+      if(!parent){
+        return;
+      }
+
+      let shell = input.closest('.date-input-shell');
+      if(!shell){
+        shell = document.createElement('div');
+        shell.className = 'date-input-shell';
+        parent.insertBefore(shell, input);
+        shell.appendChild(input);
+      }
+
+      const triggerWrap = document.createElement('div');
+      triggerWrap.className = 'date-picker-trigger-wrap';
+      const triggerIcon = document.createElement('span');
+      triggerIcon.className = 'date-picker-trigger';
+      triggerIcon.textContent = '📅';
+      const picker = document.createElement('input');
+      picker.type = 'date';
+      picker.className = 'native-date-picker';
+      picker.tabIndex = -1;
+      picker.setAttribute('aria-label', getDatePickerLabel());
+      picker.title = getDatePickerLabel();
+      triggerWrap.appendChild(triggerIcon);
+      triggerWrap.appendChild(picker);
+      shell.appendChild(triggerWrap);
+
+      const refreshPicker = () => syncDatePickerState(input, picker);
+      picker.addEventListener('focus', refreshPicker);
+      picker.addEventListener('pointerdown', refreshPicker);
+      picker.addEventListener('click', refreshPicker);
+      picker.addEventListener('change', () => {
+        input.value = formatDateInputValue(picker.value);
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      refreshPicker();
+    }
+
     function bindDateTextInputs(){
       document.querySelectorAll('.date-text-input').forEach((input) => {
         if(input.dataset.dateBound === '1'){
@@ -1725,6 +1789,17 @@
           const normalizedDate = normalizeRegistrationDate(input.value);
           input.value = normalizedDate ? formatDisplayDate(normalizedDate) : String(input.value || '').trim();
         });
+      });
+
+      document.querySelectorAll('.date-text-input').forEach((input) => {
+        ensureDatePickerField(input);
+        const picker = input.parentElement?.querySelector('.native-date-picker');
+        syncDatePickerState(input, picker);
+      });
+
+      document.querySelectorAll('.native-date-picker').forEach((picker) => {
+        picker.setAttribute('aria-label', getDatePickerLabel());
+        picker.title = getDatePickerLabel();
       });
     }
 
