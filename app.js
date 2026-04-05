@@ -228,6 +228,7 @@
       visits: [],
       logsByKey: new Map()
     };
+    const pendingTableEdits = new Map();
     let lastSavedTagId = '';
     let passwordContext = 'register';
     let registerAccessRole = '';
@@ -1405,6 +1406,40 @@
       }
 
       container.dataset.actionsBound = '1';
+      const syncDraft = (target) => {
+        if(!target?.dataset?.tagId){
+          return;
+        }
+
+        const tagId = target.dataset.tagId;
+        const draft = pendingTableEdits.get(tagId) || {};
+
+        if(target.classList.contains('table-status-select')){
+          draft.status = target.value;
+          applySelectStatusClass(target, target.value);
+        } else if(target.classList.contains('table-registration-date-input')){
+          draft.registrationDate = target.value;
+        } else if(target.classList.contains('table-date-input')){
+          draft.nextInspection = target.value;
+        } else if(target.classList.contains('table-site-name-input')){
+          draft.siteName = target.value;
+        } else if(target.classList.contains('table-notes-input')){
+          draft.notes = target.value;
+        } else {
+          return;
+        }
+
+        pendingTableEdits.set(tagId, draft);
+      };
+
+      container.addEventListener('input', (event) => {
+        syncDraft(event.target);
+      });
+
+      container.addEventListener('change', (event) => {
+        syncDraft(event.target);
+      });
+
       container.addEventListener('click', (event) => {
         const saveButton = event.target.closest('.table-save-btn');
         if(saveButton){
@@ -1479,7 +1514,6 @@
       const row = document.querySelector(`#itemsTableContainer tr[data-tag-id="${safeTagId}"]`);
       if(row){
         row.classList.add('recently-saved-row');
-        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }
     }
 
@@ -1518,6 +1552,7 @@
 
         await saveItemToCloud(updatedItem);
         updateCachedItem(updatedItem);
+        pendingTableEdits.delete(tagId);
         lastSavedTagId = tagId;
         applySelectStatusClass(statusInput, statusInput.value);
         highlightSavedTableRow(tagId);
@@ -1557,6 +1592,7 @@
       try {
         await deleteDoc(doc(db, ITEMS_COLLECTION, tagId));
         invalidateItemsCache();
+        pendingTableEdits.delete(tagId);
         pushDebugLine(`Deleted item ${tagId}.`);
         statusNode.textContent = t('itemDeleted');
         if(lastSavedTagId === tagId){
@@ -2126,13 +2162,20 @@
               </tr>
             </thead>
             <tbody>
-              ${filteredItems.map(item => `
+              ${filteredItems.map(item => {
+                const draft = pendingTableEdits.get(item.tagId) || {};
+                const draftStatus = draft.status ?? item.status;
+                const draftSiteName = draft.siteName ?? item.siteName ?? '';
+                const draftRegistrationDate = draft.registrationDate ?? getRegistrationDateValue(item);
+                const draftNextInspection = draft.nextInspection ?? item.nextInspection ?? '';
+                const draftNotes = draft.notes ?? item.notes ?? '';
+                return `
                 <tr class="${item.tagId === lastSavedTagId ? 'recently-saved-row' : ''}" data-tag-id="${escapeHtml(item.tagId || '')}">
                   <td data-label="${t('image')}"><img class="small-thumb" src="${getDisplayImageSrc(item)}" alt="item"></td>
                   <td data-label="${t('tagId')}"><span class="mono">${item.tagId || ''}</span></td>
                   <td data-label="${t('status')}">
                     <select class="toolbar-input table-inline-input table-status-select" data-tag-id="${escapeHtml(item.tagId || '')}" ${canEditRegister() ? '' : 'disabled'}>
-                      ${getStatusOptionsMarkup(item.status)}
+                      ${getStatusOptionsMarkup(draftStatus)}
                     </select>
                   </td>
                   <td data-label="${t('itemType')}">${translateType(item.itemType)}</td>
@@ -2141,20 +2184,20 @@
                   <td data-label="${t('contractor')}">${escapeHtml(item.contractor || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
                   <td class="table-edit-cell" data-label="${t('siteName')}">
-                    <input class="toolbar-input table-inline-input table-site-name-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.siteName || '')}" placeholder="${escapeHtml(t('siteNamePlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
+                    <input class="toolbar-input table-inline-input table-site-name-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(draftSiteName)}" placeholder="${escapeHtml(t('siteNamePlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
                   <td class="table-edit-cell" data-label="${t('registrationDate')}">
                     ${canEditRegister()
-                      ? `<input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(getRegistrationDateValue(item))}">`
-                      : `<span>${escapeHtml(formatDisplayDate(getRegistrationDateValue(item)))}</span>`}
+                      ? `<input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(draftRegistrationDate)}">`
+                      : `<span>${escapeHtml(formatDisplayDate(draftRegistrationDate))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
                     ${canEditRegister()
-                      ? `<input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(item.nextInspection || '')}">`
-                      : `<span>${escapeHtml(formatDisplayDate(item.nextInspection))}</span>`}
+                      ? `<input class="toolbar-input table-inline-input table-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(draftNextInspection)}">`
+                      : `<span>${escapeHtml(formatDisplayDate(draftNextInspection))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('notes')}">
-                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.notes || '')}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
+                    <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(draftNotes)}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
@@ -2164,7 +2207,8 @@
                     </div>
                   </td>
                 </tr>
-              `).join('')}
+              `;
+              }).join('')}
             </tbody>
           </table>
         `;
