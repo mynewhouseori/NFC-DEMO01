@@ -468,9 +468,12 @@
       position:relative;
       z-index:3;
       min-height:100vh;
+      height:100vh;
       overflow-x:hidden;
+      overflow-y:auto;
       background:rgba(245,247,250,.97);
       padding:16px;
+      box-sizing:border-box;
     }
 
     body.modal-open {
@@ -534,6 +537,10 @@
     }
 
     .screen.active { display:block; }
+
+    body.screen-open {
+      overflow:hidden;
+    }
 
     .card {
       max-width:1080px;
