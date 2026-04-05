@@ -846,6 +846,10 @@
       el('scanDemoGallery').innerHTML = '';
     }
 
+    function hasVisibleNote(value){
+      return Boolean(String(value || '').trim());
+    }
+
     function renderScanDemoGallery(items){
       const gallery = el('scanDemoGallery');
       const total = items.length;
@@ -857,6 +861,7 @@
         };
         const statusClass = statusPillClass(item.status || '');
         const demoLocationUrl = getLocationMapUrl(demoItem.lastSeenLocation);
+        const noteClass = hasVisibleNote(demoItem.notes) ? 'card-note-row has-note' : 'card-note-row';
         return `
           <article class="scan-demo-card">
             <div class="scan-demo-card-header">
@@ -875,7 +880,7 @@
                 <div>${escapeHtml(t('wll'))}: ${escapeHtml(demoItem.wll || '-')}</div>
                 <div>${escapeHtml(t('nextInspection'))}: ${escapeHtml(demoItem.nextInspection || '-')}</div>
                 <div>${escapeHtml(t('status'))}: <span class="${statusClass}">${escapeHtml(translateStatus(demoItem.status))}</span></div>
-                <div>${escapeHtml(t('notes'))}: ${escapeHtml(demoItem.notes || '-')}</div>
+                <div class="${noteClass}">${escapeHtml(t('notes'))}: ${escapeHtml(demoItem.notes || '-')}</div>
                 <div>${escapeHtml(lt('lastSeenLocation'))}: ${demoLocationUrl
                   ? `<a class="map-link" href="${escapeHtml(demoLocationUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(getLastSeenLocationText(demoItem))}</a>`
                   : escapeHtml(getLastSeenLocationText(demoItem))}</div>
@@ -2500,6 +2505,7 @@
       el('scanItemStatus').textContent = translateStatus(item.status);
       applyStatusColor(el('scanItemStatus'), item.status);
       el('scanNotes').textContent = item.notes || '-';
+      el('scanNotesRow').classList.toggle('has-note', hasVisibleNote(item.notes));
       updateLastSeenLocationLink(item);
       renderScanSafetyTips(item.itemType);
       el('scanResult').classList.add('active');

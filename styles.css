@@ -754,6 +754,21 @@
       font-weight:700;
     }
 
+    .card-note-row {
+      border-radius:12px;
+      transition:background-color .2s ease, color .2s ease, border-color .2s ease, padding .2s ease;
+    }
+
+    .card-note-row.has-note {
+      margin-top:6px;
+      padding:10px 12px;
+      background:#fef2f2;
+      border:1px solid #fca5a5;
+      color:#991b1b;
+      font-weight:700;
+      box-shadow:0 8px 18px rgba(220, 38, 38, .08);
+    }
+
     .result-grid {
       display:grid;
       grid-template-columns:110px 1fr;
