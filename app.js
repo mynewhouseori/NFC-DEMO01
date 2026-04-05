@@ -360,7 +360,18 @@
         : t('visitSummaryEmpty');
 
       el('visitSummaryText').textContent = summary;
-      el('visitStatusText').textContent = message || (!activeVisit ? t('visitStatusNoVisit') : activeVisit.status === 'closed' ? t('visitStatusClosedMessage') : t('visitStatusSaved'));
+      const statusText = el('visitStatusText');
+      const resolvedMessage = message || (!activeVisit ? t('visitStatusNoVisit') : activeVisit.status === 'closed' ? t('visitStatusClosedMessage') : t('visitStatusSaved'));
+      statusText.textContent = resolvedMessage;
+      statusText.classList.remove('status-ok', 'status-warn', 'status-bad', 'muted');
+      if(!activeVisit){
+        statusText.classList.add('muted');
+      } else if(activeVisit.status === 'closed'){
+        statusText.classList.add('status-warn');
+      } else {
+        statusText.classList.add('status-ok');
+      }
+      el('visitSaveBtn').textContent = !activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate');
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('exportVisitReportBtn').disabled = !activeVisit;
@@ -2968,7 +2979,7 @@
       };
       persistActiveVisit();
       populateVisitForm(activeVisit);
-      renderVisitStatus(t('visitStatusSaved'));
+      renderVisitStatus(t(startNewVisit ? 'visitStatusStarted' : 'visitStatusUpdated'));
       updateRegisterAccessUi();
       pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
     }
