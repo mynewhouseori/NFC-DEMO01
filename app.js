@@ -1167,6 +1167,8 @@
       el('scanEditWllLabel').textContent = t('wll');
       el('scanEditRegistrationDateLabel').textContent = t('registrationDate');
       el('scanEditNextInspectionLabel').textContent = t('nextInspection');
+      el('scanNextInspectionPlus6Btn').textContent = t('nextInspectionPlus6');
+      el('scanNextInspectionPlus12Btn').textContent = t('nextInspectionPlus12');
       el('scanEditStatusLabel').textContent = t('status');
       el('scanEditSiteNameLabel').textContent = t('siteName');
       el('scanEditNotesLabel').textContent = t('notes');
@@ -1194,6 +1196,8 @@
       el('wllLabel').textContent = t('wll');
       el('registrationDateLabel').textContent = t('registrationDate');
       el('nextInspectionLabel').textContent = t('nextInspection');
+      el('nextInspectionPlus6Btn').textContent = t('nextInspectionPlus6');
+      el('nextInspectionPlus12Btn').textContent = t('nextInspectionPlus12');
       el('itemStatusLabel').textContent = t('status');
       el('siteNameLabel').textContent = t('siteName');
       el('notesLabel').textContent = t('notes');
@@ -1670,6 +1674,37 @@
 
     function getRegistrationDateValue(item = null){
       return normalizeRegistrationDate(item?.registrationDate || item?.createdAt) || todayIsoDate();
+    }
+
+    function addMonthsToIsoDate(baseDate, monthsToAdd){
+      const normalizedBaseDate = normalizeRegistrationDate(baseDate) || todayIsoDate();
+      const [yearText, monthText, dayText] = normalizedBaseDate.split('-');
+      const year = Number(yearText);
+      const monthIndex = Number(monthText) - 1;
+      const day = Number(dayText);
+      const calculatedDate = new Date(year, monthIndex + monthsToAdd + 1, 0);
+      calculatedDate.setDate(Math.min(day, calculatedDate.getDate()));
+      const nextYear = calculatedDate.getFullYear();
+      const nextMonth = String(calculatedDate.getMonth() + 1).padStart(2, '0');
+      const nextDay = String(calculatedDate.getDate()).padStart(2, '0');
+      return `${nextYear}-${nextMonth}-${nextDay}`;
+    }
+
+    function getNextInspectionBaseDate(targetId){
+      const preferredRegistrationDate = targetId === 'scanEditNextInspection'
+        ? normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
+        : normalizeRegistrationDate(el('registrationDate')?.value);
+      return normalizeRegistrationDate(el('visitDate')?.value)
+        || preferredRegistrationDate
+        || normalizeRegistrationDate(el('registrationDate')?.value)
+        || normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
+        || todayIsoDate();
+    }
+
+    function applyNextInspectionOffset(targetId, monthsToAdd){
+      const target = el(targetId);
+      if(!target) return;
+      target.value = addMonthsToIsoDate(getNextInspectionBaseDate(targetId), monthsToAdd);
     }
 
     function getInspectionBucket(item){
@@ -2869,6 +2904,7 @@
     window.closeVisitSession = closeVisitSession;
     window.exportVisitReport = exportVisitReport;
     window.clearVisitSignaturePad = clearVisitSignaturePad;
+    window.applyNextInspectionOffset = applyNextInspectionOffset;
     window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
     window.deleteTableRow = deleteTableRow;

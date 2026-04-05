@@ -144,6 +144,10 @@
             <div>
               <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
               <input id="scanEditNextInspection" type="date">
+              <div class="date-quick-actions">
+                <button type="button" class="date-quick-btn" id="scanNextInspectionPlus6Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 6)"></button>
+                <button type="button" class="date-quick-btn" id="scanNextInspectionPlus12Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 12)"></button>
+              </div>
             </div>
             <div>
               <label for="scanEditStatus" id="scanEditStatusLabel"></label>
@@ -318,6 +322,10 @@
           <div>
             <label for="nextInspection" id="nextInspectionLabel"></label>
             <input id="nextInspection" type="date">
+            <div class="date-quick-actions">
+              <button type="button" class="date-quick-btn" id="nextInspectionPlus6Btn" onclick="applyNextInspectionOffset('nextInspection', 6)"></button>
+              <button type="button" class="date-quick-btn" id="nextInspectionPlus12Btn" onclick="applyNextInspectionOffset('nextInspection', 12)"></button>
+            </div>
           </div>
           <div>
             <label for="itemStatus" id="itemStatusLabel"></label>

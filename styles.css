@@ -612,6 +612,42 @@
       padding:10px 14px;
     }
 
+    .date-quick-actions {
+      display:flex;
+      align-items:center;
+      gap:6px;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+
+    .date-quick-btn {
+      border:1px solid rgba(15,118,110,.2);
+      border-radius:999px;
+      background:#f0fdfa;
+      color:#115e59;
+      font-size:12px;
+      font-weight:700;
+      line-height:1;
+      padding:6px 10px;
+      min-height:28px;
+      cursor:pointer;
+      transition:background-color .2s ease, border-color .2s ease, transform .2s ease;
+    }
+
+    .date-quick-btn:hover {
+      background:#ccfbf1;
+      border-color:rgba(13,148,136,.35);
+      transform:translateY(-1px);
+    }
+
+    .date-quick-btn:active {
+      transform:translateY(0);
+    }
+
+    html[dir="rtl"] .date-quick-actions {
+      justify-content:flex-start;
+    }
+
     .status {
       margin-top:12px;
       font-size:15px;
@@ -1004,6 +1040,7 @@
       .result-grid { grid-template-columns:1fr; }
       .scan-edit-grid { grid-template-columns:1fr; }
       .role-login-grid { grid-template-columns:1fr; }
+      .date-quick-btn { font-size:11px; }
     }
 
     .mono {
