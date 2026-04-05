@@ -1,4 +1,4 @@
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+﻿    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import {
       getFirestore,
       collection,
@@ -40,44 +40,44 @@
     const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
     const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
     const TYPE_VALUES = {
-      shackle: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ',
-      strap: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ',
-      chain: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€',
-      ring: '׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€',
-      hook: '׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢',
-      fire: '׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©',
-      aircomp: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨',
-      other: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨'
+      shackle: '׳©׳׳§׳',
+      strap: '׳¨׳¦׳•׳¢׳”',
+      chain: '׳©׳¨׳©׳¨׳×',
+      ring: '׳˜׳‘׳¢׳×',
+      hook: '׳•׳•',
+      fire: 'מטף כיבוי אש',
+      aircomp: 'מדחס אויר',
+      other: '׳׳—׳¨'
     };
     const STATUS_VALUES = {
-      ok: '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ',
-      review: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ',
-      disabled: '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€'
+      ok: '׳×׳§׳™׳',
+      review: '׳׳‘׳“׳™׳§׳”',
+      disabled: '׳׳•׳©׳‘׳×'
     };
     const STATUS_VARIANTS = {
-      ok: [STATUS_VALUES.ok, '׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ', 'ok', 'Okay', '׳³ֲ³ײ²ֲ¡׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ'],
-      review: [STATUS_VALUES.review, '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ', 'needs review', 'review', '׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ', '׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ° ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ'],
-      disabled: [STATUS_VALUES.disabled, '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ³ג€”', 'disabled', 'out of service', '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֻ׳ֲ¢ֲ׳’ג‚¬ֲ']
+      ok: [STATUS_VALUES.ok, 'תקין', 'ok', 'Okay', 'סלים'],
+      review: [STATUS_VALUES.review, 'לבדיקה', 'needs review', 'review', 'בבדיקה', 'بحاجة إلى فحص'],
+      disabled: [STATUS_VALUES.disabled, 'מושבת', 'disabled', 'out of service', 'معطّل']
     };
     const REPORT_TEXT = {
       he: {
-        exportReport: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ֻ',
-        reportTitle: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ֻ ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ',
-        reportGeneratedAt: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ§ ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ {date}',
-        reportExecutiveSummary: '׳³ֲ³ײ²ֲ¡׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        reportExecutiveText: '׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¢׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ¢ ׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ {total} ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³ײ³ג€”: {ok} ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ, {review} ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֲ¢-{disabled} ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ³ג€”׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ.',
-        reportTotalItems: '׳³ֲ³ײ²ֲ¡׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ´׳³ֲ³׳’ג‚¬ֳ· ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        reportOverdue: '׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ',
-        reportDueSoon: '׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֻ-30 ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ§׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        reportOverdueLine: '{count} ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ³ג€” ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ.',
-        reportUpcomingLine: '{count} ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג€ֳ—׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ 30 ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ§׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ.',
-        reportMissingDateLine: '{count} ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ.',
-        reportPriorityTable: '׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³ײ³ג€” ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ',
-        reportUrgency: '׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ׳³ֲ³ײ³ג€” ׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֳ—׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ',
-        reportOverdueDays: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ {days} ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        reportUpcomingDays: '׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ {days} ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        reportNoUrgentItems: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ג„¢׳³ֲ³ײ²ֲ¢ ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֳ—׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ג„¢׳³ֲ³׳’ג‚¬ֲ.',
-        reportFooter: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¦׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ»ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ³ג€” ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¡׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ»ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ג„¢׳³ֲ³׳’ג‚¬ֲ, ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ§׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ³ג€”׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ£.'
+        exportReport: 'דוח מצב',
+        reportTitle: 'דוח מצב ציוד',
+        reportGeneratedAt: 'הדוח הופק בתאריך {date}',
+        reportExecutiveSummary: 'סיכום מנהלים',
+        reportExecutiveText: 'נכון לעכשיו קיימים {total} פריטים במערכת: {ok} תקינים, {review} לבדיקה ו-{disabled} מושבתים.',
+        reportTotalItems: 'סה״כ פריטים',
+        reportOverdue: 'באיחור לבדיקה',
+        reportDueSoon: 'בדיקה ב-30 הימים הקרובים',
+        reportOverdueLine: '{count} פריטים עברו את תאריך הבדיקה הבא.',
+        reportUpcomingLine: '{count} פריטים צפויים לבדיקה במהלך 30 הימים הקרובים.',
+        reportMissingDateLine: '{count} פריטים ללא תאריך בדיקה הבא.',
+        reportPriorityTable: 'פריטים הדורשים תשומת לב',
+        reportUrgency: 'רמת טיפול',
+        reportOverdueDays: 'איחור של {days} ימים',
+        reportUpcomingDays: 'בעוד {days} ימים',
+        reportNoUrgentItems: 'אין כרגע פריטים דחופים להצגה.',
+        reportFooter: 'הדוח נוצר אוטומטית ממסך הטבלה לצורכי הצגה, בקרה ושיתוף.'
       },
       en: {
         exportReport: 'Status Report',
@@ -99,34 +99,34 @@
         reportFooter: 'This report was generated automatically from the table view for presentation and follow-up.'
       },
       ar: {
-        exportReport: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ± ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ©',
-        reportTitle: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ± ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€”',
-        reportGeneratedAt: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ¦ ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ´׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¡ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ± ׳³ֲ´ײ²ֲ¨׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ® {date}',
-        reportExecutiveSummary: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲµ ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ°׳ֲ¢ֲײ²ֲ',
-        reportExecutiveText: '׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ¯ ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹ {total} ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ© ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ²ֲ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ¸׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¦: {ok} ׳³ֲ´ײ²ֲ³׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ©׳³ֲ´ײ²ֲ {review} ׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ° ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ׳³ֲ´ײ²ֲ ׳ֲ¢ֲײ»ג€  {disabled} ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ©.',
-        reportTotalItems: '׳³ֲ´ײ²ֲ¥׳³ֲ´ײ²ֲ¬׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€”',
-        reportOverdue: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ£׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲ±׳³ֲ´ײ²ֲ© ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ',
-        reportDueSoon: '׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ ׳³ֲ´ײ²ֲ®׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ 30 ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹',
-        reportOverdueLine: '{count} ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ§׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ²׳³ֲ´ײ³ג€” ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ® ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¯׳ֲ¢ֲ׳’ג‚¬ֲ¦.',
-        reportUpcomingLine: '{count} ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ¨ ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ׳ֲ¢ֲ׳’ג‚¬ֲ¡׳³ֲ´ײ²ֲ§ ׳³ֲ´ײ²ֲ®׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ 30 ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¯׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ©.',
-        reportMissingDateLine: '{count} ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ¯׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ  ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ® ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲµ ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¯׳ֲ¢ֲ׳’ג‚¬ֲ¦.',
-        reportPriorityTable: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ­׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¬ ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ° ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ©',
-        reportUrgency: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ³׳³ֲ´ײ³ג€”׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ° ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ©',
-        reportOverdueDays: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ£׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲ± {days} ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹',
-        reportUpcomingDays: '׳³ֲ´ײ²ֲ®׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ {days} ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹',
-        reportNoUrgentItems: '׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§ ׳³ֲ´ײ³ג€”׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ¯ ׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ¯׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¬׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ±׳³ֲ´ײ²ֲ¶.',
-        reportFooter: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ¦ ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ´׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¡ ׳ֲ¢ֲ׳’ג‚¬ֲ¡׳³ֲ´ײ²ֲ°׳³ֲ´ײ²ֲ§ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ± ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¦׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ¹ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ  ׳³ֲ´ײ²ֲ´׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ´׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ¯׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ£׳³ֲ´ײ³ֲ·׳³ֲ´ײ²ֲ±׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¶ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ±׳³ֲ´ײ²ֲ¶ ׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ©.'
+        exportReport: 'تقرير حالة',
+        reportTitle: 'تقرير حالة المعدات',
+        reportGeneratedAt: 'تم إنشاء التقرير بتاريخ {date}',
+        reportExecutiveSummary: 'ملخص تنفيذي',
+        reportExecutiveText: 'يوجد حالياً {total} معدة في النظام: {ok} سليمة، {review} بحاجة إلى فحص، و {disabled} معطلة.',
+        reportTotalItems: 'إجمالي المعدات',
+        reportOverdue: 'متأخرة للفحص',
+        reportDueSoon: 'فحص خلال 30 يوماً',
+        reportOverdueLine: '{count} معدات تجاوزت تاريخ الفحص القادم.',
+        reportUpcomingLine: '{count} معدات مطلوب فحصها خلال 30 يوماً القادمة.',
+        reportMissingDateLine: '{count} معدات بدون تاريخ فحص قادم.',
+        reportPriorityTable: 'معدات تحتاج إلى متابعة',
+        reportUrgency: 'مستوى المعالجة',
+        reportOverdueDays: 'متأخر {days} يوماً',
+        reportUpcomingDays: 'خلال {days} يوماً',
+        reportNoUrgentItems: 'لا توجد حالياً معدات عاجلة للعرض.',
+        reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
       }
     };
     const LOCATION_TEXT = {
       he: {
-        lastSeenLocation: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ',
-        locationUnavailable: '׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ',
-        locationPending: '׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ׳³ֲ³ײ³ג€” ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ...',
-        locationSaved: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨',
-        locationCoords: '׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢ ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֻ {lat}, ׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ {lng}',
-        locationAccuracy: '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ§ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ¨ {meters} ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ³',
-        locationAt: '׳³ֲ³ײ²ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³ײ²ֲ {time}'
+        lastSeenLocation: 'מיקום אחרון',
+        locationUnavailable: 'לא זמין',
+        locationPending: 'מאמת מיקום...',
+        locationSaved: 'המיקום נשמר',
+        locationCoords: 'קו רוחב {lat}, קו אורך {lng}',
+        locationAccuracy: 'דיוק משוער {meters} מ׳',
+        locationAt: 'עודכן {time}'
       },
       en: {
         lastSeenLocation: 'Last Location',
@@ -138,70 +138,70 @@
         locationAt: 'Updated {time}'
       },
       ar: {
-        lastSeenLocation: '׳³ֲ´ײ²ֲ¢׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲ± ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹',
-        locationUnavailable: '׳³ֲ´ײ³ֲ·׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ± ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ­',
-        locationPending: '׳³ֲ´ײ²ֲ¬׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ­׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ  ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹...',
-        locationSaved: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ¦ ׳³ֲ´ײ²ֲ­׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ¸ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹',
-        locationCoords: '׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲ· ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ±׳³ֲ´ײ²ֲ¶ {lat}׳³ֲ´ײ²ֲ ׳³ֲ´ײ²ֲ®׳³ֲ´ײ²ֲ· ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ·׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ {lng}',
-        locationAccuracy: '׳³ֲ´ײ²ֲ¯׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ¨׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ© {meters} ׳ֲ¢ֲ׳’ג‚¬ֲ¦',
-        locationAt: '׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ¦ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ­׳³ֲ´ײ²ֲ¯׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ« {time}'
+        lastSeenLocation: 'آخر موقع',
+        locationUnavailable: 'غير متاح',
+        locationPending: 'جارٍ التحقق من الموقع...',
+        locationSaved: 'تم حفظ الموقع',
+        locationCoords: 'خط العرض {lat}، خط الطول {lng}',
+        locationAccuracy: 'دقة تقريبية {meters} م',
+        locationAt: 'تم التحديث {time}'
       }
     };
-    LANG.ar.registrationDate = LANG.ar.registrationDate || '׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ® ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ³׳³ֲ´ײ²ֲ¬׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ£׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ';
+    LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
     const IMAGE_PATHS = {
-      shackle: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/shackle.jpg',
-      strap: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/strap.jpg',
-      chain: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/chain.jpg',
-      ring: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/ring.jpg',
-      hook: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/hook.jpg',
-      fire: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/fire.jpg',
-      aircomp: './׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€”/aircomp.jpg'
+      shackle: './תמונות/shackle.jpg',
+      strap: './תמונות/strap.jpg',
+      chain: './תמונות/chain.jpg',
+      ring: './תמונות/ring.jpg',
+      hook: './תמונות/hook.jpg',
+      fire: './תמונות/fire.jpg',
+      aircomp: './תמונות/aircomp.jpg'
     };
     const IMAGE_LIBRARY = {
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ": withImageVersion(IMAGE_PATHS.shackle),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ": withImageVersion(IMAGE_PATHS.strap),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€": withImageVersion(IMAGE_PATHS.chain),
-      "׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€": withImageVersion(IMAGE_PATHS.ring),
-      "׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢": withImageVersion(IMAGE_PATHS.hook),
-      "׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©": withImageVersion(IMAGE_PATHS.fire),
-      "׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨": withImageVersion(IMAGE_PATHS.aircomp),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨": withImageVersion(IMAGE_PATHS.shackle)
+      "׳©׳׳§׳": withImageVersion(IMAGE_PATHS.shackle),
+      "׳¨׳¦׳•׳¢׳”": withImageVersion(IMAGE_PATHS.strap),
+      "׳©׳¨׳©׳¨׳×": withImageVersion(IMAGE_PATHS.chain),
+      "׳˜׳‘׳¢׳×": withImageVersion(IMAGE_PATHS.ring),
+      "׳•׳•": withImageVersion(IMAGE_PATHS.hook),
+      "מטף כיבוי אש": withImageVersion(IMAGE_PATHS.fire),
+      "מדחס אויר": withImageVersion(IMAGE_PATHS.aircomp),
+      "׳׳—׳¨": withImageVersion(IMAGE_PATHS.shackle)
     };
     const IMAGE_TYPE_ALIASES = {
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ": withImageVersion(IMAGE_PATHS.shackle),
-      "׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ§׳³ֲ³ײ²ֲ": withImageVersion(IMAGE_PATHS.shackle),
+      "׳©׳׳§׳": withImageVersion(IMAGE_PATHS.shackle),
+      "שאקל": withImageVersion(IMAGE_PATHS.shackle),
       "shackle": withImageVersion(IMAGE_PATHS.shackle),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ": withImageVersion(IMAGE_PATHS.strap),
-      "׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ¦׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¢׳³ֲ³׳’ג‚¬ֲ": withImageVersion(IMAGE_PATHS.strap),
+      "׳¨׳¦׳•׳¢׳”": withImageVersion(IMAGE_PATHS.strap),
+      "רצועה": withImageVersion(IMAGE_PATHS.strap),
       "strap": withImageVersion(IMAGE_PATHS.strap),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€": withImageVersion(IMAGE_PATHS.chain),
-      "׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ¨׳³ֲ³ײ³ג€”": withImageVersion(IMAGE_PATHS.chain),
+      "׳©׳¨׳©׳¨׳×": withImageVersion(IMAGE_PATHS.chain),
+      "שרשרת": withImageVersion(IMAGE_PATHS.chain),
       "chain": withImageVersion(IMAGE_PATHS.chain),
-      "׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€": withImageVersion(IMAGE_PATHS.ring),
-      "׳³ֲ³ײ»ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ¢׳³ֲ³ײ³ג€”": withImageVersion(IMAGE_PATHS.ring),
+      "׳˜׳‘׳¢׳×": withImageVersion(IMAGE_PATHS.ring),
+      "טבעת": withImageVersion(IMAGE_PATHS.ring),
       "ring": withImageVersion(IMAGE_PATHS.ring),
-      "׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢": withImageVersion(IMAGE_PATHS.hook),
-      "׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ¢": withImageVersion(IMAGE_PATHS.hook),
+      "׳•׳•": withImageVersion(IMAGE_PATHS.hook),
+      "וו": withImageVersion(IMAGE_PATHS.hook),
       "hook": withImageVersion(IMAGE_PATHS.hook),
-      "׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©": withImageVersion(IMAGE_PATHS.fire),
+      "מטף כיבוי אש": withImageVersion(IMAGE_PATHS.fire),
       "fire extinguisher": withImageVersion(IMAGE_PATHS.fire),
-      "׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨": withImageVersion(IMAGE_PATHS.aircomp),
+      "מדחס אויר": withImageVersion(IMAGE_PATHS.aircomp),
       "air compressor": withImageVersion(IMAGE_PATHS.aircomp),
-      "׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨": withImageVersion(IMAGE_PATHS.shackle),
-      "׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¨": withImageVersion(IMAGE_PATHS.shackle),
+      "׳׳—׳¨": withImageVersion(IMAGE_PATHS.shackle),
+      "אחר": withImageVersion(IMAGE_PATHS.shackle),
       "other": withImageVersion(IMAGE_PATHS.shackle)
     };
     const DEMO_ISRAEL_LOCATIONS = [
-      { he: '׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ', en: 'Ashdod Port', ar: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¡ ׳³ֲ´ײ²ֲ£׳³ֲ´ײ²ֲ´׳³ֲ´ײ²ֲ¯׳ֲ¢ֲײ»ג€ ׳³ֲ´ײ²ֲ¯', latitude: 31.80152, longitude: 34.64042 },
-      { he: '׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֳ—׳³ֲ³׳’ג‚¬ֲ', en: 'Haifa Port', ar: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¡ ׳³ֲ´ײ²ֲ­׳ֲ¢ֲײ²ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§', latitude: 32.83038, longitude: 34.98854 },
-      { he: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ', en: 'Holon Industrial Zone', ar: '׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲµ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¹׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ­׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲ׳’ג‚¬ֲ ', latitude: 32.01045, longitude: 34.77984 },
-      { he: '׳³ֲ³ײ²ֲ§׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ³ג€” ׳³ֲ³ײ²ֲ¢׳³ֲ³ײ³ג€”׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ', en: 'Kiryat Atidim, Tel Aviv', ar: '׳ֲ¢ֲײ¶ג€™׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€” ׳³ֲ´ײ²ֲ¹׳³ֲ´ײ³ג€”׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ¯׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦ ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ£׳³ֲ´ײ²ֲ¨׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ¨', latitude: 32.11303, longitude: 34.84072 },
-      { he: '׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨׳³ֲ³ײ²ֲ§ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ³ג€” ׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¡׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ', en: 'Caesarea Industrial Park', ar: '׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲµ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¹׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ© ׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ³׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ±׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ©', latitude: 32.48474, longitude: 34.90493 },
-      { he: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג‚¬ֻ׳³ֲ³ײ²ֲ¢', en: 'Beersheba Industrial Area', ar: '׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲµ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¹׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ¦׳³ֲ´ײ²ֲ± ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ³׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ¹', latitude: 31.24384, longitude: 34.7913 },
-      { he: '׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ׳³ֲ³ײ³ג€”', en: 'Eilat Port', ar: '׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¡ ׳³ֲ´ײ²ֲ¥׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ§׳³ֲ´ײ³ג€”', latitude: 29.54746, longitude: 34.9565 },
-      { he: '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ¢׳³ֲ³ײ²ֲ©׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֲ ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ³ג€”׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ§׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג‚¬ֲ', en: 'Petah Tikva Industrial Area', ar: '׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ·׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ²ֲµ׳ֲ¢ֲ׳’ג‚¬ֲ ׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¹׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ© ׳³ֲ´ײ²ֲ¨׳ֲ¢ֲײ²ֲ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ­ ׳³ֲ´ײ³ג€”׳ֲ¢ֲײ¶ג€™׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ§', latitude: 32.09174, longitude: 34.88753 }
+      { he: 'נמל אשדוד', en: 'Ashdod Port', ar: 'ميناء أشدود', latitude: 31.80152, longitude: 34.64042 },
+      { he: 'נמל חיפה', en: 'Haifa Port', ar: 'ميناء حيفا', latitude: 32.83038, longitude: 34.98854 },
+      { he: 'אזור תעשייה חולון', en: 'Holon Industrial Zone', ar: 'المنطقة الصناعية حولون', latitude: 32.01045, longitude: 34.77984 },
+      { he: 'קריית עתידים תל אביב', en: 'Kiryat Atidim, Tel Aviv', ar: 'كريات عتيديم تل أبيب', latitude: 32.11303, longitude: 34.84072 },
+      { he: 'פארק תעשיות קיסריה', en: 'Caesarea Industrial Park', ar: 'المنطقة الصناعية قيسارية', latitude: 32.48474, longitude: 34.90493 },
+      { he: 'אזור תעשייה באר שבע', en: 'Beersheba Industrial Area', ar: 'المنطقة الصناعية بئر السبع', latitude: 31.24384, longitude: 34.7913 },
+      { he: 'נמל אילת', en: 'Eilat Port', ar: 'ميناء إيلات', latitude: 29.54746, longitude: 34.9565 },
+      { he: 'אזור תעשייה פתח תקווה', en: 'Petah Tikva Industrial Area', ar: 'المنطقة الصناعية بيتاح تكفا', latitude: 32.09174, longitude: 34.88753 }
     ];
 
     const el = (id) => document.getElementById(id);
@@ -527,7 +527,7 @@
     function getDefaultImageForType(type){
       const normalized = String(type || '').trim();
       const normalizedLower = normalized.toLowerCase();
-      return IMAGE_TYPE_ALIASES[normalized] || IMAGE_TYPE_ALIASES[normalizedLower] || IMAGE_LIBRARY['׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨'];
+      return IMAGE_TYPE_ALIASES[normalized] || IMAGE_TYPE_ALIASES[normalizedLower] || IMAGE_LIBRARY['׳׳—׳¨'];
     }
 
     function getDisplayImageSrc(item){
@@ -566,7 +566,7 @@
         }));
       }
 
-      return parts.join(' ׳³ג€™׳’ג€ֲ¬ײ²ֲ¢ ');
+      return parts.join(' • ');
     }
 
     function getDemoLocationLabel(location){
@@ -1187,25 +1187,25 @@
     }
 
     function translateType(type){
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ') return t('type_shackle');
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ') return t('type_strap');
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€') return t('type_chain');
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€') return t('type_ring');
-      if(type === '׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢') return t('type_hook');
-      if(type === '׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©') return t('type_fire');
-      if(type === '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨') return t('type_aircomp');
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨') return t('type_other');
+      if(type === '׳©׳׳§׳') return t('type_shackle');
+      if(type === '׳¨׳¦׳•׳¢׳”') return t('type_strap');
+      if(type === '׳©׳¨׳©׳¨׳×') return t('type_chain');
+      if(type === '׳˜׳‘׳¢׳×') return t('type_ring');
+      if(type === '׳•׳•') return t('type_hook');
+      if(type === 'מטף כיבוי אש') return t('type_fire');
+      if(type === 'מדחס אויר') return t('type_aircomp');
+      if(type === '׳׳—׳¨') return t('type_other');
       return type || t('scanItemDefault');
     }
 
     function getSafetyTipKeys(type){
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ') return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ') return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€') return ['safety_chain_1', 'safety_chain_2', 'safety_chain_3'];
-      if(type === '׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€') return ['safety_ring_1', 'safety_ring_2', 'safety_ring_3'];
-      if(type === '׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢') return ['safety_hook_1', 'safety_hook_2', 'safety_hook_3'];
-      if(type === '׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©') return ['safety_fire_1', 'safety_fire_2', 'safety_fire_3'];
-      if(type === '׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨') return ['safety_aircomp_1', 'safety_aircomp_2', 'safety_aircomp_3'];
+      if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
+      if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
+      if(type === '׳©׳¨׳©׳¨׳×') return ['safety_chain_1', 'safety_chain_2', 'safety_chain_3'];
+      if(type === '׳˜׳‘׳¢׳×') return ['safety_ring_1', 'safety_ring_2', 'safety_ring_3'];
+      if(type === '׳•׳•') return ['safety_hook_1', 'safety_hook_2', 'safety_hook_3'];
+      if(type === 'מטף כיבוי אש') return ['safety_fire_1', 'safety_fire_2', 'safety_fire_3'];
+      if(type === 'מדחס אויר') return ['safety_aircomp_1', 'safety_aircomp_2', 'safety_aircomp_3'];
       return ['safety_other_1', 'safety_other_2', 'safety_other_3'];
     }
 
@@ -1392,34 +1392,34 @@
     }
 
     function updateStatusOptions(){
-      const current = el('itemStatus').value || '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      const current = el('itemStatus').value || '׳×׳§׳™׳';
       el('itemStatus').innerHTML = `
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ">${t('status_ok')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ">${t('status_review')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€">${t('status_disabled')}</option>
+        <option value="׳×׳§׳™׳">${t('status_ok')}</option>
+        <option value="׳׳‘׳“׳™׳§׳”">${t('status_review')}</option>
+        <option value="׳׳•׳©׳‘׳×">${t('status_disabled')}</option>
       `;
       el('itemStatus').value = current;
       updateStatusColorSelect();
     }
 
     function updateTypeOptions(){
-      const current = el('itemType').value || '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      const current = el('itemType').value || '׳©׳׳§׳';
       el('itemType').innerHTML = `
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ">${t('type_shackle')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¦׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ">${t('type_strap')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€">${t('type_chain')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ»ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€">${t('type_ring')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢">${t('type_hook')}</option>
-        <option value="׳³ֲ³ײ²ֲ׳³ֲ³ײ»ֲ׳³ֲ³ײ²ֲ£ ׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֻ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢ ׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ©">${t('type_fire')}</option>
-        <option value="׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ¡ ׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³׳’ג€ֲ¢׳³ֲ³ײ²ֲ¨">${t('type_aircomp')}</option>
-        <option value="׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨">${t('type_other')}</option>
+        <option value="׳©׳׳§׳">${t('type_shackle')}</option>
+        <option value="׳¨׳¦׳•׳¢׳”">${t('type_strap')}</option>
+        <option value="׳©׳¨׳©׳¨׳×">${t('type_chain')}</option>
+        <option value="׳˜׳‘׳¢׳×">${t('type_ring')}</option>
+        <option value="׳•׳•">${t('type_hook')}</option>
+        <option value="מטף כיבוי אש">${t('type_fire')}</option>
+        <option value="מדחס אויר">${t('type_aircomp')}</option>
+        <option value="׳׳—׳¨">${t('type_other')}</option>
       `;
       el('itemType').value = current;
     }
 
     function updateScanEditOptions(){
-      const currentType = el('scanEditItemType').value || '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
-      const currentStatus = el('scanEditStatus').value || '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      const currentType = el('scanEditItemType').value || '׳©׳׳§׳';
+      const currentStatus = el('scanEditStatus').value || '׳×׳§׳™׳';
       el('scanEditItemType').innerHTML = el('itemType').innerHTML;
       el('scanEditStatus').innerHTML = el('itemStatus').innerHTML;
       el('scanEditItemType').value = currentType;
@@ -1428,46 +1428,6 @@
 
     function canEditRegister(){
       return registerAccessRole === 'engineer';
-    }
-
-    function getRegisterWorkspaceCopy(){
-      if(registerAccessRole === 'engineer'){
-        return {
-          title: t('engineerPageTitle'),
-          subtitle: t('engineerPageSubtitle'),
-          badge: t('roleEngineer'),
-          badgeClass: 'engineer'
-        };
-      }
-      if(registerAccessRole === 'foreman'){
-        return {
-          title: t('foremanPageTitle'),
-          subtitle: t('foremanPageSubtitle'),
-          badge: t('roleForeman'),
-          badgeClass: 'foreman'
-        };
-      }
-      return {
-        title: t('registerTitle'),
-        subtitle: t('engineerPageSubtitle'),
-        badge: t('roleViewer'),
-        badgeClass: 'viewer'
-      };
-    }
-    function updateWorkspaceHero(){
-      const copy = getRegisterWorkspaceCopy();
-      const badge = el('workspaceRoleBadgeText');
-      el('registerScreenTitle').textContent = copy.title;
-      el('workspaceRoleLabelText').textContent = t('workspaceRoleLabel');
-      badge.textContent = copy.badge;
-      badge.classList.remove('engineer', 'foreman', 'viewer');
-      badge.classList.add(copy.badgeClass);
-      el('workspaceHeroTitleText').textContent = copy.title;
-      el('workspaceHeroSubtitleText').textContent = copy.subtitle;
-      el('workspaceVisitBtn').textContent = t('workspaceQuickVisit');
-      el('workspaceTableBtn').textContent = t('workspaceQuickTable');
-      el('workspaceLogsBtn').textContent = t('workspaceQuickLogs');
-      el('workspaceVisitBtn').disabled = !canEditRegister();
     }
 
     function updateRegisterAccessUi(){
@@ -1504,7 +1464,6 @@
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !activeVisit;
-      el('workspaceVisitBtn').disabled = !canEdit;
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
       if(visitPanel){
@@ -1521,33 +1480,32 @@
         el('registerStatus').textContent = t('waitingForScan');
       }
 
-      updateWorkspaceHero();
       bindDateTextInputs();
     }
 
     function populateScanEditForm(item){
       if(!item){
         el('scanEditTagId').value = '';
-        el('scanEditItemType').value = '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+        el('scanEditItemType').value = '׳©׳׳§׳';
         el('scanEditDescription').value = '';
         el('scanEditSerial').value = '';
         el('scanEditWll').value = '';
         el('scanEditRegistrationDate').value = '';
         el('scanEditNextInspection').value = '';
-        el('scanEditStatus').value = '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+        el('scanEditStatus').value = '׳×׳§׳™׳';
         el('scanEditSiteName').value = '';
         el('scanEditNotes').value = '';
         return;
       }
 
       el('scanEditTagId').value = item.tagId || '';
-      el('scanEditItemType').value = item.itemType || '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('scanEditItemType').value = item.itemType || '׳©׳׳§׳';
       el('scanEditDescription').value = item.description || '';
       el('scanEditSerial').value = item.serialNumber || '';
       el('scanEditWll').value = item.wll || '';
       el('scanEditRegistrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
       el('scanEditNextInspection').value = formatDateInputValue(item.nextInspection);
-      el('scanEditStatus').value = item.status || '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
       el('scanEditSiteName').value = item.siteName || '';
       el('scanEditNotes').value = item.notes || '';
     }
@@ -1642,7 +1600,7 @@
       el('scanEditSiteName').placeholder = t('siteNamePlaceholder');
       el('scanEditNotes').placeholder = t('notesPlaceholder');
       el('registerBackBtn').textContent = t('back');
-      updateWorkspaceHero();
+      el('registerScreenTitle').textContent = t('registerTitle');
       el('tabRegisterBtn').textContent = t('tabRegister');
       el('tabTableBtn').textContent = t('tabTable');
       el('tabLogsBtn').textContent = t('tabLogs');
@@ -1829,8 +1787,8 @@
     }
 
     function sortIndicator(key){
-      if(tableSort.key !== key) return '׳³ג€™׳’ג‚¬ֲ ׳’ג‚¬ֲ¢';
-      return tableSort.direction === 'asc' ? '׳³ג€™׳’ג‚¬ֲ ׳’ג‚¬ֻ' : '׳³ג€™׳’ג‚¬ֲ ׳’ג‚¬ֲ';
+      if(tableSort.key !== key) return '↕';
+      return tableSort.direction === 'asc' ? '↑' : '↓';
     }
 
     function sortableHeader(label, key){
@@ -2199,8 +2157,8 @@
       return currentLang === 'en'
         ? 'Open date picker'
         : currentLang === 'ar'
-          ? '׳³ֲ´ײ²ֲ§׳ֲ¢ֲײ²ֲ׳³ֲ´ײ³ג€”׳³ֲ´ײ²ֲ­ ׳³ֲ´ײ²ֲ§׳ֲ¢ֲ׳’ג‚¬ֲ׳³ֲ´ײ³ג€”׳ֲ¢ֲ׳’ג‚¬ֲ׳ֲ¢ֲײ»ג€ ׳ֲ¢ֲײ²ֲ׳ֲ¢ֲ׳’ג‚¬ֲ¦'
-          : '׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ³ג€”׳³ֲ³׳’ג‚¬ג€ ׳³ֲ³ײ³ג€”׳³ֲ³ײ²ֲ׳³ֲ³ײ²ֲ¨׳³ֲ³׳’ג€ֲ¢׳³ֲ³׳’ג‚¬ֳ·׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ';
+          ? 'افتح التقويم'
+          : 'פתח תאריכון';
     }
 
     function syncDatePickerState(input, picker){
@@ -2234,7 +2192,7 @@
       triggerWrap.className = 'date-picker-trigger-wrap';
       const triggerIcon = document.createElement('span');
       triggerIcon.className = 'date-picker-trigger';
-      triggerIcon.textContent = '׳³ֲ ײ²ֲ׳’ג‚¬ֲ׳’ג‚¬ֲ¦';
+      triggerIcon.textContent = '📅';
       const picker = document.createElement('input');
       picker.type = 'date';
       picker.className = 'native-date-picker';
@@ -2539,7 +2497,7 @@
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
         const printableHtml = reportHtml.replace(
           '<body>',
-          `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? '׳³ֲ´ײ²ֲ·׳³ֲ´ײ²ֲ¨׳³ֲ´ײ²ֲ§׳³ֲ´ײ²ֲ¹׳³ֲ´ײ²ֲ© / ׳³ֲ´ײ²ֲ­׳ֲ¢ֲײ²ֲ׳³ֲ´ײ²ֲ¸ PDF' : '׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג‚¬ֲ׳³ֲ³׳’ג€ֳ—׳³ֲ³ײ²ֲ¡ / ׳³ֲ³ײ²ֲ©׳³ֲ³ײ²ֲ׳³ֲ³׳’ג‚¬ֲ¢׳³ֲ³ײ²ֲ¨ PDF')}</button></div>`
+          `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
         );
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -2815,7 +2773,7 @@
                   <td class="table-edit-cell" data-label="${t('notes')}">
                     <div class="table-notes-wrap">
                       <input class="toolbar-input table-inline-input table-notes-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(draftNotes)}" placeholder="${escapeHtml(t('notesPlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
-                      ${canEditRegister() ? `<button class="table-clear-note-btn" type="button" data-tag-id="${escapeHtml(item.tagId || '')}" aria-label="${escapeHtml(t('clearNote'))}" title="${escapeHtml(t('clearNote'))}">׳²ֲ³׳’ג‚¬ג€</button>` : ''}
+                      ${canEditRegister() ? `<button class="table-clear-note-btn" type="button" data-tag-id="${escapeHtml(item.tagId || '')}" aria-label="${escapeHtml(t('clearNote'))}" title="${escapeHtml(t('clearNote'))}">×</button>` : ''}
                     </div>
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
@@ -2831,8 +2789,7 @@
             </tbody>
           </table>
         `;
-        updateWorkspaceHero();
-      bindDateTextInputs();
+        bindDateTextInputs();
         bindTableEditors();
         if(lastSavedTagId){
           const row = container.querySelector(`tr[data-tag-id="${CSS.escape(lastSavedTagId)}"]`);
@@ -2940,17 +2897,14 @@
       }
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      ['workspaceVisitBtn', 'workspaceTableBtn', 'workspaceLogsBtn'].forEach((id) => el(id)?.classList.remove('active'));
       el(tabId).classList.add('active');
+
       if(tabId === 'registerPane'){
         el('tabRegisterBtn').classList.add('active');
-        el('workspaceVisitBtn').classList.add('active');
       } else if(tabId === 'tablePane'){
         el('tabTableBtn').classList.add('active');
-        el('workspaceTableBtn').classList.add('active');
       } else {
         el('tabLogsBtn').classList.add('active');
-        el('workspaceLogsBtn').classList.add('active');
       }
     }
 
@@ -3012,14 +2966,14 @@
 
     function clearForm(){
       el('tagId').value = '';
-      el('itemType').value = '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('itemType').value = '׳©׳׳§׳';
       el('description').value = '';
       el('serialNumber').value = '';
       el('contractor').value = '';
       el('wll').value = '';
       el('registrationDate').value = formatDateInputValue(todayIsoDate());
       el('nextInspection').value = '';
-      el('itemStatus').value = '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('itemStatus').value = '׳×׳§׳™׳';
       el('siteName').value = '';
       el('notes').value = '';
       customImageSrc = '';
@@ -3279,7 +3233,7 @@
     }
 
     function selectImageByType(){
-      const type = el('itemType').value || '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬׳’ג‚¬ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ¨';
+      const type = el('itemType').value || '׳׳—׳¨';
       updatePreviewImage(customImageSrc || getDefaultImageForType(type));
     }
 
@@ -3287,11 +3241,11 @@
       const select = el('itemStatus');
       select.classList.remove('status-ok','status-warn','status-bad');
 
-      if(select.value === '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ'){
+      if(select.value === '׳×׳§׳™׳'){
         select.classList.add('status-ok');
-      } else if(select.value === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ'){
+      } else if(select.value === '׳׳‘׳“׳™׳§׳”'){
         select.classList.add('status-warn');
-      } else if(select.value === '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳³ג€™׳’ג€ֲ¬ײ»ֲ׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€'){
+      } else if(select.value === '׳׳•׳©׳‘׳×'){
         select.classList.add('status-bad');
       }
     }
@@ -3383,14 +3337,14 @@
 
     function fillRegisterForm(item){
       el('tagId').value = item.tagId || '';
-      el('itemType').value = item.itemType || '׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ©׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('itemType').value = item.itemType || '׳©׳׳§׳';
       el('description').value = item.description || '';
       el('serialNumber').value = item.serialNumber || '';
       el('contractor').value = item.contractor || '';
       el('wll').value = item.wll || '';
       el('registrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
       el('nextInspection').value = formatDateInputValue(item.nextInspection);
-      el('itemStatus').value = item.status || '׳³ֲ³ײ²ֲ³׳²ֲ³׳’ג‚¬ג€׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ§׳³ֲ³ײ²ֲ³׳³ג€™׳’ג‚¬ֲײ²ֲ¢׳³ֲ³ײ²ֲ³׳²ֲ²ײ²ֲ';
+      el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('siteName').value = item.siteName || '';
       el('notes').value = item.notes || '';
       customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
@@ -3524,21 +3478,21 @@
 
             if(mode === 'scan'){
               if(locatedItem){
-                statusEl.textContent = locationSnapshot ? `${t('itemFound')} ׳³ג€™׳’ג€ֲ¬ײ²ֲ¢ ${lt('locationSaved')}` : t('itemFound');
+                statusEl.textContent = locationSnapshot ? `${t('itemFound')} • ${lt('locationSaved')}` : t('itemFound');
                 fillScanCard(locatedItem);
               } else {
                 currentScannedItem = null;
                 populateScanEditForm(null);
                 el('scanResult').classList.remove('active');
-                statusEl.textContent = locationSnapshot ? `${t('itemNotFound')} ׳³ג€™׳’ג€ֲ¬ײ²ֲ¢ ${lt('locationSaved')}` : t('itemNotFound');
+                statusEl.textContent = locationSnapshot ? `${t('itemNotFound')} • ${lt('locationSaved')}` : t('itemNotFound');
               }
             } else {
               el('tagId').value = tagId;
               if(locatedItem){
-                statusEl.textContent = locationSnapshot ? `${t('existingTag')} ׳³ג€™׳’ג€ֲ¬ײ²ֲ¢ ${lt('locationSaved')}` : t('existingTag');
+                statusEl.textContent = locationSnapshot ? `${t('existingTag')} • ${lt('locationSaved')}` : t('existingTag');
                 fillRegisterForm(locatedItem);
               } else {
-                statusEl.textContent = locationSnapshot ? `${t('newTag')} ׳³ג€™׳’ג€ֲ¬ײ²ֲ¢ ${lt('locationSaved')}` : t('newTag');
+                statusEl.textContent = locationSnapshot ? `${t('newTag')} • ${lt('locationSaved')}` : t('newTag');
                 updateStatusColorSelect();
               }
             }
@@ -3638,7 +3592,6 @@
     async function bootApp(){
       ensureScanLocationRow();
       bindTableActionDelegation();
-      updateWorkspaceHero();
       bindDateTextInputs();
       setupVisitSignaturePad();
       loadActiveVisit();
