@@ -1390,18 +1390,6 @@
           applySelectStatusClass(select, select.value);
         });
       });
-
-      document.querySelectorAll('.table-save-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-          saveTableRow(button.dataset.tagId || '');
-        });
-      });
-
-      document.querySelectorAll('.table-delete-btn').forEach((button) => {
-        button.addEventListener('click', () => {
-          deleteTableRow(button.dataset.tagId || '');
-        });
-      });
     }
 
     async function saveTableRow(tagId){
@@ -2019,8 +2007,8 @@
                   </td>
                   <td class="table-edit-cell" data-label="${t('actions')}">
                     <div class="table-actions-cell">
-                      ${canEditRegister() ? `<button class="mini-btn table-save-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
-                      <button class="mini-btn table-delete-btn" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>` : ''}
+                      ${canEditRegister() ? `<button class="mini-btn table-save-btn" type="button" onclick="saveTableRow(this.dataset.tagId)" data-tag-id="${escapeHtml(item.tagId || '')}">${t('saveChanges')}</button>
+                      <button class="mini-btn table-delete-btn" type="button" onclick="deleteTableRow(this.dataset.tagId)" data-tag-id="${escapeHtml(item.tagId || '')}">${t('deleteItem')}</button>` : ''}
                       <div class="table-row-status muted" data-tag-id="${escapeHtml(item.tagId || '')}"></div>
                     </div>
                   </td>
