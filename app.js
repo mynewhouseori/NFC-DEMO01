@@ -867,6 +867,8 @@
               <div class="thumb"><img src="${escapeHtml(getDisplayImageSrc(demoItem))}" alt="Item image"></div>
               <div>
                 <h3>${escapeHtml(translateType(demoItem.itemType))}</h3>
+                <div>${escapeHtml(t('contractor'))}: ${escapeHtml(demoItem.contractor || '-')}</div>
+                <div>${escapeHtml(t('siteName'))}: ${escapeHtml(demoItem.siteName || '-')}</div>
                 <div>${escapeHtml(t('tagId'))}: <span class="mono">${escapeHtml(demoItem.tagId || '-')}</span></div>
                 <div>${escapeHtml(t('description'))}: ${escapeHtml(demoItem.description || '-')}</div>
                 <div>${escapeHtml(t('serial'))}: ${escapeHtml(demoItem.serialNumber || '-')}</div>
@@ -1064,6 +1066,7 @@
         el('scanEditRegistrationDate').value = '';
         el('scanEditNextInspection').value = '';
         el('scanEditStatus').value = '׳×׳§׳™׳';
+        el('scanEditSiteName').value = '';
         el('scanEditNotes').value = '';
         return;
       }
@@ -1076,6 +1079,7 @@
       el('scanEditRegistrationDate').value = getRegistrationDateValue(item);
       el('scanEditNextInspection').value = item.nextInspection || '';
       el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
+      el('scanEditSiteName').value = item.siteName || '';
       el('scanEditNotes').value = item.notes || '';
     }
 
@@ -1157,12 +1161,14 @@
       el('scanEditRegistrationDateLabel').textContent = t('registrationDate');
       el('scanEditNextInspectionLabel').textContent = t('nextInspection');
       el('scanEditStatusLabel').textContent = t('status');
+      el('scanEditSiteNameLabel').textContent = t('siteName');
       el('scanEditNotesLabel').textContent = t('notes');
       el('scanSaveBtn').textContent = t('saveScanChanges');
       el('scanEditTagId').placeholder = t('tagPlaceholder');
       el('scanEditDescription').placeholder = t('descriptionPlaceholder');
       el('scanEditSerial').placeholder = t('serialPlaceholder');
       el('scanEditWll').placeholder = t('wllPlaceholder');
+      el('scanEditSiteName').placeholder = t('siteNamePlaceholder');
       el('scanEditNotes').placeholder = t('notesPlaceholder');
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = t('registerTitle');
@@ -1177,23 +1183,29 @@
       el('imageLabel').textContent = t('image');
       el('descriptionLabel').textContent = t('description');
       el('serialLabel').textContent = t('serial');
+      el('contractorLabel').textContent = t('contractor');
       el('wllLabel').textContent = t('wll');
       el('registrationDateLabel').textContent = t('registrationDate');
       el('nextInspectionLabel').textContent = t('nextInspection');
       el('itemStatusLabel').textContent = t('status');
+      el('siteNameLabel').textContent = t('siteName');
       el('notesLabel').textContent = t('notes');
       el('saveBtn').textContent = t('saveItem');
 
       el('tagId').placeholder = t('tagPlaceholder');
       el('description').placeholder = t('descriptionPlaceholder');
       el('serialNumber').placeholder = t('serialPlaceholder');
+      el('contractor').placeholder = t('contractorPlaceholder');
       el('wll').placeholder = t('wllPlaceholder');
+      el('siteName').placeholder = t('siteNamePlaceholder');
       el('notes').placeholder = t('notesPlaceholder');
 
+      el('lblContractor').textContent = t('contractor');
       el('lblTagId').textContent = t('tagId');
       el('lblDescription').textContent = t('description');
       el('lblSerial').textContent = t('serial');
       el('lblWll').textContent = t('wll');
+      el('lblSiteName').textContent = t('siteName');
       el('lblNextInspection').textContent = t('nextInspection');
       el('lblStatus').textContent = t('status');
       el('lblNotes').textContent = t('notes');
@@ -1392,10 +1404,11 @@
       const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
       const registrationDateInput = document.querySelector(`.table-registration-date-input[data-tag-id="${safeTagId}"]`);
       const dateInput = document.querySelector(`.table-date-input[data-tag-id="${safeTagId}"]`);
+      const siteNameInput = document.querySelector(`.table-site-name-input[data-tag-id="${safeTagId}"]`);
       const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
-      if(!statusInput || !registrationDateInput || !dateInput || !notesInput || !statusNode){
+      if(!statusInput || !registrationDateInput || !dateInput || !siteNameInput || !notesInput || !statusNode){
         return;
       }
 
@@ -1414,6 +1427,7 @@
           status: statusInput.value,
           registrationDate: registrationDateInput.value,
           nextInspection: dateInput.value,
+          siteName: siteNameInput.value.trim(),
           notes: notesInput.value.trim(),
           updatedAt: new Date().toLocaleString()
         };
@@ -1475,6 +1489,7 @@
           t('description'),
           t('serial'),
           t('wll'),
+          t('siteName'),
           t('registrationDate'),
           t('nextInspection'),
           t('notes')
@@ -1487,6 +1502,7 @@
           item.description || '',
           item.serialNumber || '',
           item.wll || '',
+          item.siteName || '',
           getRegistrationDateValue(item),
           item.nextInspection || '',
           item.notes || ''
@@ -1786,7 +1802,9 @@
           item.itemType,
           item.description,
           item.serialNumber,
+          item.contractor,
           item.wll,
+          item.siteName,
           getRegistrationDateValue(item),
           item.notes,
           translateStatus(item.status)
@@ -1822,7 +1840,9 @@
         itemType: item?.itemType || '',
         itemDescription: item?.description || '',
         itemSerialNumber: item?.serialNumber || '',
+        itemContractor: item?.contractor || '',
         itemWll: item?.wll || '',
+        itemSiteName: item?.siteName || '',
         itemNextInspection: item?.nextInspection || '',
         itemNotes: item?.notes || '',
         lastSeenLocation: locationSnapshot || item?.lastSeenLocation || null,
@@ -1897,6 +1917,8 @@
           const stateText = log.found ? t('logFound') : t('logNotFound');
           const statusText = log.found && effectiveStatus ? translateStatus(effectiveStatus) : '';
           const typeText = effectiveType ? translateType(effectiveType) : '';
+          const contractorText = log.itemContractor || fallbackItem?.contractor || '';
+          const siteText = log.itemSiteName || fallbackItem?.siteName || '';
           const locationText = log.lastSeenLocation?.label || formatLocationSnapshot(log.lastSeenLocation);
           return `
             <div class="${itemClass}">
@@ -1909,6 +1931,8 @@
               </div>
               <div>${t('logTag')}: <span class="mono">${log.tagId}</span></div>
               ${typeText ? `<div>${t('itemType')}: ${typeText}</div>` : ''}
+              ${contractorText ? `<div>${t('contractor')}: ${escapeHtml(contractorText)}</div>` : ''}
+              ${siteText ? `<div>${t('siteName')}: ${escapeHtml(siteText)}</div>` : ''}
               ${locationText && locationText !== lt('locationUnavailable') ? `<div>${lt('lastSeenLocation')}: ${locationText}</div>` : ''}
             </div>
           `;
@@ -1952,7 +1976,9 @@
                 <th>${sortableHeader(t('itemType'), 'itemType')}</th>
                 <th>${sortableHeader(t('description'), 'description')}</th>
                 <th>${sortableHeader(t('serial'), 'serialNumber')}</th>
+                <th>${sortableHeader(t('contractor'), 'contractor')}</th>
                 <th>${t('wll')}</th>
+                <th>${sortableHeader(t('siteName'), 'siteName')}</th>
                 <th>${sortableHeader(t('registrationDate'), 'registrationDate')}</th>
                 <th>${sortableHeader(t('nextInspection'), 'nextInspection')}</th>
                 <th>${t('notes')}</th>
@@ -1972,7 +1998,11 @@
                   <td data-label="${t('itemType')}">${translateType(item.itemType)}</td>
                   <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
+                  <td data-label="${t('contractor')}">${escapeHtml(item.contractor || '')}</td>
                   <td data-label="${t('wll')}">${escapeHtml(item.wll || '')}</td>
+                  <td class="table-edit-cell" data-label="${t('siteName')}">
+                    <input class="toolbar-input table-inline-input table-site-name-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" value="${escapeHtml(item.siteName || '')}" placeholder="${escapeHtml(t('siteNamePlaceholder'))}" ${canEditRegister() ? '' : 'disabled'}>
+                  </td>
                   <td class="table-edit-cell" data-label="${t('registrationDate')}">
                     <input class="toolbar-input table-inline-input table-registration-date-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="date" value="${escapeHtml(getRegistrationDateValue(item))}" ${canEditRegister() ? '' : 'disabled'}>
                   </td>
@@ -2173,10 +2203,12 @@
       el('itemType').value = '׳©׳׳§׳';
       el('description').value = '';
       el('serialNumber').value = '';
+      el('contractor').value = '';
       el('wll').value = '';
       el('registrationDate').value = todayIsoDate();
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
+      el('siteName').value = '';
       el('notes').value = '';
       customImageSrc = '';
       pendingImageTask = null;
@@ -2214,6 +2246,8 @@
             description: log.itemDescription || fallbackItem?.description || '',
             serialNumber: log.itemSerialNumber || fallbackItem?.serialNumber || '',
             wll: log.itemWll || fallbackItem?.wll || '',
+            contractor: log.itemContractor || fallbackItem?.contractor || '',
+            siteName: log.itemSiteName || fallbackItem?.siteName || '',
             status: log.itemStatus || fallbackItem?.status || '',
             nextInspection: log.itemNextInspection || fallbackItem?.nextInspection || '',
             notes: log.itemNotes || fallbackItem?.notes || '',
@@ -2244,11 +2278,13 @@
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(entry.contractor || '-')}</td>
+            <td>${escapeHtml(entry.siteName || '-')}</td>
             <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
           </tr>
-        `).join('') : `<tr><td colspan="9">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
 
         const html = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -2303,7 +2339,9 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
@@ -2323,7 +2361,9 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
@@ -2447,12 +2487,15 @@
     function fillScanCard(item){
       hideScanDemoGallery();
       currentScannedItem = item;
+      el('scanEditPanel').hidden = true;
       el('scanItemImage').src = getDisplayImageSrc(item);
       el('scanItemType').textContent = translateType(item.itemType);
+      el('scanContractor').textContent = item.contractor || '-';
       el('scanTagId').textContent = item.tagId || '-';
       el('scanDescription').textContent = item.description || '-';
       el('scanSerial').textContent = item.serialNumber || '-';
       el('scanWll').textContent = item.wll || '-';
+      el('scanSiteName').textContent = item.siteName || '-';
       el('scanNextInspection').textContent = item.nextInspection || '-';
       el('scanItemStatus').textContent = translateStatus(item.status);
       applyStatusColor(el('scanItemStatus'), item.status);
@@ -2460,7 +2503,6 @@
       updateLastSeenLocationLink(item);
       renderScanSafetyTips(item.itemType);
       el('scanResult').classList.add('active');
-      populateScanEditForm(item);
     }
 
     async function saveScanItemEdits(){
@@ -2503,6 +2545,7 @@
           registrationDate: el('scanEditRegistrationDate').value || getRegistrationDateValue(currentScannedItem),
           nextInspection: el('scanEditNextInspection').value,
           status: el('scanEditStatus').value,
+          siteName: el('scanEditSiteName').value.trim(),
           notes: el('scanEditNotes').value.trim(),
           updatedAt: new Date().toLocaleString()
         };
@@ -2530,10 +2573,12 @@
       el('itemType').value = item.itemType || '׳©׳׳§׳';
       el('description').value = item.description || '';
       el('serialNumber').value = item.serialNumber || '';
+      el('contractor').value = item.contractor || '';
       el('wll').value = item.wll || '';
       el('registrationDate').value = getRegistrationDateValue(item);
       el('nextInspection').value = item.nextInspection || '';
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
+      el('siteName').value = item.siteName || '';
       el('notes').value = item.notes || '';
       customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
       pendingImageTask = null;
@@ -2572,10 +2617,12 @@
         itemType: el('itemType').value,
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
+        contractor: el('contractor').value.trim(),
         wll: el('wll').value.trim(),
         registrationDate: el('registrationDate').value || getRegistrationDateValue(existing),
         nextInspection: el('nextInspection').value,
         status: el('itemStatus').value,
+        siteName: el('siteName').value.trim(),
         notes: el('notes').value.trim(),
         imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
         lastSeenLocation: existing?.lastSeenLocation || null,
