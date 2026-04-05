@@ -1296,7 +1296,8 @@
       margin-bottom:6px;
     }
 
-    .map-link {
+    .map-link,
+    .map-link:visited {
       color:#0b57d0;
       font-weight:700;
       text-decoration:underline;
