@@ -725,6 +725,14 @@
     @media (max-width:700px){
       .row { grid-template-columns:1fr; }
 
+      .mobile-date-balance-row {
+        grid-template-columns:.82fr 1.18fr;
+      }
+
+      .mobile-next-inspection-row {
+        grid-template-columns:1.18fr .82fr;
+      }
+
       .topbar {
         align-items:flex-start;
       }
