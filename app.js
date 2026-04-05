@@ -422,30 +422,62 @@
         };
       };
 
+      const drawDot = (point) => {
+        context.beginPath();
+        context.arc(point.x, point.y, 1.2, 0, Math.PI * 2);
+        context.fillStyle = '#0f172a';
+        context.fill();
+      };
+
+      const startStroke = (point) => {
+        if(!visitSignaturePadState){
+          return;
+        }
+        visitSignaturePadState.drawing = true;
+        visitSignaturePadState.dirty = true;
+        visitSignaturePadState.lastPoint = point;
+        drawDot(point);
+      };
+
+      const moveStroke = (point) => {
+        if(!visitSignaturePadState?.drawing || !visitSignaturePadState.lastPoint){
+          return;
+        }
+        context.beginPath();
+        context.moveTo(visitSignaturePadState.lastPoint.x, visitSignaturePadState.lastPoint.y);
+        context.lineTo(point.x, point.y);
+        context.stroke();
+        visitSignaturePadState.lastPoint = point;
+      };
+
       visitSignaturePadState = {
         drawing: false,
         dirty: false,
         lastPoint: null,
+        activePointerId: null,
         resizeCanvas
       };
 
       canvas.addEventListener('pointerdown', (event) => {
-        visitSignaturePadState.drawing = true;
-        visitSignaturePadState.dirty = true;
-        visitSignaturePadState.lastPoint = pointerPosition(event);
-        canvas.setPointerCapture(event.pointerId);
+        if(event.pointerType === 'mouse' && event.button !== 0){
+          return;
+        }
+        event.preventDefault();
+        canvas.focus?.();
+        visitSignaturePadState.activePointerId = event.pointerId;
+        startStroke(pointerPosition(event));
+        try { canvas.setPointerCapture(event.pointerId); } catch {}
       });
 
       canvas.addEventListener('pointermove', (event) => {
-        if(!visitSignaturePadState?.drawing || !visitSignaturePadState.lastPoint){
+        if(event.pointerId !== visitSignaturePadState?.activePointerId){
           return;
         }
-        const nextPoint = pointerPosition(event);
-        context.beginPath();
-        context.moveTo(visitSignaturePadState.lastPoint.x, visitSignaturePadState.lastPoint.y);
-        context.lineTo(nextPoint.x, nextPoint.y);
-        context.stroke();
-        visitSignaturePadState.lastPoint = nextPoint;
+        if(event.pointerType === 'mouse' && (event.buttons & 1) !== 1){
+          stopDrawing(event);
+          return;
+        }
+        moveStroke(pointerPosition(event));
       });
 
       const stopDrawing = (event) => {
@@ -454,14 +486,15 @@
         }
         visitSignaturePadState.drawing = false;
         visitSignaturePadState.lastPoint = null;
+        visitSignaturePadState.activePointerId = null;
         if(event?.pointerId !== undefined){
           try { canvas.releasePointerCapture(event.pointerId); } catch {}
         }
       };
 
       canvas.addEventListener('pointerup', stopDrawing);
-      canvas.addEventListener('pointerleave', stopDrawing);
       canvas.addEventListener('pointercancel', stopDrawing);
+      window.addEventListener('pointerup', stopDrawing);
       window.addEventListener('resize', resizeCanvas);
       resizeCanvas();
     }
