@@ -1083,7 +1083,14 @@
     }
 
     function updateLogsPaneMode(){
-      const { logsPanel, reportsPanel } = ensureLogsDashboardShell();
+      const { pane, summary, logsPanel, reportsPanel } = ensureLogsDashboardShell();
+      if(pane){
+        pane.classList.toggle('logs-pane-reports', logsPaneMode === 'reports');
+        pane.classList.toggle('logs-pane-logs', logsPaneMode === 'logs');
+      }
+      if(summary){
+        summary.hidden = logsPaneMode !== 'logs';
+      }
       if(reportsPanel){
         reportsPanel.hidden = logsPaneMode !== 'reports';
       }

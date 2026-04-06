@@ -1429,6 +1429,22 @@
   margin-top:16px;
 }
 
+#logsPane.logs-pane-reports .report-archive-panel {
+  border:2px solid rgba(15,118,110,.22);
+  border-radius:22px;
+  padding:18px;
+  background:linear-gradient(180deg, rgba(240,253,250,1) 0%, rgba(255,255,255,1) 100%);
+  box-shadow:0 14px 30px rgba(15,118,110,.08);
+}
+
+#logsPane.logs-pane-reports .report-archive-title {
+  color:#0f766e;
+}
+
+#logsPane.logs-pane-reports .report-archive-subtitle {
+  color:#0f766e;
+}
+
 .report-archive-list {
   display:flex;
   flex-direction:column;
@@ -1498,6 +1514,20 @@
   border-radius:18px;
   padding:16px;
   background:linear-gradient(180deg, rgba(255,255,255,1), rgba(248,250,252,.96));
+}
+
+#logsPane.logs-pane-logs .logs-history-panel {
+  border:2px solid rgba(37,99,235,.18);
+  background:linear-gradient(180deg, rgba(239,246,255,1) 0%, rgba(255,255,255,1) 100%);
+  box-shadow:0 14px 30px rgba(37,99,235,.08);
+}
+
+#logsPane.logs-pane-logs .report-archive-title {
+  color:#1d4ed8;
+}
+
+#logsPane.logs-pane-logs .report-archive-subtitle {
+  color:#1e40af;
 }
 
     .log-item {
