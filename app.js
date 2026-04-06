@@ -603,33 +603,24 @@
       if(currentLang === 'en'){
         return {
           downloadPdf: 'Download PDF',
-          sharePdf: 'Share PDF to WhatsApp / Email',
           preparingPdf: 'Preparing PDF...',
           pdfReady: 'PDF ready.',
-          pdfError: 'Could not create the PDF.',
-          shareFallback: 'This browser cannot attach a PDF directly to WhatsApp or email. The PDF was downloaded so you can attach it manually.',
-          shareTitle: 'Engineer Visit Report'
+          pdfError: 'Could not create the PDF.'
         };
       }
       if(currentLang === 'ar'){
         return {
           downloadPdf: 'تنزيل PDF',
-          sharePdf: 'إرسال PDF إلى واتساب / البريد',
           preparingPdf: 'جارٍ تجهيز ملف PDF...',
           pdfReady: 'ملف PDF جاهز.',
-          pdfError: 'تعذر إنشاء ملف PDF.',
-          shareFallback: 'هذا المتصفح لا يدعم إرفاق ملف PDF مباشرة إلى واتساب أو البريد. تم تنزيل الملف لتتمكن من إرفاقه يدوياً.',
-          shareTitle: 'تقرير زيارة مهندس'
+          pdfError: 'تعذر إنشاء ملف PDF.'
         };
       }
       return {
         downloadPdf: 'הורד PDF',
-        sharePdf: 'שלח PDF לוואטסאפ / מייל',
         preparingPdf: 'מכין קובץ PDF...',
         pdfReady: 'קובץ ה-PDF מוכן.',
-        pdfError: 'לא ניתן ליצור קובץ PDF.',
-        shareFallback: 'הדפדפן הזה לא מאפשר לצרף PDF ישירות לוואטסאפ או למייל. הקובץ ירד למכשיר כדי שתוכל לצרף אותו ידנית.',
-        shareTitle: 'דוח ביקור מהנדס'
+        pdfError: 'לא ניתן ליצור קובץ PDF.'
       };
     }
 
@@ -665,7 +656,6 @@
             .report-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
             .report-btn { border:none; border-radius:12px; padding:12px 16px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
             .report-btn-download { background:#0f766e; }
-            .report-btn-share { background:#2563eb; }
             .report-status { min-height:22px; font-weight:700; color:#334155; margin-bottom:14px; }
             .report-sheet { background:#fff; border-radius:20px; padding:32px; box-shadow:0 16px 40px rgba(15,23,42,.08); }
             .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
@@ -691,7 +681,6 @@
         <body>
           <div class="report-actions">
             <button class="report-btn report-btn-download" onclick="downloadVisitPdf()" type="button">${escapeHtml(actionText.downloadPdf)}</button>
-            <button class="report-btn report-btn-share" onclick="shareVisitPdf()" type="button">${escapeHtml(actionText.sharePdf)}</button>
           </div>
           <div class="report-status" id="reportStatus"></div>
 
@@ -773,7 +762,6 @@
           <script>
             const reportText = ${JSON.stringify(actionText)};
             const reportFileName = ${JSON.stringify(fileName)};
-            const reportTitle = ${JSON.stringify(actionText.shareTitle)};
 
             function setReportStatus(text){
               const status = document.getElementById('reportStatus');
@@ -889,80 +877,6 @@
                 pdf.save(reportFileName);
               } catch (error) {
                 console.error(error);
-                setReportStatus(reportText.pdfError);
-                alert(reportText.pdfError);
-              }
-            }
-
-            function getShareWindow(){
-              if(window.opener && !window.opener.closed && window.opener.navigator){
-                return window.opener;
-              }
-              return window;
-            }
-
-            function createShareFile(blob){
-              try {
-                return new File([blob], reportFileName, { type: 'application/pdf' });
-              } catch (error) {
-                console.warn('File constructor unavailable for share', error);
-                return null;
-              }
-            }
-
-            async function shareVisitPdf(){
-              let pdf = null;
-              try {
-                pdf = await buildVisitPdf();
-                const blob = pdf.output('blob');
-                const file = createShareFile(blob);
-                const shareWindow = getShareWindow();
-                const shareNavigator = shareWindow.navigator;
-                const canShareFiles = Boolean(
-                  file &&
-                  shareNavigator &&
-                  typeof shareNavigator.share === 'function' &&
-                  typeof shareNavigator.canShare === 'function' &&
-                  shareNavigator.canShare({ files: [file] })
-                );
-
-                if(canShareFiles){
-                  try {
-                    await shareNavigator.share({
-                      files: [file],
-                      title: reportTitle,
-                      text: reportTitle
-                    });
-                    setReportStatus('');
-                    return;
-                  } catch (shareError) {
-                    if(shareError && shareError.name === 'AbortError'){
-                      setReportStatus('');
-                      return;
-                    }
-                    console.warn('Native share failed, falling back to download', shareError);
-                  }
-                }
-
-                pdf.save(reportFileName);
-                setReportStatus('');
-                alert(reportText.shareFallback);
-              } catch (error) {
-                if(error && error.name === 'AbortError'){
-                  setReportStatus('');
-                  return;
-                }
-                console.error(error);
-                if(pdf){
-                  try {
-                    pdf.save(reportFileName);
-                    setReportStatus('');
-                    alert(reportText.shareFallback);
-                    return;
-                  } catch (saveError) {
-                    console.error(saveError);
-                  }
-                }
                 setReportStatus(reportText.pdfError);
                 alert(reportText.pdfError);
               }
