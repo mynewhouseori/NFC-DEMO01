@@ -599,6 +599,255 @@
       return `"${String(value ?? '').replaceAll('"', '""')}"`;
     }
 
+    function getVisitReportActionText(){
+      if(currentLang === 'en'){
+        return {
+          downloadPdf: 'Download PDF',
+          sharePdf: 'Share PDF to WhatsApp / Email',
+          preparingPdf: 'Preparing PDF...',
+          pdfReady: 'PDF ready.',
+          pdfError: 'Could not create the PDF.',
+          shareFallback: 'This browser cannot attach a PDF directly to WhatsApp or email. The PDF was downloaded so you can attach it manually.',
+          shareTitle: 'Engineer Visit Report'
+        };
+      }
+      if(currentLang === 'ar'){
+        return {
+          downloadPdf: 'تنزيل PDF',
+          sharePdf: 'إرسال PDF إلى واتساب / البريد',
+          preparingPdf: 'جارٍ تجهيز ملف PDF...',
+          pdfReady: 'ملف PDF جاهز.',
+          pdfError: 'تعذر إنشاء ملف PDF.',
+          shareFallback: 'هذا المتصفح لا يدعم إرفاق ملف PDF مباشرة إلى واتساب أو البريد. تم تنزيل الملف لتتمكن من إرفاقه يدوياً.',
+          shareTitle: 'تقرير زيارة مهندس'
+        };
+      }
+      return {
+        downloadPdf: 'הורד PDF',
+        sharePdf: 'שלח PDF לוואטסאפ / מייל',
+        preparingPdf: 'מכין קובץ PDF...',
+        pdfReady: 'קובץ ה-PDF מוכן.',
+        pdfError: 'לא ניתן ליצור קובץ PDF.',
+        shareFallback: 'הדפדפן הזה לא מאפשר לצרף PDF ישירות לוואטסאפ או למייל. הקובץ ירד למכשיר כדי שתוכל לצרף אותו ידנית.',
+        shareTitle: 'דוח ביקור מהנדס'
+      };
+    }
+
+    function buildVisitReportPage({ visit, newEntries, checkedEntries, generatedAt, reportLogoSrc = '' }){
+      const actionText = getVisitReportActionText();
+      const safeDate = normalizeRegistrationDate(visit?.date || '') || todayIsoDate();
+      const fileName = `visit-report-${safeDate}.pdf`;
+      const renderRows = (rows) => rows.length ? rows.map((entry) => `
+        <tr>
+          <td>${escapeHtml(entry.tagId || '-')}</td>
+          <td>${escapeHtml(entry.actionLabel)}</td>
+          <td>${escapeHtml(translateType(entry.itemType))}</td>
+          <td>${escapeHtml(entry.description || '-')}</td>
+          <td>${escapeHtml(entry.serialNumber || '-')}</td>
+          <td>${escapeHtml(entry.contractor || '-')}</td>
+          <td>${escapeHtml(entry.wll || '-')}</td>
+          <td>${escapeHtml(entry.siteName || '-')}</td>
+          <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+          <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
+          <td>${escapeHtml(entry.notes || '-')}</td>
+        </tr>
+      `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+
+      return `
+        <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+        <head>
+          <meta charset="UTF-8">
+          <title>${escapeHtml(t('visitReportTitle'))}</title>
+          <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+          <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+          <style>
+            body { font-family: Arial, sans-serif; color:#0f172a; padding:24px; background:#f8fafc; }
+            .report-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+            .report-btn { border:none; border-radius:12px; padding:12px 16px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+            .report-btn-download { background:#0f766e; }
+            .report-btn-share { background:#2563eb; }
+            .report-status { min-height:22px; font-weight:700; color:#334155; margin-bottom:14px; }
+            .report-sheet { background:#fff; border-radius:20px; padding:32px; box-shadow:0 16px 40px rgba(15,23,42,.08); }
+            .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+            .logo { width:140px; height:140px; object-fit:contain; }
+            h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
+            p { margin:0 0 10px; line-height:1.7; }
+            .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
+            .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+            .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
+            table { width:100%; border-collapse:collapse; margin-top:12px; }
+            th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
+            th { background:#f8fafc; }
+            .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
+            .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            .signature-image { max-width:280px; max-height:120px; display:block; margin-top:10px; margin-bottom:10px; }
+            @media print {
+              body { background:#fff; padding:0; }
+              .report-actions, .report-status { display:none; }
+              .report-sheet { box-shadow:none; border-radius:0; padding:0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="report-actions">
+            <button class="report-btn report-btn-download" onclick="downloadVisitPdf()" type="button">${escapeHtml(actionText.downloadPdf)}</button>
+            <button class="report-btn report-btn-share" onclick="shareVisitPdf()" type="button">${escapeHtml(actionText.sharePdf)}</button>
+          </div>
+          <div class="report-status" id="reportStatus"></div>
+
+          <div class="report-sheet" id="reportRoot">
+            <div class="header">
+              <div>
+                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
+                <p>${escapeHtml(t('visitReportIntro'))}</p>
+                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
+              </div>
+              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
+            </div>
+
+            <div class="meta">
+              <div class="meta-grid">
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(visit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(visit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(visit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(visit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(visit.endedAt || '-'))}</div>
+              </div>
+              ${visit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(visit.notes)}</p>` : ''}
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(newEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(checkedEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="signature">
+              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              ${visit.signatureDataUrl ? `<img class="signature-image" src="${visit.signatureDataUrl}" alt="Signature">` : ''}
+              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
+            </div>
+
+            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+          </div>
+
+          <script>
+            const reportText = ${JSON.stringify(actionText)};
+            const reportFileName = ${JSON.stringify(fileName)};
+            const reportTitle = ${JSON.stringify(actionText.shareTitle)};
+
+            function setReportStatus(text){
+              const status = document.getElementById('reportStatus');
+              if(status) status.textContent = text || '';
+            }
+
+            async function buildVisitPdf(){
+              setReportStatus(reportText.preparingPdf);
+              const reportRoot = document.getElementById('reportRoot');
+              const canvas = await html2canvas(reportRoot, {
+                scale: 2,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+              });
+              const { jsPDF } = window.jspdf;
+              const pdf = new jsPDF('p', 'pt', 'a4');
+              const pageWidth = pdf.internal.pageSize.getWidth();
+              const pageHeight = pdf.internal.pageSize.getHeight();
+              const imgWidth = pageWidth;
+              const imgHeight = canvas.height * imgWidth / canvas.width;
+              const imgData = canvas.toDataURL('image/png');
+              let heightLeft = imgHeight;
+              let position = 0;
+              pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+              heightLeft -= pageHeight;
+              while(heightLeft > 0){
+                position = heightLeft - imgHeight;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST');
+                heightLeft -= pageHeight;
+              }
+              setReportStatus(reportText.pdfReady);
+              return pdf;
+            }
+
+            async function downloadVisitPdf(){
+              try {
+                const pdf = await buildVisitPdf();
+                pdf.save(reportFileName);
+              } catch (error) {
+                console.error(error);
+                setReportStatus(reportText.pdfError);
+                alert(reportText.pdfError);
+              }
+            }
+
+            async function shareVisitPdf(){
+              try {
+                const pdf = await buildVisitPdf();
+                const blob = pdf.output('blob');
+                const file = new File([blob], reportFileName, { type: 'application/pdf' });
+                if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+                  await navigator.share({
+                    files: [file],
+                    title: reportTitle,
+                    text: reportTitle
+                  });
+                  return;
+                }
+                pdf.save(reportFileName);
+                alert(reportText.shareFallback);
+              } catch (error) {
+                console.error(error);
+                setReportStatus(reportText.pdfError);
+                alert(reportText.pdfError);
+              }
+            }
+          </script>
+        </body>
+        </html>
+      `;
+    }
+
     function isLibraryImageSrc(src){
       const srcText = String(src || '');
       const normalizedSrc = srcText.split('?')[0];
@@ -926,112 +1175,13 @@
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
 
-        const renderRows = (rows) => rows.length ? rows.map((entry) => `
-          <tr>
-            <td>${escapeHtml(entry.tagId || '-')}</td>
-            <td>${escapeHtml(entry.actionLabel)}</td>
-            <td>${escapeHtml(translateType(entry.itemType))}</td>
-            <td>${escapeHtml(entry.description || '-')}</td>
-            <td>${escapeHtml(entry.serialNumber || '-')}</td>
-            <td>${escapeHtml(entry.wll || '-')}</td>
-            <td>${escapeHtml(entry.contractor || '-')}</td>
-            <td>${escapeHtml(entry.siteName || '-')}</td>
-            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
-            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
-            <td>${escapeHtml(entry.notes || '-')}</td>
-          </tr>
-        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
-
-        const html = `
-          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
-          <head>
-            <meta charset="UTF-8">
-            <title>${escapeHtml(t('visitReportTitle'))}</title>
-            <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
-              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-              .logo { width:140px; height:140px; object-fit:contain; }
-              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
-              p { margin:0 0 10px; line-height:1.7; }
-              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
-              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
-              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
-              table { width:100%; border-collapse:collapse; margin-top:12px; }
-              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
-              th { background:#f8fafc; }
-              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
-              .footer { margin-top:18px; color:#64748b; font-size:12px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div>
-                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
-                <p>${escapeHtml(t('visitReportIntro'))}</p>
-                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
-              </div>
-              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
-            </div>
-            <div class="meta">
-              <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(visit.engineer || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(visit.client || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(visit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(visit.startedAt || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(visit.endedAt || '-'))}</div>
-              </div>
-            </div>
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(newEntries)}</tbody>
-              </table>
-            </div>
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(checkedEntries)}</tbody>
-              </table>
-            </div>
-            <div class="signature">
-              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
-            </div>
-            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
-          </body>
-          </html>
-        `;
+        const html = buildVisitReportPage({
+          visit,
+          newEntries,
+          checkedEntries,
+          generatedAt,
+          reportLogoSrc
+        });
 
         const blob = new Blob([`<!doctype html>${html}`], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
@@ -3126,119 +3276,13 @@
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
 
-        const renderRows = (rows) => rows.length ? rows.map((entry) => `
-          <tr>
-            <td>${escapeHtml(entry.tagId || '-')}</td>
-            <td>${escapeHtml(entry.actionLabel)}</td>
-            <td>${escapeHtml(translateType(entry.itemType))}</td>
-            <td>${escapeHtml(entry.description || '-')}</td>
-            <td>${escapeHtml(entry.serialNumber || '-')}</td>
-            <td>${escapeHtml(entry.wll || '-')}</td>
-            <td>${escapeHtml(entry.contractor || '-')}</td>
-            <td>${escapeHtml(entry.siteName || '-')}</td>
-            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
-            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
-            <td>${escapeHtml(entry.notes || '-')}</td>
-          </tr>
-        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
-
-        const html = `
-          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
-          <head>
-            <meta charset="UTF-8">
-            <title>${escapeHtml(t('visitReportTitle'))}</title>
-            <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
-              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-              .logo { width:140px; height:140px; object-fit:contain; }
-              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
-              p { margin:0 0 10px; line-height:1.7; }
-              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
-              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
-              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
-              table { width:100%; border-collapse:collapse; margin-top:12px; }
-              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
-              th { background:#f8fafc; }
-              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
-              .footer { margin-top:18px; color:#64748b; font-size:12px; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div>
-                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
-                <p>${escapeHtml(t('visitReportIntro'))}</p>
-                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
-              </div>
-              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
-            </div>
-
-            <div class="meta">
-              <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(activeVisit.date || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.startedAt || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.endedAt || '-'))}</div>
-              </div>
-              ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
-            </div>
-
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(newEntries)}</tbody>
-              </table>
-            </div>
-
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(checkedEntries)}</tbody>
-              </table>
-            </div>
-
-            <div class="signature">
-              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              ${activeVisit.signatureDataUrl ? `<p><img src="${activeVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
-              <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
-            </div>
-
-            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
-          </body>
-          </html>
-        `;
+        const html = buildVisitReportPage({
+          visit: activeVisit,
+          newEntries,
+          checkedEntries,
+          generatedAt,
+          reportLogoSrc
+        });
 
         const printableHtml = `<!doctype html>${html}`;
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
