@@ -61,7 +61,7 @@
     };
     const REPORT_TEXT = {
       he: {
-        exportReport: 'דוח מצב עדכני',
+        exportReport: 'דוח מצב',
         reportSavePdf: 'שמור PDF',
         reportTitle: 'דוח מצב ציוד',
         reportGeneratedAt: 'הדוח הופק בתאריך {date}',
