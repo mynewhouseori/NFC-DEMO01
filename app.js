@@ -786,6 +786,10 @@
         }
       }
 
+      if(logsPanel){
+        logsPanel.hidden = true;
+      }
+
       return { pane, summary, content, logsPanel };
     }
 
