@@ -449,6 +449,20 @@
       populateVisitReportSiteFilter();
     }
 
+    function updateRegisterScreenTitle(activeTabId = ''){
+      const title = el('registerScreenTitle');
+      if(!title){
+        return;
+      }
+
+      if(activeTabId === 'logsPane'){
+        title.textContent = t('historicalReports');
+        return;
+      }
+
+      title.textContent = t('registerTitle');
+    }
+
     function getCurrentVisitForLogs(){
       if(!activeVisit || activeVisit.status === 'closed'){
         return null;
@@ -1962,7 +1976,7 @@
       el('scanEditSiteName').placeholder = t('siteNamePlaceholder');
       el('scanEditNotes').placeholder = t('notesPlaceholder');
       el('registerBackBtn').textContent = t('back');
-      el('registerScreenTitle').textContent = t('registerTitle');
+      updateRegisterScreenTitle(document.querySelector('.tab-pane.active')?.id || '');
       el('tabRegisterBtn').textContent = t('tabRegister');
       el('tabTableBtn').textContent = t('tabTable');
       el('tabLogsBtn').textContent = t('tabLogs');
@@ -3279,6 +3293,7 @@
       } else {
         el('tabLogsBtn').classList.add('active');
       }
+      updateRegisterScreenTitle(tabId);
     }
 
     function saveVisitSession(){
