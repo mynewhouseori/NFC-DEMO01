@@ -1587,6 +1587,9 @@
       el('visitReportBtn').disabled = !canEdit || !activeVisit;
       el('visitReportBtn').hidden = !canEdit;
       el('scanNewTagBtn').hidden = !canEdit;
+      if(el('saveAllTableChangesBtn')){
+        el('saveAllTableChangesBtn').hidden = !canEdit;
+      }
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
       registerTabButton.style.display = canEdit ? '' : 'none';
