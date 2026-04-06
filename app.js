@@ -716,6 +716,10 @@
       };
     }
 
+    function getPdfActionText(){
+      return getVisitReportActionText();
+    }
+
     function buildVisitReportPage({ visit, newEntries, checkedEntries, generatedAt, reportLogoSrc = '' }){
       const actionText = getVisitReportActionText();
       const safeDate = normalizeRegistrationDate(visit?.date || '') || todayIsoDate();
@@ -2976,13 +2980,27 @@
             }).join('')
           : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
+        const actionText = getPdfActionText();
+        const safeSitePart = normalizedSiteFilter
+          ? `-${normalizedSiteFilter.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').toLowerCase()}`
+          : '';
+        const safeDate = normalizeRegistrationDate(new Date()) || todayIsoDate();
+        const fileName = `status-report-${safeDate}${safeSitePart}.pdf`;
+
         const buildReportHtml = (logoSrc) => `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
           <head>
             <meta charset="UTF-8">
             <title>${escapeHtml(rt('reportTitle'))}</title>
+            <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
             <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#ffffff; }
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:24px; background:#f8fafc; }
+              .report-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+              .report-btn { border:none; border-radius:12px; padding:12px 16px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
+              .report-btn-download { background:#0f766e; }
+              .report-status { min-height:22px; font-weight:700; color:#334155; margin-bottom:14px; }
+              .report-sheet { background:#fff; border-radius:20px; padding:32px; box-shadow:0 16px 40px rgba(15,23,42,.08); }
               .report-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; direction:${currentLang === 'en' ? 'ltr' : 'rtl'}; }
               .report-logo-wrap { flex:0 0 auto; }
               .report-logo { display:block; width:180px; height:180px; object-fit:contain; }
@@ -3011,62 +3029,121 @@
                 100% { opacity:1; box-shadow:0 0 0 0 rgba(220,38,38,0); }
               }
               .footer { margin-top:18px; color:#64748b; font-size:12px; }
+              @media print {
+                body { background:#fff; padding:0; }
+                .report-actions, .report-status { display:none; }
+                .report-sheet { box-shadow:none; border-radius:0; padding:0; }
+              }
             </style>
           </head>
           <body>
-            <div class="report-header">
-              ${logoSrc ? `<div class="report-logo-wrap"><img class="report-logo" src="${logoSrc}" alt="Logo"></div>` : ''}
-              <div class="report-title-wrap">
-                <h1>${escapeHtml(rt('reportTitle'))}</h1>
-                <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
-                <p class="subtitle">${escapeHtml(scopeText)}</p>
+            <div class="report-actions">
+              <button class="report-btn report-btn-download" onclick="downloadStatusPdf()" type="button">${escapeHtml(actionText.downloadPdf)}</button>
+            </div>
+            <div class="report-status" id="reportStatus"></div>
+
+            <div class="report-sheet" id="reportRoot">
+              <div class="report-header">
+                ${logoSrc ? `<div class="report-logo-wrap"><img class="report-logo" src="${logoSrc}" alt="Logo"></div>` : ''}
+                <div class="report-title-wrap">
+                  <h1>${escapeHtml(rt('reportTitle'))}</h1>
+                  <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
+                  <p class="subtitle">${escapeHtml(scopeText)}</p>
+                </div>
               </div>
+
+              <div class="section">
+                <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
+                <p>${escapeHtml(formatReportText('reportExecutiveText', {
+                  total,
+                  ok: okCount,
+                  review: reviewCount,
+                  disabled: disabledCount
+                }))}</p>
+                <ul>
+                  <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
+                  <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
+                  <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
+                </ul>
+              </div>
+
+              <div class="section">
+                <h2>${escapeHtml(rt('reportPriorityTable'))}</h2>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>${escapeHtml(t('tagId'))}</th>
+                      <th>${escapeHtml(t('itemType'))}</th>
+                      <th>${escapeHtml(t('description'))}</th>
+                      <th>${escapeHtml(t('status'))}</th>
+                      <th>${escapeHtml(t('registrationDate'))}</th>
+                      <th>${escapeHtml(t('nextInspection'))}</th>
+                      <th>${escapeHtml(rt('reportUrgency'))}</th>
+                    </tr>
+                  </thead>
+                  <tbody>${priorityRows}</tbody>
+                </table>
+              </div>
+
+              <div class="footer">${escapeHtml(rt('reportFooter'))}</div>
             </div>
 
-            <div class="section">
-              <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
-              <p>${escapeHtml(formatReportText('reportExecutiveText', {
-                total,
-                ok: okCount,
-                review: reviewCount,
-                disabled: disabledCount
-              }))}</p>
-              <ul>
-                <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
-                <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
-                <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
-              </ul>
-            </div>
+            <script>
+              const reportText = ${JSON.stringify(actionText)};
+              const reportFileName = ${JSON.stringify(fileName)};
 
-            <div class="section">
-              <h2>${escapeHtml(rt('reportPriorityTable'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('registrationDate'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(rt('reportUrgency'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${priorityRows}</tbody>
-              </table>
-            </div>
+              function setReportStatus(text){
+                const status = document.getElementById('reportStatus');
+                if(status) status.textContent = text || '';
+              }
 
-            <div class="footer">${escapeHtml(rt('reportFooter'))}</div>
+              async function buildStatusPdf(){
+                setReportStatus(reportText.preparingPdf);
+                const reportRoot = document.getElementById('reportRoot');
+                const canvas = await html2canvas(reportRoot, {
+                  scale: Math.min(1.5, Number(window.devicePixelRatio || 1.25)),
+                  backgroundColor: '#ffffff',
+                  useCORS: true,
+                  logging: false
+                });
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'pt', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 20;
+                const contentWidth = pageWidth - (margin * 2);
+                const contentHeight = pageHeight - (margin * 2);
+                const canvasWidth = canvas.width || 1;
+                const canvasHeight = canvas.height || 1;
+                const fitRatio = Math.min(contentWidth / canvasWidth, contentHeight / canvasHeight);
+                const renderWidth = canvasWidth * fitRatio;
+                const renderHeight = canvasHeight * fitRatio;
+                const offsetX = margin + ((contentWidth - renderWidth) / 2);
+                const offsetY = margin + ((contentHeight - renderHeight) / 2);
+                const imageData = canvas.toDataURL('image/jpeg', 0.92);
+
+                pdf.addImage(imageData, 'JPEG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
+                setReportStatus(reportText.pdfReady);
+                return pdf;
+              }
+
+              async function downloadStatusPdf(){
+                try {
+                  const pdf = await buildStatusPdf();
+                  pdf.save(reportFileName);
+                } catch (error) {
+                  console.error(error);
+                  setReportStatus(reportText.pdfError);
+                  alert(reportText.pdfError);
+                }
+              }
+            </script>
           </body>
           </html>
         `;
 
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
-        const printableHtml = reportHtml.replace(
-          '<body>',
-          `<body><div style="margin-bottom:16px;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(currentLang === 'en' ? 'Print / Save PDF' : currentLang === 'ar' ? 'طباعة / حفظ PDF' : 'הדפס / שמור PDF')}</button></div>`
-        );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
+        const blob = new Blob([reportHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
