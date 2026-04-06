@@ -394,7 +394,9 @@
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
-      el('exportVisitReportBtn').disabled = !activeVisit;
+      el('visitReportBtn').hidden = !canEditRegister();
+      el('exportVisitReportBtn').disabled = !canEditRegister() || !activeVisit;
+      el('exportVisitReportBtn').hidden = !canEditRegister();
     }
 
     function getCurrentVisitForLogs(){
@@ -1566,7 +1568,8 @@
       el('clearImageBtn').disabled = !canEdit;
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
-      el('visitReportBtn').disabled = !activeVisit;
+      el('visitReportBtn').disabled = !canEdit || !activeVisit;
+      el('visitReportBtn').hidden = !canEdit;
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
       if(visitPanel){
