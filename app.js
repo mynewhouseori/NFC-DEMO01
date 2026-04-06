@@ -241,6 +241,7 @@
     let statusReportChooserVisible = false;
     let logsPaneMode = 'logs';
     const pendingTableEdits = new Map();
+    let saveAllFeedbackTimer = null;
     let lastSavedTagId = '';
     let passwordContext = 'register';
     let registerAccessRole = '';
@@ -2183,7 +2184,7 @@
       el('tableSearchInput').setAttribute('aria-label', t('tableSearchPlaceholder'));
       el('tableStatusFilter').setAttribute('aria-label', t('tableStatusFilterLabel'));
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
-      if(el('saveAllTableChangesBtn')) el('saveAllTableChangesBtn').textContent = t('saveAllTableChanges');
+      setSaveAllButtonState('idle');
       el('exportReportBtn').textContent = rt('exportReport');
       el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
@@ -2262,6 +2263,39 @@
         shown: shownCount,
         total: totalCount
       });
+    }
+
+    function setSaveAllButtonState(mode = 'idle'){
+      const button = el('saveAllTableChangesBtn');
+      if(!button){
+        return;
+      }
+
+      if(saveAllFeedbackTimer){
+        clearTimeout(saveAllFeedbackTimer);
+        saveAllFeedbackTimer = null;
+      }
+
+      button.classList.remove('is-saving', 'is-done');
+      button.disabled = false;
+
+      if(mode === 'saving'){
+        button.textContent = t('saveAllTableChangesSaving');
+        button.classList.add('is-saving');
+        button.disabled = true;
+        return;
+      }
+
+      if(mode === 'done'){
+        button.textContent = t('saveAllTableChangesDoneShort');
+        button.classList.add('is-done');
+        saveAllFeedbackTimer = window.setTimeout(() => {
+          setSaveAllButtonState('idle');
+        }, 2200);
+        return;
+      }
+
+      button.textContent = t('saveAllTableChanges');
     }
 
     function isCacheFresh(entry){
@@ -2558,12 +2592,14 @@
       const statusText = el('saveStatus');
 
       if(!tagIds.length){
+        setSaveAllButtonState('done');
         if(statusText){
           statusText.textContent = t('tableNoPendingChanges');
         }
         return;
       }
 
+      setSaveAllButtonState('saving');
       if(statusText){
         statusText.textContent = formatText('tableBulkSaveProgress', { saved: 0, total: tagIds.length });
       }
@@ -2580,6 +2616,7 @@
       if(statusText){
         statusText.textContent = formatText('tableBulkSaveDone', { count: savedCount });
       }
+      setSaveAllButtonState('done');
     }
 
     async function deleteTableRow(tagId, triggerButton = null){
