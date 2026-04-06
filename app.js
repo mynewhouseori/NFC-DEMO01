@@ -780,60 +780,16 @@
               return Math.min(1.5, pixelRatio || 1.5);
             }
 
-            function getReportBlocks(){
-              return Array.from(document.querySelectorAll('#reportRoot > .header, #reportRoot > .meta, #reportRoot > .section, #reportRoot > .signature, #reportRoot > .footer'));
-            }
-
-            function createSliceCanvas(sourceCanvas, sourceY, sliceHeight){
-              const sliceCanvas = document.createElement('canvas');
-              sliceCanvas.width = sourceCanvas.width;
-              sliceCanvas.height = sliceHeight;
-              const context = sliceCanvas.getContext('2d', { alpha: false });
-              context.fillStyle = '#ffffff';
-              context.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-              context.drawImage(
-                sourceCanvas,
-                0,
-                sourceY,
-                sourceCanvas.width,
-                sliceHeight,
-                0,
-                0,
-                sliceCanvas.width,
-                sliceHeight
-              );
-              return sliceCanvas;
-            }
-
-            function addCanvasToPdf(pdf, canvas, contentWidth, contentHeight){
-              const canvasWidth = canvas.width || 1;
-              const canvasHeight = canvas.height || 1;
-              const scaledHeight = canvasHeight * contentWidth / canvasWidth;
-              if(scaledHeight <= contentHeight){
-                const imageData = canvas.toDataURL('image/jpeg', 0.92);
-                pdf.addImage(imageData, 'JPEG', 20, 20, contentWidth, scaledHeight, undefined, 'FAST');
-                return;
-              }
-
-              const sourceSliceHeight = Math.max(1, Math.floor(contentHeight * canvasWidth / contentWidth));
-              let offsetY = 0;
-              let firstPage = true;
-              while(offsetY < canvasHeight){
-                const sliceHeight = Math.min(sourceSliceHeight, canvasHeight - offsetY);
-                const sliceCanvas = createSliceCanvas(canvas, offsetY, sliceHeight);
-                const sliceScaledHeight = sliceHeight * contentWidth / canvasWidth;
-                if(!firstPage){
-                  pdf.addPage();
-                }
-                const imageData = sliceCanvas.toDataURL('image/jpeg', 0.92);
-                pdf.addImage(imageData, 'JPEG', 20, 20, contentWidth, sliceScaledHeight, undefined, 'FAST');
-                offsetY += sliceHeight;
-                firstPage = false;
-              }
-            }
-
             async function buildVisitPdf(){
               setReportStatus(reportText.preparingPdf);
+              const reportRoot = document.getElementById('reportRoot');
+              const scale = getPdfCaptureScale();
+              const canvas = await html2canvas(reportRoot, {
+                scale,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false
+              });
               const { jsPDF } = window.jspdf;
               const pdf = new jsPDF('p', 'pt', 'a4');
               const pageWidth = pdf.internal.pageSize.getWidth();
@@ -841,31 +797,16 @@
               const margin = 20;
               const contentWidth = pageWidth - (margin * 2);
               const contentHeight = pageHeight - (margin * 2);
-              const blocks = getReportBlocks();
-              const scale = getPdfCaptureScale();
-              let wroteAnything = false;
+              const canvasWidth = canvas.width || 1;
+              const canvasHeight = canvas.height || 1;
+              const fitRatio = Math.min(contentWidth / canvasWidth, contentHeight / canvasHeight);
+              const renderWidth = canvasWidth * fitRatio;
+              const renderHeight = canvasHeight * fitRatio;
+              const offsetX = margin + ((contentWidth - renderWidth) / 2);
+              const offsetY = margin + ((contentHeight - renderHeight) / 2);
+              const imageData = canvas.toDataURL('image/jpeg', 0.92);
 
-              for(let index = 0; index < blocks.length; index += 1){
-                const block = blocks[index];
-                const canvas = await html2canvas(block, {
-                  scale,
-                  backgroundColor: '#ffffff',
-                  useCORS: true,
-                  logging: false
-                });
-
-                if(wroteAnything){
-                  pdf.addPage();
-                }
-
-                addCanvasToPdf(pdf, canvas, contentWidth, contentHeight);
-                wroteAnything = true;
-              }
-
-              if(!wroteAnything){
-                pdf.addPage();
-                pdf.text(reportTitle, margin, margin + 12);
-              }
+              pdf.addImage(imageData, 'JPEG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
 
               setReportStatus(reportText.pdfReady);
               return pdf;
