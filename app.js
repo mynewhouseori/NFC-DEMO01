@@ -446,7 +446,6 @@
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
-      el('exportVisitReportBtn').disabled = !activeVisit;
       populateVisitReportSiteFilter();
     }
 
@@ -1901,7 +1900,6 @@
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
-      el('exportVisitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
