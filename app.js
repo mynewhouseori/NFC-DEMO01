@@ -911,8 +911,9 @@
             }
 
             async function shareVisitPdf(){
+              let pdf = null;
               try {
-                const pdf = await buildVisitPdf();
+                pdf = await buildVisitPdf();
                 const blob = pdf.output('blob');
                 const file = createShareFile(blob);
                 const shareWindow = getShareWindow();
@@ -926,16 +927,25 @@
                 );
 
                 if(canShareFiles){
-                  await shareNavigator.share({
-                    files: [file],
-                    title: reportTitle,
-                    text: reportTitle
-                  });
-                  setReportStatus('');
-                  return;
+                  try {
+                    await shareNavigator.share({
+                      files: [file],
+                      title: reportTitle,
+                      text: reportTitle
+                    });
+                    setReportStatus('');
+                    return;
+                  } catch (shareError) {
+                    if(shareError && shareError.name === 'AbortError'){
+                      setReportStatus('');
+                      return;
+                    }
+                    console.warn('Native share failed, falling back to download', shareError);
+                  }
                 }
 
                 pdf.save(reportFileName);
+                setReportStatus('');
                 alert(reportText.shareFallback);
               } catch (error) {
                 if(error && error.name === 'AbortError'){
@@ -943,6 +953,16 @@
                   return;
                 }
                 console.error(error);
+                if(pdf){
+                  try {
+                    pdf.save(reportFileName);
+                    setReportStatus('');
+                    alert(reportText.shareFallback);
+                    return;
+                  } catch (saveError) {
+                    console.error(saveError);
+                  }
+                }
                 setReportStatus(reportText.pdfError);
                 alert(reportText.pdfError);
               }
