@@ -821,22 +821,54 @@
               }
             }
 
+            function getShareWindow(){
+              if(window.opener && !window.opener.closed && window.opener.navigator){
+                return window.opener;
+              }
+              return window;
+            }
+
+            function createShareFile(blob){
+              try {
+                return new File([blob], reportFileName, { type: 'application/pdf' });
+              } catch (error) {
+                console.warn('File constructor unavailable for share', error);
+                return null;
+              }
+            }
+
             async function shareVisitPdf(){
               try {
                 const pdf = await buildVisitPdf();
                 const blob = pdf.output('blob');
-                const file = new File([blob], reportFileName, { type: 'application/pdf' });
-                if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
-                  await navigator.share({
+                const file = createShareFile(blob);
+                const shareWindow = getShareWindow();
+                const shareNavigator = shareWindow.navigator;
+                const canShareFiles = Boolean(
+                  file &&
+                  shareNavigator &&
+                  typeof shareNavigator.share === 'function' &&
+                  typeof shareNavigator.canShare === 'function' &&
+                  shareNavigator.canShare({ files: [file] })
+                );
+
+                if(canShareFiles){
+                  await shareNavigator.share({
                     files: [file],
                     title: reportTitle,
                     text: reportTitle
                   });
+                  setReportStatus('');
                   return;
                 }
+
                 pdf.save(reportFileName);
                 alert(reportText.shareFallback);
               } catch (error) {
+                if(error && error.name === 'AbortError'){
+                  setReportStatus('');
+                  return;
+                }
                 console.error(error);
                 setReportStatus(reportText.pdfError);
                 alert(reportText.pdfError);
@@ -1185,7 +1217,7 @@
 
         const blob = new Blob([`<!doctype html>${html}`], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
+        window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
       } catch (error) {
         pushDebugLine(`Archived visit report error: ${error.message}`);
@@ -3287,7 +3319,7 @@
         const printableHtml = `<!doctype html>${html}`;
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
+        window.open(url, '_blank');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         renderVisitStatus();
       } catch (error) {
