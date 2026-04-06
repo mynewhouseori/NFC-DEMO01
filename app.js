@@ -3094,6 +3094,12 @@
                 100% { opacity:1; box-shadow:0 0 0 0 rgba(220,38,38,0); }
               }
               .footer { margin-top:18px; color:#64748b; font-size:12px; }
+              @media (max-width:700px) {
+                .report-sheet { padding:20px; }
+                .report-header { gap:12px; }
+                .report-logo { width:96px; height:96px; }
+                .subtitle { font-size:16px; line-height:1.6; margin-bottom:12px; }
+              }
               @media print {
                 body { background:#fff; padding:0; }
                 .report-actions, .report-status { display:none; }
