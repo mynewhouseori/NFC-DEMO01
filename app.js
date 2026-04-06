@@ -2733,22 +2733,11 @@
         const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
         const reportItems = [...items].sort(compareInspectionUrgency);
         const generatedAt = formatDisplayDateTime(new Date());
-        const { whatsappShareUrl, emailShareUrl } = await buildPresentationShareData();
         const printLabel = currentLang === 'en'
-          ? 'Print / Save PDF'
+          ? 'Save PDF'
           : currentLang === 'ar'
-            ? 'طباعة / حفظ PDF'
-            : 'הדפס / שמור PDF';
-        const whatsappLabel = currentLang === 'en'
-          ? 'Share to WhatsApp'
-          : currentLang === 'ar'
-            ? 'مشاركة عبر واتساب'
-            : 'שתף ל-WhatsApp';
-        const emailLabel = currentLang === 'en'
-          ? 'Share by Email'
-          : currentLang === 'ar'
-            ? 'مشاركة بالبريد'
-            : 'שתף במייל';
+            ? 'حفظ PDF'
+            : 'שמור PDF';
 
         const priorityRows = reportItems.length
           ? reportItems.map((item) => {
@@ -2871,7 +2860,7 @@
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
         const printableHtml = reportHtml.replace(
           '<body>',
-          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button><a href="${escapeHtml(whatsappShareUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:12px 16px;background:#25d366;color:#ffffff;font-size:15px;font-weight:700;">${escapeHtml(whatsappLabel)}</a><a href="${escapeHtml(emailShareUrl)}" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:12px 16px;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;">${escapeHtml(emailLabel)}</a></div>`
+          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
