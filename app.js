@@ -2055,6 +2055,7 @@
       el('tableSearchInput').setAttribute('aria-label', t('tableSearchPlaceholder'));
       el('tableStatusFilter').setAttribute('aria-label', t('tableStatusFilterLabel'));
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
+      if(el('saveAllTableChangesBtn')) el('saveAllTableChangesBtn').textContent = t('saveAllTableChanges');
       el('exportReportBtn').textContent = rt('exportReport');
       el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
@@ -2414,6 +2415,35 @@
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
         console.error(e);
+      }
+    }
+
+    async function saveAllTableChanges(){
+      const tagIds = [...pendingTableEdits.keys()].filter(Boolean);
+      const statusText = el('saveStatus');
+
+      if(!tagIds.length){
+        if(statusText){
+          statusText.textContent = t('tableNoPendingChanges');
+        }
+        return;
+      }
+
+      if(statusText){
+        statusText.textContent = formatText('tableBulkSaveProgress', { saved: 0, total: tagIds.length });
+      }
+
+      let savedCount = 0;
+      for(const tagId of tagIds){
+        await saveTableRow(tagId);
+        savedCount += 1;
+        if(statusText){
+          statusText.textContent = formatText('tableBulkSaveProgress', { saved: savedCount, total: tagIds.length });
+        }
+      }
+
+      if(statusText){
+        statusText.textContent = formatText('tableBulkSaveDone', { count: savedCount });
       }
     }
 
@@ -3913,6 +3943,7 @@
     window.applyNextInspectionOffset = applyNextInspectionOffset;
     window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
+    window.saveAllTableChanges = saveAllTableChanges;
     window.deleteTableRow = deleteTableRow;
     window.triggerImagePicker = triggerImagePicker;
     window.clearCustomImage = clearCustomImage;
