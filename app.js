@@ -1265,6 +1265,15 @@
       refreshDebugPanel();
     }
 
+    function updateBuildStamp(){
+      const node = el('buildStampText');
+      if(!node){
+        return;
+      }
+      const assetVersion = window.__ASSET_VERSION || 'local';
+      node.textContent = `Build ${assetVersion}`;
+    }
+
     async function copyDebugInfo(){
       const summary = [
         `URL: ${window.location.href}`,
@@ -1658,6 +1667,7 @@
       el('legalLine4Text').textContent = t('legalLine4');
       el('legalLine5Text').textContent = t('legalLine5');
       el('legalDisclaimerText').textContent = t('legalDisclaimer');
+      updateBuildStamp();
 
       el('passwordBackBtn').textContent = t('back');
       if(passwordContext === 'register'){
@@ -1759,10 +1769,9 @@
       el('exportReportBtn').textContent = rt('exportReport');
       el('reportPageTitleText').textContent = t('reportPageTitle');
       el('reportPageSubtitleText').textContent = t('reportPageSubtitle');
-      el('reportPageRefreshBtn').textContent = t('reportPageRefresh');
-      el('reportPageExportBtn').textContent = rt('exportReport');
-      el('reportPageWhatsappBtn').textContent = t('shareWhatsapp');
-      el('reportPageEmailBtn').textContent = t('shareEmail');
+      if(el('reportPageExportBtn')){
+        el('reportPageExportBtn').textContent = rt('exportReport');
+      }
       el('exportTableBtn').textContent = t('exportExcel');
       el('captureImageBtn').textContent = t('captureImage');
       el('clearImageBtn').textContent = t('clearImage');
@@ -1785,14 +1794,33 @@
       if(scanDemoGalleryMode && dataCache.items.value?.length){
         renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
       }
-      renderScanLogs();
-      renderItemsTable();
-      renderPresentationReportPage();
+      refreshRegisterPaneContent();
       refreshDebugPanel();
       renderVisitStatus();
 
       if(!el('scanStatus').textContent.trim()) el('scanStatus').textContent = t('waitingForScan');
       if(!el('registerStatus').textContent.trim()) el('registerStatus').textContent = t('waitingForScan');
+    }
+
+    function refreshRegisterPaneContent(){
+      if(!el('registerScreen')?.classList.contains('screen-open')){
+        return;
+      }
+
+      if(el('tablePane')?.classList.contains('active')){
+        renderItemsTable();
+        return;
+      }
+
+      if(el('reportPane')?.classList.contains('active')){
+        renderPresentationReportPage();
+        return;
+      }
+
+      if(el('logsPane')?.classList.contains('active')){
+        renderReportArchive();
+        renderScanLogs();
+      }
     }
 
     async function getItems(forceFresh = false){
@@ -2553,12 +2581,12 @@
         }
 
         container.innerHTML = `
-          <div class="report-page-grid">
+          <div class="report-page-inline-summary" aria-label="${escapeHtml(rt('reportExecutiveSummary'))}">
             ${cards.map((card) => `
-              <article class="report-page-card report-page-card-${card.tone}">
-                <div class="report-page-card-label">${escapeHtml(card.label)}</div>
-                <div class="report-page-card-value">${escapeHtml(card.value)}</div>
-              </article>
+              <span class="report-page-inline-chip report-page-inline-chip-${card.tone}">
+                <span class="report-page-inline-label">${escapeHtml(card.label)}</span>
+                <span class="report-page-inline-value">${escapeHtml(card.value)}</span>
+              </span>
             `).join('')}
           </div>
 
@@ -3210,11 +3238,14 @@
         refreshVisitSignaturePad();
       } else if(tabId === 'tablePane'){
         el('tabTableBtn').classList.add('active');
+        renderItemsTable();
       } else if(tabId === 'reportPane'){
         el('tabReportBtn').classList.add('active');
         renderPresentationReportPage();
       } else {
         el('tabLogsBtn').classList.add('active');
+        renderReportArchive();
+        renderScanLogs();
       }
     }
 
@@ -3920,8 +3951,6 @@
       selectImageByType();
       updateStatusColorSelect();
       updateRegisterAccessUi();
-      await renderScanLogs();
-      await renderItemsTable();
       await applyUrlTestState();
       refreshDebugPanel();
       pushDebugLine('App boot completed.');

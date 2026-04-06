@@ -6,7 +6,10 @@
   <title>NFC Safety Demo Cloud Table</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
-  <link rel="stylesheet" href="./styles.css?v=20260406toolbarlive002" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260406refreshcore002" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -188,9 +191,9 @@
     <div class="card">
       <div class="tabs">
         <button class="tab-btn active" id="tabRegisterBtn" onclick="openRegisterTab('registerPane')"></button>
-        <button class="tab-btn" id="tabTableBtn" onclick="openRegisterTab('tablePane'); renderItemsTable()"></button>
-        <button class="tab-btn" id="tabReportBtn" onclick="openRegisterTab('reportPane'); renderPresentationReportPage()"></button>
-        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane'); renderReportArchive(); renderScanLogs()"></button>
+        <button class="tab-btn" id="tabTableBtn" onclick="openRegisterTab('tablePane')"></button>
+        <button class="tab-btn" id="tabReportBtn" onclick="openRegisterTab('reportPane')"></button>
+        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane')"></button>
       </div>
 
       <div id="registerPane" class="tab-pane active">
@@ -376,10 +379,7 @@
               <div class="report-page-subtitle" id="reportPageSubtitleText"></div>
             </div>
             <div class="report-page-actions">
-              <button class="mini-btn" onclick="renderPresentationReportPage()" id="reportPageRefreshBtn" type="button"></button>
               <button class="mini-btn" onclick="exportPresentationReport()" id="reportPageExportBtn" type="button"></button>
-              <button class="mini-btn" onclick="sharePresentationReport('whatsapp')" id="reportPageWhatsappBtn" type="button"></button>
-              <button class="mini-btn" onclick="sharePresentationReport('email')" id="reportPageEmailBtn" type="button"></button>
             </div>
           </div>
           <div id="reportPageStatus" class="status muted"></div>
@@ -421,6 +421,7 @@
   </div>
 
   <footer class="site-legal-bar">
+    <div class="build-stamp" id="buildStampText"></div>
     <div class="site-legal-copy" id="legalCopyrightText"></div>
     <button class="legal-link-btn" onclick="openLegalNotice()" id="legalOpenBtn" type="button"></button>
   </footer>
@@ -473,10 +474,34 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260405delete01"></script>
-  <script src="./config.local.js?v=20260404fields02"></script>
   <script>
-    (function bootApp() {
+    (async function bootApp() {
+      const BOOTSTRAP_ASSET_VERSION = '20260406refreshcore002';
+      const VERSION_MANIFEST_URL = './version.json';
+
+      const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        if (module) script.type = 'module';
+        script.onload = () => resolve(true);
+        script.onerror = () => optional ? resolve(false) : reject(new Error(`Failed to load script: ${src}`));
+        document.body.appendChild(script);
+      });
+
+      const getAssetVersion = async () => {
+        try {
+          const response = await fetch(`${VERSION_MANIFEST_URL}?t=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(`Version manifest request failed with ${response.status}`);
+          }
+          const payload = await response.json();
+          return payload?.version || BOOTSTRAP_ASSET_VERSION;
+        } catch (error) {
+          console.warn('Falling back to bootstrap asset version.', error);
+          return BOOTSTRAP_ASSET_VERSION;
+        }
+      };
+
       if (window.location.protocol === 'file:') {
         document.body.innerHTML = `
           <div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fa;font-family:Arial,sans-serif;">
@@ -496,10 +521,17 @@
         return;
       }
 
-      const script = document.createElement('script');
-      script.type = 'module';
-      script.src = './app.js?v=20260406toolbarlive002';
-      document.body.appendChild(script);
+      const assetVersion = await getAssetVersion();
+      window.__ASSET_VERSION = assetVersion;
+
+      const stylesheet = document.getElementById('appStylesheet');
+      if (stylesheet) {
+        stylesheet.href = `./styles.css?v=${encodeURIComponent(assetVersion)}`;
+      }
+
+      await appendScript(`./config.demo.js?v=${encodeURIComponent(assetVersion)}`);
+      await appendScript(`./config.local.js?v=${encodeURIComponent(assetVersion)}`, { optional: true });
+      await appendScript(`./app.js?v=${encodeURIComponent(assetVersion)}`, { module: true });
     })();
   </script>
 </body>
