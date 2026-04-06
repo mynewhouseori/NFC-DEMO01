@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260406statusreport01";
+    import { LANG } from "./translations.js?v=20260406saveallpersist01";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -241,6 +241,7 @@
     let statusReportChooserVisible = false;
     let logsPaneMode = 'logs';
     const pendingTableEdits = new Map();
+    let lastTableEditMode = null;
     let saveAllFeedbackTimer = null;
     let lastSavedTagId = '';
     let passwordContext = 'register';
@@ -1981,6 +1982,7 @@
       const registerTabButton = el('tabRegisterBtn');
       const registerPane = el('registerPane');
       const visitPanel = document.querySelector('.visit-panel');
+      const saveAllButton = el('saveAllTableChangesBtn');
 
       [
         'visitDate',
@@ -2010,6 +2012,10 @@
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !activeVisit;
+      if(saveAllButton){
+        saveAllButton.hidden = !canEdit;
+        saveAllButton.disabled = !canEdit;
+      }
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
       if(visitPanel){
@@ -2027,6 +2033,11 @@
       }
 
       bindDateTextInputs();
+
+      if(lastTableEditMode !== canEdit){
+        lastTableEditMode = canEdit;
+        renderItemsTable();
+      }
     }
 
     function populateScanEditForm(item){
@@ -2561,8 +2572,16 @@
       const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
+      if(!canEditRegister()){
+        if(statusNode){
+          statusNode.textContent = t('scanReadOnlyNote');
+        }
+        return false;
+      }
+
       if(!statusInput || !registrationDateInput || !dateInput || !siteNameInput || !notesInput || !statusNode){
-        return;
+        pushDebugLine(`Inline table save skipped for ${tagId}: editable inputs are not ready.`);
+        return false;
       }
 
       statusNode.textContent = t('saving');
@@ -2592,16 +2611,26 @@
         applySelectStatusClass(statusInput, statusInput.value);
         highlightSavedTableRow(tagId);
         statusNode.textContent = t('tableRowUpdated');
+        return true;
       } catch (e) {
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
         console.error(e);
+        return false;
       }
     }
 
     async function saveAllTableChanges(){
       const tagIds = [...pendingTableEdits.keys()].filter(Boolean);
       const statusText = el('saveStatus');
+
+      if(!canEditRegister()){
+        setSaveAllButtonState('idle');
+        if(statusText){
+          statusText.textContent = t('scanReadOnlyNote');
+        }
+        return;
+      }
 
       if(!tagIds.length){
         setSaveAllButtonState('done');
@@ -2617,18 +2646,27 @@
       }
 
       let savedCount = 0;
+      let failedCount = 0;
       for(const tagId of tagIds){
-        await saveTableRow(tagId);
-        savedCount += 1;
+        const didSave = await saveTableRow(tagId);
+        if(didSave){
+          savedCount += 1;
+        } else {
+          failedCount += 1;
+        }
         if(statusText){
           statusText.textContent = formatText('tableBulkSaveProgress', { saved: savedCount, total: tagIds.length });
         }
       }
 
-      if(statusText){
+      if(statusText && failedCount && savedCount){
+        statusText.textContent = formatText('tableBulkSavePartial', { saved: savedCount, failed: failedCount });
+      } else if(statusText && failedCount){
+        statusText.textContent = t('tableBulkSaveFailed');
+      } else if(statusText){
         statusText.textContent = formatText('tableBulkSaveDone', { count: savedCount });
       }
-      setSaveAllButtonState('done');
+      setSaveAllButtonState(failedCount ? 'idle' : 'done');
     }
 
     async function deleteTableRow(tagId, triggerButton = null){
