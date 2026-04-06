@@ -945,6 +945,7 @@
         const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
+        const printLabel = rt('reportSavePdf');
 
         const renderRows = (rows) => rows.length ? rows.map((entry) => `
           <tr>
@@ -1053,7 +1054,11 @@
           </html>
         `;
 
-        const blob = new Blob([`<!doctype html>${html}`], { type: 'text/html;charset=utf-8' });
+        const printableHtml = `<!doctype html>${html}`.replace(
+          '<body>',
+          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
+        );
+        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
@@ -3421,6 +3426,7 @@
         const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
+        const printLabel = rt('reportSavePdf');
 
         const renderRows = (rows) => rows.length ? rows.map((entry) => `
           <tr>
@@ -3536,7 +3542,10 @@
           </html>
         `;
 
-        const printableHtml = `<!doctype html>${html}`;
+        const printableHtml = `<!doctype html>${html}`.replace(
+          '<body>',
+          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
+        );
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener,noreferrer');
