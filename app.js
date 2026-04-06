@@ -37,6 +37,7 @@
     const ITEMS_COLLECTION = SETTINGS.firestoreCollections.items;
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
     const VISIT_REPORT_ALL_SITES = '__all_sites__';
+    const REPORT_ARCHIVE_ALL_SITES = '__all_sites__';
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
     const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
     const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
@@ -226,6 +227,7 @@
     const reportArchiveState = {
       from: '',
       to: '',
+      site: REPORT_ARCHIVE_ALL_SITES,
       visits: [],
       logsByKey: new Map()
     };
@@ -1188,6 +1190,82 @@
         .sort((a, b) => String(b.sortTime || '').localeCompare(String(a.sortTime || '')));
     }
 
+    function normalizeReportArchiveSiteFilter(value){
+      const normalized = String(value || '').trim();
+      return normalized || REPORT_ARCHIVE_ALL_SITES;
+    }
+
+    function getReportArchiveSiteOptions(visits = []){
+      const sites = [];
+      const seen = new Set();
+      visits.forEach((visit) => {
+        const site = String(visit.site || '').trim();
+        if(!site){
+          return;
+        }
+        const key = site.toLocaleLowerCase();
+        if(seen.has(key)){
+          return;
+        }
+        seen.add(key);
+        sites.push(site);
+      });
+      return sites.sort((a, b) => a.localeCompare(b));
+    }
+
+    function ensureReportArchiveEnhancements(){
+      const tablePane = el('tablePane');
+      const itemsTableContainer = el('itemsTableContainer');
+      const panel = document.querySelector('.report-archive-panel');
+      if(tablePane && itemsTableContainer && panel && itemsTableContainer.nextElementSibling !== panel){
+        itemsTableContainer.insertAdjacentElement('afterend', panel);
+      }
+
+      const filters = panel?.querySelector('.report-archive-filters');
+      if(filters && !el('reportSiteFilter')){
+        const field = document.createElement('div');
+        field.className = 'report-archive-filter-field';
+        field.innerHTML = `
+          <label for="reportSiteFilter" id="reportSiteFilterLabel"></label>
+          <select id="reportSiteFilter" class="toolbar-input"></select>
+        `;
+        const loadButton = el('reportArchiveLoadBtn');
+        if(loadButton){
+          filters.insertBefore(field, loadButton);
+        } else {
+          filters.appendChild(field);
+        }
+      }
+    }
+
+    function populateReportArchiveSiteFilter(visits = []){
+      const select = el('reportSiteFilter');
+      if(!select){
+        return;
+      }
+
+      const sites = getReportArchiveSiteOptions(visits);
+      const currentValue = normalizeReportArchiveSiteFilter(select.value || reportArchiveState.site);
+      const availableValues = [REPORT_ARCHIVE_ALL_SITES, ...sites];
+      const nextValue = availableValues.includes(currentValue) ? currentValue : REPORT_ARCHIVE_ALL_SITES;
+
+      select.innerHTML = '';
+      const allOption = document.createElement('option');
+      allOption.value = REPORT_ARCHIVE_ALL_SITES;
+      allOption.textContent = t('reportArchiveAllSitesOption');
+      select.appendChild(allOption);
+
+      sites.forEach((site) => {
+        const option = document.createElement('option');
+        option.value = site;
+        option.textContent = site;
+        select.appendChild(option);
+      });
+
+      select.value = nextValue;
+      reportArchiveState.site = nextValue;
+    }
+
     function isVisitWithinRange(visit, fromDate, toDate){
       const visitDate = normalizeRegistrationDate(visit.date) || normalizeRegistrationDate(visit.startedAt);
       if(!visitDate){
@@ -1248,6 +1326,7 @@
         return;
       }
 
+      ensureReportArchiveEnhancements();
       const fromDate = normalizeRegistrationDate(el('reportDateFrom')?.value);
       const toDate = normalizeRegistrationDate(el('reportDateTo')?.value);
       if(fromDate && toDate && fromDate > toDate){
@@ -1261,10 +1340,16 @@
 
       try {
         const logs = await getLogs();
-        const visits = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
+        const visitsInRange = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
+        populateReportArchiveSiteFilter(visitsInRange);
+        const selectedSite = normalizeReportArchiveSiteFilter(el('reportSiteFilter')?.value || reportArchiveState.site);
+        const visits = selectedSite === REPORT_ARCHIVE_ALL_SITES
+          ? visitsInRange
+          : visitsInRange.filter((visit) => String(visit.site || '').trim() === selectedSite);
 
         reportArchiveState.from = fromDate || '';
         reportArchiveState.to = toDate || '';
+        reportArchiveState.site = selectedSite;
         reportArchiveState.visits = visits;
         updateLogsDashboardHeadings({
           totalLogs: dataCache.logs.value?.length || 0,
@@ -1318,8 +1403,10 @@
     function resetReportArchiveFilters(){
       if(el('reportDateFrom')) el('reportDateFrom').value = '';
       if(el('reportDateTo')) el('reportDateTo').value = '';
+      if(el('reportSiteFilter')) el('reportSiteFilter').value = REPORT_ARCHIVE_ALL_SITES;
       reportArchiveState.from = '';
       reportArchiveState.to = '';
+      reportArchiveState.site = REPORT_ARCHIVE_ALL_SITES;
       renderReportArchive();
     }
 
@@ -1939,6 +2026,7 @@
       el('reportArchiveSubtitleText').textContent = t('reportArchiveSubtitle');
       el('reportDateFromLabel').textContent = t('reportDateFrom');
       el('reportDateToLabel').textContent = t('reportDateTo');
+      if(el('reportSiteFilterLabel')) el('reportSiteFilterLabel').textContent = t('reportArchiveSite');
       el('reportArchiveLoadBtn').textContent = t('reportArchiveLoad');
       el('reportArchiveResetBtn').textContent = t('reportArchiveReset');
       el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
@@ -1949,6 +2037,7 @@
       updateScanEditOptions();
       updateRegisterAccessUi();
       updateTableFilterOptions();
+      populateReportArchiveSiteFilter(reportArchiveState.visits);
       selectImageByType();
       if(scanDemoGalleryMode && dataCache.items.value?.length){
         renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
@@ -3742,6 +3831,11 @@
       tableFilters.status = event.target.value || 'all';
       renderItemsTable();
     });
+    document.addEventListener('change', (event) => {
+      if(event.target?.id === 'reportSiteFilter'){
+        renderReportArchive();
+      }
+    });
 
     window.addEventListener('error', (event) => {
       pushDebugLine(`Runtime error: ${event.message}`);
@@ -3793,6 +3887,7 @@
     window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){
+      ensureReportArchiveEnhancements();
       ensureScanLocationRow();
       bindTableActionDelegation();
       bindDateTextInputs();

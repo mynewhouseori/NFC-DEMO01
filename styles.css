@@ -1419,10 +1419,14 @@
 
 .report-archive-filters {
   display:grid;
-  grid-template-columns:repeat(2, minmax(160px, 1fr)) auto auto;
+  grid-template-columns:repeat(3, minmax(160px, 1fr)) auto auto;
   gap:10px;
   width:100%;
   align-items:end;
+}
+
+.report-archive-panel {
+  margin-top:16px;
 }
 
 .report-archive-list {
