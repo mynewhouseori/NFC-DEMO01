@@ -62,6 +62,7 @@
     const REPORT_TEXT = {
       he: {
         exportReport: 'דוח מצב עדכני',
+        reportSavePdf: 'שמור PDF',
         reportTitle: 'דוח מצב ציוד',
         reportGeneratedAt: 'הדוח הופק בתאריך {date}',
         reportExecutiveSummary: 'סיכום מנהלים',
@@ -81,6 +82,7 @@
       },
       en: {
         exportReport: 'Current Status Report',
+        reportSavePdf: 'Save PDF',
         reportTitle: 'Equipment Status Report',
         reportGeneratedAt: 'Report generated on {date}',
         reportExecutiveSummary: 'Executive Summary',
@@ -100,6 +102,7 @@
       },
       ar: {
         exportReport: 'تقرير حالة محدث',
+        reportSavePdf: 'حفظ PDF',
         reportTitle: 'تقرير حالة المعدات',
         reportGeneratedAt: 'تم إنشاء التقرير بتاريخ {date}',
         reportExecutiveSummary: 'ملخص تنفيذي',
@@ -1773,7 +1776,7 @@
       el('reportPageTitleText').textContent = t('reportPageTitle');
       el('reportPageSubtitleText').textContent = t('reportPageSubtitle');
       if(el('reportPageExportBtn')){
-        el('reportPageExportBtn').textContent = rt('exportReport');
+        el('reportPageExportBtn').textContent = rt('reportSavePdf');
       }
       el('exportTableBtn').textContent = t('exportExcel');
       el('captureImageBtn').textContent = t('captureImage');
