@@ -882,7 +882,7 @@ Object.assign(LANG.ar, {
 });
 
 Object.assign(LANG.he, {
-  tabReport: 'דוח',
+  tabReport: 'דוח מצב',
   reportPageTitle: 'דף דוח מצב',
   reportPageSubtitle: 'רואים כאן תמונת מצב חיה של הפריטים לפי הסינון הנוכחי מהטבלה.',
   reportPageRefresh: 'רענן דוח',
