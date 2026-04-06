@@ -1589,8 +1589,11 @@
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
+      registerTabButton.style.display = canEdit ? '' : 'none';
+      registerPane.style.display = canEdit ? '' : 'none';
       if(canEdit){
         registerPane.hidden = false;
+        registerPane.style.display = '';
       }
       if(visitPanel){
         visitPanel.hidden = !canEdit;
