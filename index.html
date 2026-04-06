@@ -251,6 +251,12 @@
               <textarea id="visitNotes" rows="3"></textarea>
             </div>
           </div>
+          <div class="visit-grid visit-grid-single">
+            <div>
+              <label for="visitReportSiteFilter" id="visitReportSiteFilterLabelText"></label>
+              <select id="visitReportSiteFilter"></select>
+            </div>
+          </div>
 
           <div class="visit-actions">
             <button class="mini-btn" onclick="closeVisitSession()" id="visitCloseBtn" type="button"></button>
@@ -455,8 +461,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260406pdf01"></script>
-  <script src="./config.local.js?v=20260406pdf01"></script>
+  <script src="./config.demo.js?v=20260406sites01"></script>
+  <script src="./config.local.js?v=20260406sites01"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -480,12 +486,14 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260406pdf01';
+      script.src = './app.js?v=20260406sites01';
       document.body.appendChild(script);
     })();
   </script>
 </body>
 </html>
+
+
 
 
 

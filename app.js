@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js";
+    import { LANG } from "./translations.js?v=20260406sites01";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -36,6 +36,7 @@
 
     const ITEMS_COLLECTION = SETTINGS.firestoreCollections.items;
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
+    const VISIT_REPORT_ALL_SITES = '__all_sites__';
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
     const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
     const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
@@ -315,6 +316,7 @@
         engineer: String(el('visitEngineer')?.value || '').trim(),
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
+        reportSiteFilter: String(el('visitReportSiteFilter')?.value || '').trim(),
         signature: String(el('visitSignature')?.value || '').trim(),
         notes: String(el('visitNotes')?.value || '').trim()
       };
@@ -328,6 +330,71 @@
       el('visitSignature').value = visit?.signature || '';
       el('visitNotes').value = visit?.notes || '';
       loadVisitSignatureDataUrl(visit?.signatureDataUrl || '');
+      populateVisitReportSiteFilter();
+    }
+
+    function normalizeVisitReportSiteFilter(value){
+      const normalized = String(value || '').trim();
+      return normalized || VISIT_REPORT_ALL_SITES;
+    }
+
+    function getVisitReportSiteOptions(logs = dataCache.logs.value || []){
+      const sites = [];
+      const seen = new Set();
+      const pushSite = (value) => {
+        const site = String(value || '').trim();
+        if(!site){
+          return;
+        }
+        const key = site.toLocaleLowerCase();
+        if(seen.has(key)){
+          return;
+        }
+        seen.add(key);
+        sites.push(site);
+      };
+
+      pushSite(el('visitSite')?.value);
+      pushSite(activeVisit?.site);
+      getVisitRelevantLogs(logs).forEach((log) => {
+        pushSite(log.itemSiteName);
+      });
+
+      return sites;
+    }
+
+    function populateVisitReportSiteFilter(logs = dataCache.logs.value || []){
+      const select = el('visitReportSiteFilter');
+      if(!select){
+        return;
+      }
+
+      const sites = getVisitReportSiteOptions(logs);
+      const currentValue = normalizeVisitReportSiteFilter(select.value || activeVisit?.reportSiteFilter);
+      const availableValues = [VISIT_REPORT_ALL_SITES, ...sites];
+      const nextValue = availableValues.includes(currentValue)
+        ? currentValue
+        : (sites.length === 1 ? sites[0] : VISIT_REPORT_ALL_SITES);
+
+      select.innerHTML = '';
+      const allOption = document.createElement('option');
+      allOption.value = VISIT_REPORT_ALL_SITES;
+      allOption.textContent = t('visitReportAllSitesOption');
+      select.appendChild(allOption);
+
+      sites.forEach((site) => {
+        const option = document.createElement('option');
+        option.value = site;
+        option.textContent = site;
+        select.appendChild(option);
+      });
+
+      select.value = nextValue;
+
+      if(activeVisit && activeVisit.reportSiteFilter !== nextValue){
+        activeVisit.reportSiteFilter = nextValue;
+        persistActiveVisit();
+      }
     }
 
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
@@ -378,6 +445,7 @@
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('exportVisitReportBtn').disabled = !activeVisit;
+      populateVisitReportSiteFilter();
     }
 
     function getCurrentVisitForLogs(){
@@ -1739,6 +1807,7 @@
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');
       el('visitSiteLabelText').textContent = t('visitSiteLabel');
+      el('visitReportSiteFilterLabelText').textContent = t('visitReportSiteFilterLabel');
       el('visitSignatureLabelText').textContent = t('visitSignatureLabel');
       el('visitSignaturePadLabelText').textContent = t('visitSignaturePadLabel');
       el('visitNotesLabelText').textContent = t('visitNotesLabel');
@@ -1751,6 +1820,7 @@
       el('visitClient').placeholder = t('visitClientPlaceholder');
       el('visitSite').placeholder = t('visitSitePlaceholder');
       el('visitSignature').placeholder = t('visitSignaturePlaceholder');
+      populateVisitReportSiteFilter();
       el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
       el('legalOpenBtn').textContent = t('legalOpen');
       el('legalTitleText').textContent = t('legalTitle');
@@ -3144,6 +3214,7 @@
         engineer: draft.engineer,
         client: draft.client,
         site: draft.site,
+        reportSiteFilter: normalizeVisitReportSiteFilter(draft.reportSiteFilter),
         signature: draft.signature || draft.engineer,
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit?.signatureDataUrl || '',
@@ -3252,12 +3323,21 @@
       try {
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const entries = buildVisitEntries(logs, items);
-        const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
-        const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
+        populateVisitReportSiteFilter(logs);
+        const reportSiteFilter = normalizeVisitReportSiteFilter(el('visitReportSiteFilter')?.value || activeVisit?.reportSiteFilter);
+        const reportEntries = reportSiteFilter === VISIT_REPORT_ALL_SITES
+          ? entries
+          : entries.filter((entry) => String(entry.siteName || '').trim() === reportSiteFilter);
+        const newEntries = reportEntries.filter((entry) => entry.actionType === 'register_new');
+        const checkedEntries = reportEntries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
+        const reportVisit = {
+          ...activeVisit,
+          site: reportSiteFilter === VISIT_REPORT_ALL_SITES ? t('visitReportAllSitesOption') : reportSiteFilter
+        };
 
         const html = buildVisitReportPage({
-          visit: activeVisit,
+          visit: reportVisit,
           newEntries,
           checkedEntries,
           generatedAt,
@@ -3626,6 +3706,15 @@
 
     el('itemType').addEventListener('change', selectImageByType);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
+    el('visitSite').addEventListener('input', () => {
+      populateVisitReportSiteFilter();
+    });
+    el('visitReportSiteFilter').addEventListener('change', (event) => {
+      if(activeVisit){
+        activeVisit.reportSiteFilter = normalizeVisitReportSiteFilter(event.target.value);
+        persistActiveVisit();
+      }
+    });
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
       if(!file){
