@@ -1703,6 +1703,22 @@
       document.querySelectorAll('.flag-btn').forEach((button) => {
         button.classList.toggle('active', button.dataset.lang === lang);
       });
+      const homeLangLabels = {
+        he: { label: 'HE', aria: 'Hebrew' },
+        en: { label: 'EN', aria: 'English' },
+        ar: { label: 'AR', aria: 'Arabic' }
+      };
+      Object.entries(homeLangLabels).forEach(([code, copy]) => {
+        const button = document.querySelector(`.flag-btn[data-lang="${code}"]`);
+        if(!button){
+          return;
+        }
+        button.setAttribute('aria-label', copy.aria);
+        const label = button.querySelector('.flag-label');
+        if(label){
+          label.textContent = copy.label;
+        }
+      });
 
       el('homeCheckText').textContent = t('homeCheck');
       el('homeRegisterText').textContent = t('homeRegister');
