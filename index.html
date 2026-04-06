@@ -368,6 +368,7 @@
           <div class="table-toolbar-actions">
             <button class="mini-btn" onclick="exportPresentationReport()" id="exportReportBtn"></button>
             <button class="mini-btn" onclick="exportTableCsv()" id="exportTableBtn"></button>
+            <button class="mini-btn" onclick="openRegisterTab('logsPane'); renderReportArchive(); renderScanLogs()" id="historicalReportsBtn"></button>
             <button class="mini-btn" onclick="renderItemsTable()" id="refreshTableBtn"></button>
           </div>
         </div>
@@ -460,8 +461,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260406tableflow01"></script>
-  <script src="./config.local.js?v=20260406tableflow01"></script>
+  <script src="./config.demo.js?v=20260406history01"></script>
+  <script src="./config.local.js?v=20260406history01"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -485,12 +486,15 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260406tableflow01';
+      script.src = './app.js?v=20260406history01';
       document.body.appendChild(script);
     })();
   </script>
 </body>
 </html>
+
+
+
 
 
 

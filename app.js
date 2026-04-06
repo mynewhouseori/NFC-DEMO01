@@ -1213,12 +1213,7 @@
     }
 
     function ensureReportArchiveEnhancements(){
-      const tablePane = el('tablePane');
-      const itemsTableContainer = el('itemsTableContainer');
       const panel = document.querySelector('.report-archive-panel');
-      if(tablePane && itemsTableContainer && panel && itemsTableContainer.nextElementSibling !== panel){
-        itemsTableContainer.insertAdjacentElement('afterend', panel);
-      }
 
       const filters = panel?.querySelector('.report-archive-filters');
       if(filters && !el('reportSiteFilter')){
@@ -1900,6 +1895,7 @@
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
+      if(el('historicalReportsBtn')) el('historicalReportsBtn').textContent = t('historicalReports');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
