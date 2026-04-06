@@ -228,6 +228,7 @@
     const reportArchiveState = {
       from: '',
       to: '',
+      site: 'all',
       visits: [],
       logsByKey: new Map()
     };
@@ -921,6 +922,32 @@
       return true;
     }
 
+    function getReportArchiveSiteValue(){
+      return String(el('reportArchiveSiteFilter')?.value || 'all').trim() || 'all';
+    }
+
+    function populateReportArchiveSiteOptions(visits = [], preferredSite = getReportArchiveSiteValue()){
+      const select = el('reportArchiveSiteFilter');
+      if(!select){
+        return;
+      }
+
+      const uniqueSites = [...new Set(
+        visits
+          .map((visit) => String(visit?.site || '').trim())
+          .filter(Boolean)
+      )].sort((a, b) => a.localeCompare(b, currentLang));
+
+      select.innerHTML = [
+        `<option value="all">${escapeHtml(t('reportArchiveAllSitesOption'))}</option>`,
+        ...uniqueSites.map((site) => `<option value="${escapeHtml(site)}">${escapeHtml(site)}</option>`)
+      ].join('');
+
+      const nextValue = uniqueSites.includes(preferredSite) ? preferredSite : 'all';
+      select.value = nextValue;
+      reportArchiveState.site = nextValue;
+    }
+
     function getArchiveVisitEntries(visitId, logs, items){
       const previousVisit = activeVisit;
       const previousCache = dataCache.logs.value;
@@ -1077,6 +1104,7 @@
 
       const fromDate = normalizeRegistrationDate(el('reportDateFrom')?.value);
       const toDate = normalizeRegistrationDate(el('reportDateTo')?.value);
+      const selectedSite = getReportArchiveSiteValue();
       if(fromDate && toDate && fromDate > toDate){
         status.textContent = t('reportArchiveInvalidRange');
         list.innerHTML = '';
@@ -1088,10 +1116,17 @@
 
       try {
         const logs = await getLogs();
-        const visits = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
+        const allVisits = buildVisitArchiveRecords(logs);
+        populateReportArchiveSiteOptions(allVisits, selectedSite);
+        const activeSite = getReportArchiveSiteValue();
+        const visits = allVisits.filter((visit) => {
+          const visitSite = String(visit.site || '').trim();
+          return isVisitWithinRange(visit, fromDate, toDate) && (activeSite === 'all' || visitSite === activeSite);
+        });
 
         reportArchiveState.from = fromDate || '';
         reportArchiveState.to = toDate || '';
+        reportArchiveState.site = activeSite;
         reportArchiveState.visits = visits;
         updateLogsDashboardHeadings({
           totalLogs: dataCache.logs.value?.length || 0,
@@ -1145,8 +1180,10 @@
     function resetReportArchiveFilters(){
       if(el('reportDateFrom')) el('reportDateFrom').value = '';
       if(el('reportDateTo')) el('reportDateTo').value = '';
+      if(el('reportArchiveSiteFilter')) el('reportArchiveSiteFilter').value = 'all';
       reportArchiveState.from = '';
       reportArchiveState.to = '';
+      reportArchiveState.site = 'all';
       renderReportArchive();
     }
 
@@ -1809,10 +1846,12 @@
       el('reportArchiveSubtitleText').textContent = t('reportArchiveSubtitle');
       el('reportDateFromLabel').textContent = t('reportDateFrom');
       el('reportDateToLabel').textContent = t('reportDateTo');
+      el('reportArchiveSiteLabel').textContent = t('reportArchiveSite');
       el('reportArchiveLoadBtn').textContent = t('reportArchiveLoad');
       el('reportArchiveResetBtn').textContent = t('reportArchiveReset');
       el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
       ensureLogsSubtitle().textContent = t('logsHistorySubtitle');
+      populateReportArchiveSiteOptions(reportArchiveState.visits, reportArchiveState.site || 'all');
 
       updateTypeOptions();
       updateStatusOptions();
@@ -3946,6 +3985,11 @@
       tableFilters.status = event.target.value || 'all';
       renderItemsTable();
     });
+    if(el('reportArchiveSiteFilter')){
+      el('reportArchiveSiteFilter').addEventListener('change', () => {
+        renderReportArchive();
+      });
+    }
 
     window.addEventListener('error', (event) => {
       pushDebugLine(`Runtime error: ${event.message}`);
