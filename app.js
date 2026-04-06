@@ -3005,7 +3005,7 @@
               .report-logo-wrap { flex:0 0 auto; }
               .report-logo { display:block; width:180px; height:180px; object-fit:contain; }
               .report-title-wrap { flex:1 1 auto; }
-              h1 { margin:0 0 8px; color:#0f766e; font-size:28px; }
+              h1 { margin:0 0 10px; color:#0f766e; font-size:clamp(38px, 4vw, 52px); line-height:1.05; }
               h2 { margin:28px 0 12px; font-size:18px; color:#111827; }
               p { margin:0 0 10px; line-height:1.7; }
               .subtitle { color:#475569; margin-bottom:18px; }
