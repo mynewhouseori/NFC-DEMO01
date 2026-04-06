@@ -2677,48 +2677,6 @@
       }
     }
 
-    async function buildPresentationShareData(){
-      const items = sortItems(getFilteredItems(await getItems()));
-      const total = items.length;
-      const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
-      const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
-      const disabledCount = items.filter((item) => normalizeStatus(item.status) === 'disabled').length;
-      const overdueItems = items.filter((item) => getInspectionBucket(item) === 'overdue');
-      const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
-      const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
-      const generatedAt = formatDisplayDateTime(new Date());
-      const shareSubject = rt('reportTitle');
-      const shareLines = [
-        shareSubject,
-        formatReportText('reportGeneratedAt', { date: generatedAt }),
-        formatExecutiveSummaryText(items, {
-          total,
-          ok: okCount,
-          review: reviewCount,
-          disabled: disabledCount
-        }),
-        formatReportText('reportOverdueLine', { count: overdueItems.length }),
-        formatReportText('reportUpcomingLine', { count: upcomingItems.length }),
-        formatReportText('reportMissingDateLine', { count: missingDateItems.length })
-      ];
-      const shareText = shareLines.join('\n');
-
-      return {
-        whatsappShareUrl: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
-        emailShareUrl: `mailto:?subject=${encodeURIComponent(shareSubject)}&body=${encodeURIComponent(shareText)}`
-      };
-    }
-
-    async function sharePresentationReport(channel = 'whatsapp'){
-      try {
-        const { whatsappShareUrl, emailShareUrl } = await buildPresentationShareData();
-        window.open(channel === 'email' ? emailShareUrl : whatsappShareUrl, '_blank', 'noopener,noreferrer');
-      } catch (error) {
-        pushDebugLine(`Report share error: ${error.message}`);
-        console.error(error);
-      }
-    }
-
     async function exportPresentationReport(){
       try {
         const items = sortItems(getFilteredItems(await getItems()));
@@ -4004,7 +3962,6 @@
     window.exportTableCsv = exportTableCsv;
     window.saveAllTableChanges = saveAllTableChanges;
     window.renderPresentationReportPage = renderPresentationReportPage;
-    window.sharePresentationReport = sharePresentationReport;
     window.exportPresentationReport = exportPresentationReport;
     window.demoScan = demoScan;
     window.startScan = startScan;
