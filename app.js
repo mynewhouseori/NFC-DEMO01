@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260406sites01";
+    import { LANG } from "./translations.js?v=20260406statusreport01";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -38,6 +38,7 @@
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
     const VISIT_REPORT_ALL_SITES = '__all_sites__';
     const REPORT_ARCHIVE_ALL_SITES = '__all_sites__';
+    const STATUS_REPORT_ALL_SITES = '__all_sites__';
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
     const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
     const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
@@ -79,6 +80,8 @@
         reportOverdueDays: 'איחור של {days} ימים',
         reportUpcomingDays: 'בעוד {days} ימים',
         reportNoUrgentItems: 'אין כרגע פריטים דחופים להצגה.',
+        reportScopeAll: 'הדוח כולל את כל האתרים הפעילים במערכת.',
+        reportScopeSite: 'הדוח כולל את אתר {site} בלבד.',
         reportFooter: 'הדוח נוצר אוטומטית ממסך הטבלה לצורכי הצגה, בקרה ושיתוף.'
       },
       en: {
@@ -98,6 +101,8 @@
         reportOverdueDays: 'Overdue by {days} days',
         reportUpcomingDays: 'Due in {days} days',
         reportNoUrgentItems: 'There are currently no urgent items to display.',
+        reportScopeAll: 'This report includes all active sites in the system.',
+        reportScopeSite: 'This report includes site {site} only.',
         reportFooter: 'This report was generated automatically from the table view for presentation and follow-up.'
       },
       ar: {
@@ -117,6 +122,8 @@
         reportOverdueDays: 'متأخر {days} يوماً',
         reportUpcomingDays: 'خلال {days} يوماً',
         reportNoUrgentItems: 'لا توجد حالياً معدات عاجلة للعرض.',
+        reportScopeAll: 'يشمل هذا التقرير جميع المواقع النشطة في النظام.',
+        reportScopeSite: 'يشمل هذا التقرير الموقع {site} فقط.',
         reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
       }
     };
@@ -231,6 +238,7 @@
       visits: [],
       logsByKey: new Map()
     };
+    let statusReportChooserVisible = false;
     let logsPaneMode = 'logs';
     const pendingTableEdits = new Map();
     let lastSavedTagId = '';
@@ -1109,6 +1117,106 @@
       logsPaneMode = 'logs';
       openRegisterTab('logsPane');
       renderScanLogs();
+    }
+
+    function getItemSiteName(item){
+      return String(item?.siteName || '').trim();
+    }
+
+    function getStatusReportSites(items = []){
+      return [...new Set(items.map(getItemSiteName).filter(Boolean))]
+        .sort((siteA, siteB) => siteA.localeCompare(siteB, currentLang));
+    }
+
+    function ensureStatusReportChooser(){
+      const tablePane = el('tablePane');
+      const tableContainer = el('itemsTableContainer');
+      if(!tablePane || !tableContainer){
+        return null;
+      }
+
+      let panel = el('statusReportChooser');
+      if(!panel){
+        panel = document.createElement('section');
+        panel.id = 'statusReportChooser';
+        panel.className = 'status-report-chooser';
+        panel.hidden = true;
+        tablePane.insertBefore(panel, tableContainer);
+      }
+      return panel;
+    }
+
+    function closeStatusReportChooser(){
+      statusReportChooserVisible = false;
+      const panel = el('statusReportChooser');
+      if(panel){
+        panel.hidden = true;
+      }
+    }
+
+    function renderStatusReportChooser(items = []){
+      const panel = ensureStatusReportChooser();
+      if(!panel){
+        return;
+      }
+
+      const sites = getStatusReportSites(items);
+      panel.hidden = !statusReportChooserVisible;
+      if(!statusReportChooserVisible){
+        panel.innerHTML = '';
+        return;
+      }
+
+      const allSitesCountText = formatText('statusReportSiteCount', { count: items.length });
+      panel.innerHTML = `
+        <div class="status-report-chooser-header">
+          <div>
+            <div class="status-report-chooser-title">${escapeHtml(t('statusReportChooserTitle'))}</div>
+            <div class="status-report-chooser-subtitle">${escapeHtml(t('statusReportChooserSubtitle'))}</div>
+          </div>
+          <button type="button" class="mini-btn" id="statusReportChooserCloseBtn">${escapeHtml(t('back'))}</button>
+        </div>
+        <div class="status-report-chooser-list">
+          <button type="button" class="status-report-choice status-report-choice-all" data-site="${STATUS_REPORT_ALL_SITES}">
+            <span class="status-report-choice-main">${escapeHtml(t('statusReportAllSites'))}</span>
+            <span class="status-report-choice-meta">${escapeHtml(allSitesCountText)}</span>
+            <span class="status-report-choice-action">${escapeHtml(t('statusReportGenerate'))}</span>
+          </button>
+          ${sites.map((siteName) => {
+            const itemCount = items.filter((item) => getItemSiteName(item) === siteName).length;
+            return `
+              <button type="button" class="status-report-choice" data-site="${escapeHtml(siteName)}">
+                <span class="status-report-choice-main">${escapeHtml(siteName)}</span>
+                <span class="status-report-choice-meta">${escapeHtml(formatText('statusReportSiteCount', { count: itemCount }))}</span>
+                <span class="status-report-choice-action">${escapeHtml(t('statusReportGenerate'))}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      panel.querySelector('#statusReportChooserCloseBtn')?.addEventListener('click', closeStatusReportChooser);
+      panel.querySelectorAll('.status-report-choice').forEach((button) => {
+        button.addEventListener('click', () => {
+          const chosenSite = button.dataset.site || STATUS_REPORT_ALL_SITES;
+          exportPresentationReport(
+            chosenSite === STATUS_REPORT_ALL_SITES ? '' : chosenSite,
+            { skipChooser: true }
+          );
+        });
+      });
+    }
+
+    async function openStatusReportChooser(){
+      try {
+        const items = sortItems(await getItems());
+        statusReportChooserVisible = true;
+        renderStatusReportChooser(items);
+        pushDebugLine(`Opened status report chooser with ${items.length} items.`);
+      } catch (e) {
+        pushDebugLine(`Status report chooser error: ${e.message}`);
+        console.error(e);
+      }
     }
 
     function countUniqueTags(logs = []){
@@ -2078,6 +2186,13 @@
       updateRegisterAccessUi();
       updateTableFilterOptions();
       populateReportArchiveSiteFilter(reportArchiveState.visits);
+      if(statusReportChooserVisible){
+        getItems().then((items) => {
+          renderStatusReportChooser(sortItems(items));
+        }).catch((error) => {
+          pushDebugLine(`Status report chooser refresh error: ${error.message}`);
+        });
+      }
       selectImageByType();
       if(scanDemoGalleryMode && dataCache.items.value?.length){
         renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
@@ -2805,9 +2920,18 @@
       return daysA - daysB;
     }
 
-    async function exportPresentationReport(){
+    async function exportPresentationReport(siteFilter = '', options = {}){
+      if(!options?.skipChooser){
+        await openStatusReportChooser();
+        return;
+      }
+
       try {
-        const items = sortItems(getFilteredItems(await getItems()));
+        const normalizedSiteFilter = String(siteFilter || '').trim();
+        const baseItems = sortItems(await getItems());
+        const items = normalizedSiteFilter
+          ? baseItems.filter((item) => getItemSiteName(item) === normalizedSiteFilter)
+          : baseItems;
         const reportLogoSrc = await getReportLogoDataUrl();
         const reportLogoUrl = new URL('./logo-transparent.png', window.location.href).href;
         const total = items.length;
@@ -2819,6 +2943,9 @@
         const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
         const reportItems = [...items].sort(compareInspectionUrgency);
         const generatedAt = formatDisplayDateTime(new Date());
+        const scopeText = normalizedSiteFilter
+          ? formatReportText('reportScopeSite', { site: normalizedSiteFilter })
+          : rt('reportScopeAll');
 
         const priorityRows = reportItems.length
           ? reportItems.map((item) => {
@@ -2892,6 +3019,7 @@
               <div class="report-title-wrap">
                 <h1>${escapeHtml(rt('reportTitle'))}</h1>
                 <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
+                <p class="subtitle">${escapeHtml(scopeText)}</p>
               </div>
             </div>
 
@@ -2942,6 +3070,7 @@
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
+        closeStatusReportChooser();
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
         pushDebugLine(`Report export error: ${e.message}`);
@@ -3143,6 +3272,9 @@
         const filteredItems = sortItems(getFilteredItems(items));
 
         updateTableSummary(filteredItems.length, items.length);
+        if(statusReportChooserVisible){
+          renderStatusReportChooser(sortItems(items));
+        }
 
         if(!items.length){
           container.innerHTML = `<div class="empty-text">${t('noTableItems')}</div>`;
@@ -3341,6 +3473,9 @@
     function openRegisterTab(tabId){
       if(tabId === 'registerPane' && !canEditRegister()){
         tabId = 'tablePane';
+      }
+      if(tabId !== 'tablePane'){
+        closeStatusReportChooser();
       }
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
