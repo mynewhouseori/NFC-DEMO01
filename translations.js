@@ -880,3 +880,66 @@ Object.assign(LANG.ar, {
   visitStatusStarted: '\u0628\u062f\u0623\u062a \u0627\u0644\u0632\u064a\u0627\u0631\u0629. \u0645\u0646 \u0627\u0644\u0622\u0646 \u0633\u064a\u062a\u0645 \u062d\u0641\u0638 \u0643\u0644 \u0639\u0645\u0644\u064a\u0629 \u0645\u0633\u062d \u0636\u0645\u0646 \u0647\u0630\u0647 \u0627\u0644\u0632\u064a\u0627\u0631\u0629.',
   visitStatusUpdated: '\u062a\u0645 \u062a\u062d\u062f\u064a\u062b \u0627\u0644\u0632\u064a\u0627\u0631\u0629 \u0648\u062d\u0641\u0638 \u0627\u0644\u062a\u0639\u062f\u064a\u0644\u0627\u062a.'
 });
+
+Object.assign(LANG.he, {
+  tabReport: 'דוח',
+  reportPageTitle: 'דף דוח מצב',
+  reportPageSubtitle: 'רואים כאן תמונת מצב חיה של הפריטים לפי הסינון הנוכחי מהטבלה.',
+  reportPageRefresh: 'רענן דוח',
+  shareWhatsapp: 'WhatsApp',
+  shareEmail: 'מייל',
+  reportPageScope: 'מוצגים {shown} מתוך {total} פריטים לפי הסינון הנוכחי.',
+  reportPageLoadError: 'לא ניתן היה לטעון את דף הדוח כעת.',
+  reportOkItems: 'תקינים',
+  reportReviewItems: 'לבדיקה',
+  reportDisabledItems: 'מושבתים',
+  reportMissingDate: 'ללא תאריך בדיקה',
+  reportPriorityStatus: 'סטטוס עדיפות',
+  reportNoItems: 'אין פריטים להצגה בדוח כרגע.'
+});
+
+Object.assign(LANG.en, {
+  tabReport: 'Report',
+  reportPageTitle: 'Status Report Page',
+  reportPageSubtitle: 'This live page shows the current equipment picture based on the active table filters.',
+  reportPageRefresh: 'Refresh Report',
+  shareWhatsapp: 'WhatsApp',
+  shareEmail: 'Email',
+  reportPageScope: 'Showing {shown} of {total} items based on the current filters.',
+  reportPageLoadError: 'Could not load the report page right now.',
+  reportOkItems: 'OK',
+  reportReviewItems: 'Needs Review',
+  reportDisabledItems: 'Disabled',
+  reportMissingDate: 'Missing Inspection Date',
+  reportPriorityStatus: 'Priority Status',
+  reportNoItems: 'There are no items to show in the report right now.'
+});
+
+Object.assign(LANG.ar, {
+  tabReport: 'تقرير',
+  reportPageTitle: 'صفحة تقرير الحالة',
+  reportPageSubtitle: 'تعرض هذه الصفحة صورة مباشرة للمعدات بحسب التصفية الحالية من الجدول.',
+  reportPageRefresh: 'تحديث التقرير',
+  shareWhatsapp: 'واتساب',
+  shareEmail: 'بريد',
+  reportPageScope: 'يتم عرض {shown} من أصل {total} عنصر بحسب التصفية الحالية.',
+  reportPageLoadError: 'تعذر تحميل صفحة التقرير الآن.',
+  reportOkItems: 'سليم',
+  reportReviewItems: 'بحاجة إلى فحص',
+  reportDisabledItems: 'معطل',
+  reportMissingDate: 'بدون تاريخ فحص',
+  reportPriorityStatus: 'حالة الأولوية',
+  reportNoItems: 'لا توجد عناصر لعرضها في التقرير حالياً.'
+});
+
+Object.assign(LANG.he, {
+  foremanRegisterTitle: 'בדיקת ציוד - מנהל עבודה'
+});
+
+Object.assign(LANG.en, {
+  foremanRegisterTitle: 'Equipment Check - Foreman'
+});
+
+Object.assign(LANG.ar, {
+  foremanRegisterTitle: 'فحص المعدّات - مدير عمل'
+});

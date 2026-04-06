@@ -6,7 +6,7 @@
   <title>NFC Safety Demo Cloud Table</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
-  <link rel="stylesheet" href="./styles.css?v=20260405maplinkbluecache002" />
+  <link rel="stylesheet" href="./styles.css?v=20260406foremantopbar001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -17,9 +17,9 @@
         <img class="home-logo" src="./logo-transparent.png" alt="Logo">
       </div>
       <div class="lang-switch">
-        <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="òáøéú">
+        <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="ï¿½ï¿½ï¿½ï¿½ï¿½">
           <span class="flag-mark" aria-hidden="true"></span>
-          <span class="flag-label">òáø</span>
+          <span class="flag-label">ï¿½ï¿½ï¿½</span>
         </button>
         <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
           <span class="flag-mark" aria-hidden="true"></span>
@@ -189,6 +189,7 @@
       <div class="tabs">
         <button class="tab-btn active" id="tabRegisterBtn" onclick="openRegisterTab('registerPane')"></button>
         <button class="tab-btn" id="tabTableBtn" onclick="openRegisterTab('tablePane'); renderItemsTable()"></button>
+        <button class="tab-btn" id="tabReportBtn" onclick="openRegisterTab('reportPane'); renderPresentationReportPage()"></button>
         <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane'); renderReportArchive(); renderScanLogs()"></button>
       </div>
 
@@ -249,12 +250,6 @@
             <div>
               <label for="visitNotes" id="visitNotesLabelText"></label>
               <textarea id="visitNotes" rows="3"></textarea>
-            </div>
-          </div>
-          <div class="visit-grid visit-grid-single">
-            <div>
-              <label for="visitReportSiteFilter" id="visitReportSiteFilterLabelText"></label>
-              <select id="visitReportSiteFilter"></select>
             </div>
           </div>
 
@@ -366,14 +361,34 @@
             <button class="mini-btn" onclick="clearTableFilters()" id="clearTableFiltersBtn"></button>
           </div>
           <div class="table-toolbar-actions">
-            <button class="mini-btn" onclick="saveAllTableChanges()" id="saveAllTableChangesBtn"></button>
+            <button class="mini-btn" onclick="exportVisitReport()" id="exportVisitReportBtn"></button>
             <button class="mini-btn" onclick="exportPresentationReport()" id="exportReportBtn"></button>
+            <button class="mini-btn" onclick="sharePresentationReport('whatsapp')" id="shareReportWhatsappBtn" type="button"></button>
+            <button class="mini-btn" onclick="sharePresentationReport('email')" id="shareReportEmailBtn" type="button"></button>
             <button class="mini-btn" onclick="exportTableCsv()" id="exportTableBtn"></button>
-            <button class="mini-btn" onclick="openLogsPaneForReports()" id="historicalReportsBtn"></button>
             <button class="mini-btn" onclick="renderItemsTable()" id="refreshTableBtn"></button>
           </div>
         </div>
         <div id="itemsTableContainer" class="table-wrap"></div>
+      </div>
+
+      <div id="reportPane" class="tab-pane">
+        <div class="report-page-shell">
+          <div class="report-page-header">
+            <div>
+              <div class="report-page-title" id="reportPageTitleText"></div>
+              <div class="report-page-subtitle" id="reportPageSubtitleText"></div>
+            </div>
+            <div class="report-page-actions">
+              <button class="mini-btn" onclick="renderPresentationReportPage()" id="reportPageRefreshBtn" type="button"></button>
+              <button class="mini-btn" onclick="exportPresentationReport()" id="reportPageExportBtn" type="button"></button>
+              <button class="mini-btn" onclick="sharePresentationReport('whatsapp')" id="reportPageWhatsappBtn" type="button"></button>
+              <button class="mini-btn" onclick="sharePresentationReport('email')" id="reportPageEmailBtn" type="button"></button>
+            </div>
+          </div>
+          <div id="reportPageStatus" class="status muted"></div>
+          <div id="reportPageContent"></div>
+        </div>
       </div>
 
       <div id="logsPane" class="tab-pane">
@@ -462,8 +477,8 @@
     <div class="debug-log" id="debugLog">Debug panel ready.</div>
   </aside>
 
-  <script src="./config.demo.js?v=20260406saveallpersist01"></script>
-  <script src="./config.local.js?v=20260406saveallpersist01"></script>
+  <script src="./config.demo.js?v=20260405delete01"></script>
+  <script src="./config.local.js?v=20260404fields02"></script>
   <script>
     (function bootApp() {
       if (window.location.protocol === 'file:') {
@@ -487,36 +502,12 @@
 
       const script = document.createElement('script');
       script.type = 'module';
-      script.src = './app.js?v=20260406saveallpersist01';
+      script.src = './app.js?v=20260406foremantopbar001';
       document.body.appendChild(script);
     })();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

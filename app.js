@@ -1,4 +1,4 @@
-﻿    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
     import {
       getFirestore,
       collection,
@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260406saveallpersist01";
+    import { LANG } from "./translations.js";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -36,9 +36,6 @@
 
     const ITEMS_COLLECTION = SETTINGS.firestoreCollections.items;
     const LOGS_COLLECTION = SETTINGS.firestoreCollections.scanLogs;
-    const VISIT_REPORT_ALL_SITES = '__all_sites__';
-    const REPORT_ARCHIVE_ALL_SITES = '__all_sites__';
-    const STATUS_REPORT_ALL_SITES = '__all_sites__';
     const PASSWORD_VALUE = SETTINGS.auth.registerPassword;
     const ENGINEER_PASSWORD = SETTINGS.auth.engineerPassword || '4321';
     const FOREMAN_PASSWORD = SETTINGS.auth.foremanPassword || '5678';
@@ -64,7 +61,7 @@
     };
     const REPORT_TEXT = {
       he: {
-        exportReport: 'דוח מצב',
+        exportReport: 'דוח מצב עדכני',
         reportTitle: 'דוח מצב ציוד',
         reportGeneratedAt: 'הדוח הופק בתאריך {date}',
         reportExecutiveSummary: 'סיכום מנהלים',
@@ -80,12 +77,10 @@
         reportOverdueDays: 'איחור של {days} ימים',
         reportUpcomingDays: 'בעוד {days} ימים',
         reportNoUrgentItems: 'אין כרגע פריטים דחופים להצגה.',
-        reportScopeAll: 'הדוח כולל את כל האתרים הפעילים במערכת.',
-        reportScopeSite: 'הדוח כולל את אתר {site} בלבד.',
         reportFooter: 'הדוח נוצר אוטומטית ממסך הטבלה לצורכי הצגה, בקרה ושיתוף.'
       },
       en: {
-        exportReport: 'Status Report',
+        exportReport: 'Current Status Report',
         reportTitle: 'Equipment Status Report',
         reportGeneratedAt: 'Report generated on {date}',
         reportExecutiveSummary: 'Executive Summary',
@@ -101,12 +96,10 @@
         reportOverdueDays: 'Overdue by {days} days',
         reportUpcomingDays: 'Due in {days} days',
         reportNoUrgentItems: 'There are currently no urgent items to display.',
-        reportScopeAll: 'This report includes all active sites in the system.',
-        reportScopeSite: 'This report includes site {site} only.',
         reportFooter: 'This report was generated automatically from the table view for presentation and follow-up.'
       },
       ar: {
-        exportReport: 'تقرير حالة',
+        exportReport: 'تقرير حالة محدث',
         reportTitle: 'تقرير حالة المعدات',
         reportGeneratedAt: 'تم إنشاء التقرير بتاريخ {date}',
         reportExecutiveSummary: 'ملخص تنفيذي',
@@ -122,8 +115,6 @@
         reportOverdueDays: 'متأخر {days} يوماً',
         reportUpcomingDays: 'خلال {days} يوماً',
         reportNoUrgentItems: 'لا توجد حالياً معدات عاجلة للعرض.',
-        reportScopeAll: 'يشمل هذا التقرير جميع المواقع النشطة في النظام.',
-        reportScopeSite: 'يشمل هذا التقرير الموقع {site} فقط.',
         reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
       }
     };
@@ -234,15 +225,10 @@
     const reportArchiveState = {
       from: '',
       to: '',
-      site: REPORT_ARCHIVE_ALL_SITES,
       visits: [],
       logsByKey: new Map()
     };
-    let statusReportChooserVisible = false;
-    let logsPaneMode = 'logs';
     const pendingTableEdits = new Map();
-    let lastTableEditMode = null;
-    let saveAllFeedbackTimer = null;
     let lastSavedTagId = '';
     let passwordContext = 'register';
     let registerAccessRole = '';
@@ -284,16 +270,21 @@
       }, rt(key));
     }
 
-    function getExecutiveSummarySiteLabel(items = []){
+    function getAllSitesLabel(){
+      return currentLang === 'en' ? 'All Sites' : currentLang === 'ar' ? 'كل المواقع' : 'כל האתרים';
+    }
+
+    function getReportSiteScope(items = []){
       const uniqueSites = [...new Set(
         items
           .map((item) => String(item?.siteName || '').trim())
           .filter(Boolean)
       )];
-      const siteValue = uniqueSites.length === 1
-        ? uniqueSites[0]
-        : (currentLang === 'en' ? 'All Sites' : currentLang === 'ar' ? 'كل المواقع' : 'כל האתרים');
-      return `${t('siteName')}: ${siteValue}`;
+      return uniqueSites.length === 1 ? uniqueSites[0] : getAllSitesLabel();
+    }
+
+    function formatExecutiveSummaryText(items, counts){
+      return `${formatReportText('reportExecutiveText', counts)} ${t('siteName')}: ${getReportSiteScope(items)}`;
     }
 
     function formatLocationText(key, replacements = {}){
@@ -341,85 +332,19 @@
         engineer: String(el('visitEngineer')?.value || '').trim(),
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
-        reportSiteFilter: String(el('visitReportSiteFilter')?.value || '').trim(),
         signature: String(el('visitSignature')?.value || '').trim(),
         notes: String(el('visitNotes')?.value || '').trim()
       };
     }
 
     function populateVisitForm(visit = null){
-      el('visitDate').value = visit?.date ? formatDateInputValue(visit.date) : '';
+      el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
       el('visitEngineer').value = visit?.engineer || '';
       el('visitClient').value = visit?.client || '';
       el('visitSite').value = visit?.site || '';
       el('visitSignature').value = visit?.signature || '';
       el('visitNotes').value = visit?.notes || '';
       loadVisitSignatureDataUrl(visit?.signatureDataUrl || '');
-      populateVisitReportSiteFilter();
-    }
-
-    function normalizeVisitReportSiteFilter(value){
-      const normalized = String(value || '').trim();
-      return normalized || VISIT_REPORT_ALL_SITES;
-    }
-
-    function getVisitReportSiteOptions(logs = dataCache.logs.value || []){
-      const sites = [];
-      const seen = new Set();
-      const pushSite = (value) => {
-        const site = String(value || '').trim();
-        if(!site){
-          return;
-        }
-        const key = site.toLocaleLowerCase();
-        if(seen.has(key)){
-          return;
-        }
-        seen.add(key);
-        sites.push(site);
-      };
-
-      pushSite(el('visitSite')?.value);
-      pushSite(activeVisit?.site);
-      getVisitRelevantLogs(logs).forEach((log) => {
-        pushSite(log.itemSiteName);
-      });
-
-      return sites;
-    }
-
-    function populateVisitReportSiteFilter(logs = dataCache.logs.value || []){
-      const select = el('visitReportSiteFilter');
-      if(!select){
-        return;
-      }
-
-      const sites = getVisitReportSiteOptions(logs);
-      const currentValue = normalizeVisitReportSiteFilter(select.value || activeVisit?.reportSiteFilter);
-      const availableValues = [VISIT_REPORT_ALL_SITES, ...sites];
-      const nextValue = availableValues.includes(currentValue)
-        ? currentValue
-        : (sites.length === 1 ? sites[0] : VISIT_REPORT_ALL_SITES);
-
-      select.innerHTML = '';
-      const allOption = document.createElement('option');
-      allOption.value = VISIT_REPORT_ALL_SITES;
-      allOption.textContent = t('visitReportAllSitesOption');
-      select.appendChild(allOption);
-
-      sites.forEach((site) => {
-        const option = document.createElement('option');
-        option.value = site;
-        option.textContent = site;
-        select.appendChild(option);
-      });
-
-      select.value = nextValue;
-
-      if(activeVisit && activeVisit.reportSiteFilter !== nextValue){
-        activeVisit.reportSiteFilter = nextValue;
-        persistActiveVisit();
-      }
     }
 
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
@@ -469,25 +394,7 @@
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
-      populateVisitReportSiteFilter();
-    }
-
-    function updateRegisterScreenTitle(activeTabId = ''){
-      const title = el('registerScreenTitle');
-      if(!title){
-        return;
-      }
-
-      if(activeTabId === 'logsPane'){
-        title.textContent = logsPaneMode === 'reports'
-          ? t('historicalReports')
-          : logsPaneMode === 'status'
-            ? rt('exportReport')
-            : t('tabLogs');
-        return;
-      }
-
-      title.textContent = t('registerTitle');
+      el('exportVisitReportBtn').disabled = !activeVisit;
     }
 
     function getCurrentVisitForLogs(){
@@ -709,239 +616,6 @@
       return `"${String(value ?? '').replaceAll('"', '""')}"`;
     }
 
-    function getVisitReportActionText(){
-      if(currentLang === 'en'){
-        return {
-          downloadPdf: 'Download PDF',
-          preparingPdf: 'Preparing PDF...',
-          pdfReady: 'PDF ready.',
-          pdfError: 'Could not create the PDF.'
-        };
-      }
-      if(currentLang === 'ar'){
-        return {
-          downloadPdf: 'تنزيل PDF',
-          preparingPdf: 'جارٍ تجهيز ملف PDF...',
-          pdfReady: 'ملف PDF جاهز.',
-          pdfError: 'تعذر إنشاء ملف PDF.'
-        };
-      }
-      return {
-        downloadPdf: 'הורד PDF',
-        preparingPdf: 'מכין קובץ PDF...',
-        pdfReady: 'קובץ ה-PDF מוכן.',
-        pdfError: 'לא ניתן ליצור קובץ PDF.'
-      };
-    }
-
-    function getPdfActionText(){
-      return getVisitReportActionText();
-    }
-
-    function buildVisitReportPage({ visit, newEntries, checkedEntries, generatedAt, reportLogoSrc = '' }){
-      const actionText = getVisitReportActionText();
-      const safeDate = normalizeRegistrationDate(visit?.date || '') || todayIsoDate();
-      const fileName = `visit-report-${safeDate}.pdf`;
-      const renderRows = (rows) => rows.length ? rows.map((entry) => `
-        <tr>
-          <td>${escapeHtml(entry.tagId || '-')}</td>
-          <td>${escapeHtml(entry.actionLabel)}</td>
-          <td>${escapeHtml(translateType(entry.itemType))}</td>
-          <td>${escapeHtml(entry.description || '-')}</td>
-          <td>${escapeHtml(entry.serialNumber || '-')}</td>
-          <td>${escapeHtml(entry.contractor || '-')}</td>
-          <td>${escapeHtml(entry.wll || '-')}</td>
-          <td>${escapeHtml(entry.siteName || '-')}</td>
-          <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
-          <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
-          <td>${escapeHtml(entry.notes || '-')}</td>
-        </tr>
-      `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
-
-      return `
-        <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
-        <head>
-          <meta charset="UTF-8">
-          <title>${escapeHtml(t('visitReportTitle'))}</title>
-          <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-          <style>
-            body { font-family: Arial, sans-serif; color:#0f172a; padding:24px; background:#f8fafc; }
-            .report-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-            .report-btn { border:none; border-radius:12px; padding:12px 16px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
-            .report-btn-download { background:#0f766e; }
-            .report-status { min-height:22px; font-weight:700; color:#334155; margin-bottom:14px; }
-            .report-sheet { background:#fff; border-radius:20px; padding:32px; box-shadow:0 16px 40px rgba(15,23,42,.08); }
-            .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-            .logo { width:140px; height:140px; object-fit:contain; }
-            h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
-            p { margin:0 0 10px; line-height:1.7; }
-            .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
-            .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
-            .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
-            table { width:100%; border-collapse:collapse; margin-top:12px; }
-            th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
-            th { background:#f8fafc; }
-            .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
-            .footer { margin-top:18px; color:#64748b; font-size:12px; }
-            .signature-image { max-width:280px; max-height:120px; display:block; margin-top:10px; margin-bottom:10px; }
-            @media print {
-              body { background:#fff; padding:0; }
-              .report-actions, .report-status { display:none; }
-              .report-sheet { box-shadow:none; border-radius:0; padding:0; }
-            }
-          </style>
-        </head>
-        <body>
-          <div class="report-actions">
-            <button class="report-btn report-btn-download" onclick="downloadVisitPdf()" type="button">${escapeHtml(actionText.downloadPdf)}</button>
-          </div>
-          <div class="report-status" id="reportStatus"></div>
-
-          <div class="report-sheet" id="reportRoot">
-            <div class="header">
-              <div>
-                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
-                <p>${escapeHtml(t('visitReportIntro'))}</p>
-                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
-              </div>
-              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
-            </div>
-
-            <div class="meta">
-              <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(visit.engineer || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(visit.client || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(visit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(visit.startedAt || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(visit.endedAt || '-'))}</div>
-              </div>
-              ${visit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(visit.notes)}</p>` : ''}
-            </div>
-
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(newEntries)}</tbody>
-              </table>
-            </div>
-
-            <div class="section">
-              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th>${escapeHtml(t('tagId'))}</th>
-                    <th>${escapeHtml(t('actions'))}</th>
-                    <th>${escapeHtml(t('itemType'))}</th>
-                    <th>${escapeHtml(t('description'))}</th>
-                    <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
-                    <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('siteName'))}</th>
-                    <th>${escapeHtml(t('status'))}</th>
-                    <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(t('notes'))}</th>
-                  </tr>
-                </thead>
-                <tbody>${renderRows(checkedEntries)}</tbody>
-              </table>
-            </div>
-
-            <div class="signature">
-              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              ${visit.signatureDataUrl ? `<img class="signature-image" src="${visit.signatureDataUrl}" alt="Signature">` : ''}
-              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
-            </div>
-
-            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
-          </div>
-
-          <script>
-            const reportText = ${JSON.stringify(actionText)};
-            const reportFileName = ${JSON.stringify(fileName)};
-
-            function setReportStatus(text){
-              const status = document.getElementById('reportStatus');
-              if(status) status.textContent = text || '';
-            }
-
-            function isCompactPdfMode(){
-              return window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
-            }
-
-            function getPdfCaptureScale(){
-              const pixelRatio = Number(window.devicePixelRatio || 1);
-              if(isCompactPdfMode()){
-                return Math.min(1, pixelRatio);
-              }
-              return Math.min(1.5, pixelRatio || 1.5);
-            }
-
-            async function buildVisitPdf(){
-              setReportStatus(reportText.preparingPdf);
-              const reportRoot = document.getElementById('reportRoot');
-              const scale = getPdfCaptureScale();
-              const canvas = await html2canvas(reportRoot, {
-                scale,
-                backgroundColor: '#ffffff',
-                useCORS: true,
-                logging: false
-              });
-              const { jsPDF } = window.jspdf;
-              const pdf = new jsPDF('p', 'pt', 'a4');
-              const pageWidth = pdf.internal.pageSize.getWidth();
-              const pageHeight = pdf.internal.pageSize.getHeight();
-              const margin = 20;
-              const contentWidth = pageWidth - (margin * 2);
-              const contentHeight = pageHeight - (margin * 2);
-              const canvasWidth = canvas.width || 1;
-              const canvasHeight = canvas.height || 1;
-              const fitRatio = Math.min(contentWidth / canvasWidth, contentHeight / canvasHeight);
-              const renderWidth = canvasWidth * fitRatio;
-              const renderHeight = canvasHeight * fitRatio;
-              const offsetX = margin + ((contentWidth - renderWidth) / 2);
-              const offsetY = margin + ((contentHeight - renderHeight) / 2);
-              const imageData = canvas.toDataURL('image/jpeg', 0.92);
-
-              pdf.addImage(imageData, 'JPEG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
-
-              setReportStatus(reportText.pdfReady);
-              return pdf;
-            }
-
-            async function downloadVisitPdf(){
-              try {
-                const pdf = await buildVisitPdf();
-                pdf.save(reportFileName);
-              } catch (error) {
-                console.error(error);
-                setReportStatus(reportText.pdfError);
-                alert(reportText.pdfError);
-              }
-            }
-          </script>
-        </body>
-        </html>
-      `;
-    }
-
     function isLibraryImageSrc(src){
       const srcText = String(src || '');
       const normalizedSrc = srcText.split('?')[0];
@@ -1108,149 +782,7 @@
         }
       }
 
-      let statusPanel = el('statusReportPanel');
-      if(!statusPanel){
-        statusPanel = document.createElement('section');
-        statusPanel.id = 'statusReportPanel';
-        statusPanel.className = 'status-report-panel status-report-chooser';
-        statusPanel.hidden = true;
-        content.appendChild(statusPanel);
-      }
-
-      const reportsPanel = pane.querySelector('.report-archive-panel');
-      return { pane, summary, content, logsPanel, reportsPanel, statusPanel };
-    }
-
-    function updateLogsPaneMode(){
-      const { pane, summary, logsPanel, reportsPanel, statusPanel } = ensureLogsDashboardShell();
-      if(pane){
-        pane.classList.toggle('logs-pane-reports', logsPaneMode === 'reports');
-        pane.classList.toggle('logs-pane-logs', logsPaneMode === 'logs');
-        pane.classList.toggle('logs-pane-status', logsPaneMode === 'status');
-      }
-      if(summary){
-        summary.hidden = logsPaneMode !== 'logs';
-      }
-      if(reportsPanel){
-        reportsPanel.hidden = logsPaneMode !== 'reports';
-      }
-      if(logsPanel){
-        logsPanel.hidden = logsPaneMode !== 'logs';
-      }
-      if(statusPanel){
-        statusPanel.hidden = logsPaneMode !== 'status';
-      }
-    }
-
-    function openLogsPaneForReports(){
-      logsPaneMode = 'reports';
-      statusReportChooserVisible = false;
-      openRegisterTab('logsPane');
-      renderReportArchive();
-    }
-
-    function openLogsPaneForLogs(){
-      logsPaneMode = 'logs';
-      statusReportChooserVisible = false;
-      openRegisterTab('logsPane');
-      renderScanLogs();
-    }
-
-    function getItemSiteName(item){
-      return String(item?.siteName || '').trim();
-    }
-
-    function getStatusReportSites(items = []){
-      return [...new Set(items.map(getItemSiteName).filter(Boolean))]
-        .sort((siteA, siteB) => siteA.localeCompare(siteB, currentLang));
-    }
-
-    function ensureStatusReportChooser(){
-      const { statusPanel } = ensureLogsDashboardShell();
-      if(!statusPanel){
-        return null;
-      }
-
-      return statusPanel;
-    }
-
-    function closeStatusReportChooser(){
-      statusReportChooserVisible = false;
-      const panel = el('statusReportPanel');
-      if(panel){
-        panel.hidden = true;
-        panel.innerHTML = '';
-      }
-      if(logsPaneMode === 'status'){
-        openRegisterTab('tablePane');
-      }
-    }
-
-    function renderStatusReportChooser(items = []){
-      const panel = ensureStatusReportChooser();
-      if(!panel){
-        return;
-      }
-
-      const sites = getStatusReportSites(items);
-      panel.hidden = !statusReportChooserVisible;
-      if(!statusReportChooserVisible){
-        panel.innerHTML = '';
-        return;
-      }
-
-      const allSitesCountText = formatText('statusReportSiteCount', { count: items.length });
-      panel.innerHTML = `
-        <div class="status-report-chooser-header">
-          <div>
-            <div class="status-report-chooser-title">${escapeHtml(t('statusReportChooserTitle'))}</div>
-            <div class="status-report-chooser-subtitle">${escapeHtml(t('statusReportChooserSubtitle'))}</div>
-          </div>
-          <button type="button" class="mini-btn" id="statusReportChooserCloseBtn">${escapeHtml(t('back'))}</button>
-        </div>
-        <div class="status-report-chooser-list">
-          <button type="button" class="status-report-choice status-report-choice-all" data-site="${STATUS_REPORT_ALL_SITES}">
-            <span class="status-report-choice-main">${escapeHtml(t('statusReportAllSites'))}</span>
-            <span class="status-report-choice-meta">${escapeHtml(allSitesCountText)}</span>
-            <span class="status-report-choice-action">${escapeHtml(t('statusReportGenerate'))}</span>
-          </button>
-          ${sites.map((siteName) => {
-            const itemCount = items.filter((item) => getItemSiteName(item) === siteName).length;
-            return `
-              <button type="button" class="status-report-choice" data-site="${escapeHtml(siteName)}">
-                <span class="status-report-choice-main">${escapeHtml(siteName)}</span>
-                <span class="status-report-choice-meta">${escapeHtml(formatText('statusReportSiteCount', { count: itemCount }))}</span>
-                <span class="status-report-choice-action">${escapeHtml(t('statusReportGenerate'))}</span>
-              </button>
-            `;
-          }).join('')}
-        </div>
-      `;
-
-      panel.querySelector('#statusReportChooserCloseBtn')?.addEventListener('click', closeStatusReportChooser);
-      panel.querySelectorAll('.status-report-choice').forEach((button) => {
-        button.addEventListener('click', () => {
-          const chosenSite = button.dataset.site || STATUS_REPORT_ALL_SITES;
-          exportPresentationReport(
-            chosenSite === STATUS_REPORT_ALL_SITES ? '' : chosenSite,
-            { skipChooser: true }
-          );
-        });
-      });
-    }
-
-    async function openStatusReportChooser(){
-      try {
-        const items = sortItems(await getItems());
-        logsPaneMode = 'status';
-        statusReportChooserVisible = true;
-        openRegisterTab('logsPane');
-        renderStatusReportChooser(items);
-        pushDebugLine(`Opened status report chooser with ${items.length} items.`);
-      } catch (e) {
-        pushDebugLine(`Status report chooser error: ${e.message}`);
-        console.error(e);
-      }
+      return { pane, summary, content, logsPanel };
     }
 
     function countUniqueTags(logs = []){
@@ -1376,77 +908,6 @@
         .sort((a, b) => String(b.sortTime || '').localeCompare(String(a.sortTime || '')));
     }
 
-    function normalizeReportArchiveSiteFilter(value){
-      const normalized = String(value || '').trim();
-      return normalized || REPORT_ARCHIVE_ALL_SITES;
-    }
-
-    function getReportArchiveSiteOptions(visits = []){
-      const sites = [];
-      const seen = new Set();
-      visits.forEach((visit) => {
-        const site = String(visit.site || '').trim();
-        if(!site){
-          return;
-        }
-        const key = site.toLocaleLowerCase();
-        if(seen.has(key)){
-          return;
-        }
-        seen.add(key);
-        sites.push(site);
-      });
-      return sites.sort((a, b) => a.localeCompare(b));
-    }
-
-    function ensureReportArchiveEnhancements(){
-      const panel = document.querySelector('.report-archive-panel');
-
-      const filters = panel?.querySelector('.report-archive-filters');
-      if(filters && !el('reportSiteFilter')){
-        const field = document.createElement('div');
-        field.className = 'report-archive-filter-field';
-        field.innerHTML = `
-          <label for="reportSiteFilter" id="reportSiteFilterLabel"></label>
-          <select id="reportSiteFilter" class="toolbar-input"></select>
-        `;
-        const loadButton = el('reportArchiveLoadBtn');
-        if(loadButton){
-          filters.insertBefore(field, loadButton);
-        } else {
-          filters.appendChild(field);
-        }
-      }
-    }
-
-    function populateReportArchiveSiteFilter(visits = []){
-      const select = el('reportSiteFilter');
-      if(!select){
-        return;
-      }
-
-      const sites = getReportArchiveSiteOptions(visits);
-      const currentValue = normalizeReportArchiveSiteFilter(select.value || reportArchiveState.site);
-      const availableValues = [REPORT_ARCHIVE_ALL_SITES, ...sites];
-      const nextValue = availableValues.includes(currentValue) ? currentValue : REPORT_ARCHIVE_ALL_SITES;
-
-      select.innerHTML = '';
-      const allOption = document.createElement('option');
-      allOption.value = REPORT_ARCHIVE_ALL_SITES;
-      allOption.textContent = t('reportArchiveAllSitesOption');
-      select.appendChild(allOption);
-
-      sites.forEach((site) => {
-        const option = document.createElement('option');
-        option.value = site;
-        option.textContent = site;
-        select.appendChild(option);
-      });
-
-      select.value = nextValue;
-      reportArchiveState.site = nextValue;
-    }
-
     function isVisitWithinRange(visit, fromDate, toDate){
       const visitDate = normalizeRegistrationDate(visit.date) || normalizeRegistrationDate(visit.startedAt);
       if(!visitDate){
@@ -1482,17 +943,116 @@
         const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
 
-        const html = buildVisitReportPage({
-          visit,
-          newEntries,
-          checkedEntries,
-          generatedAt,
-          reportLogoSrc
-        });
+        const renderRows = (rows) => rows.length ? rows.map((entry) => `
+          <tr>
+            <td>${escapeHtml(entry.tagId || '-')}</td>
+            <td>${escapeHtml(entry.actionLabel)}</td>
+            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(entry.description || '-')}</td>
+            <td>${escapeHtml(entry.serialNumber || '-')}</td>
+            <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(entry.contractor || '-')}</td>
+            <td>${escapeHtml(entry.siteName || '-')}</td>
+            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
+            <td>${escapeHtml(entry.notes || '-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+
+        const html = `
+          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+          <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(t('visitReportTitle'))}</title>
+            <style>
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+              .logo { width:140px; height:140px; object-fit:contain; }
+              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
+              p { margin:0 0 10px; line-height:1.7; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
+              table { width:100%; border-collapse:collapse; margin-top:12px; }
+              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
+              th { background:#f8fafc; }
+              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
+              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
+                <p>${escapeHtml(t('visitReportIntro'))}</p>
+                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
+              </div>
+              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
+            </div>
+            <div class="meta">
+              <div class="meta-grid">
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(visit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(visit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(visit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(visit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(visit.endedAt || '-'))}</div>
+              </div>
+            </div>
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(newEntries)}</tbody>
+              </table>
+            </div>
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(checkedEntries)}</tbody>
+              </table>
+            </div>
+            <div class="signature">
+              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
+            </div>
+            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+          </body>
+          </html>
+        `;
 
         const blob = new Blob([`<!doctype html>${html}`], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
       } catch (error) {
         pushDebugLine(`Archived visit report error: ${error.message}`);
@@ -1507,7 +1067,6 @@
         return;
       }
 
-      ensureReportArchiveEnhancements();
       const fromDate = normalizeRegistrationDate(el('reportDateFrom')?.value);
       const toDate = normalizeRegistrationDate(el('reportDateTo')?.value);
       if(fromDate && toDate && fromDate > toDate){
@@ -1521,16 +1080,10 @@
 
       try {
         const logs = await getLogs();
-        const visitsInRange = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
-        populateReportArchiveSiteFilter(visitsInRange);
-        const selectedSite = normalizeReportArchiveSiteFilter(el('reportSiteFilter')?.value || reportArchiveState.site);
-        const visits = selectedSite === REPORT_ARCHIVE_ALL_SITES
-          ? visitsInRange
-          : visitsInRange.filter((visit) => String(visit.site || '').trim() === selectedSite);
+        const visits = buildVisitArchiveRecords(logs).filter((visit) => isVisitWithinRange(visit, fromDate, toDate));
 
         reportArchiveState.from = fromDate || '';
         reportArchiveState.to = toDate || '';
-        reportArchiveState.site = selectedSite;
         reportArchiveState.visits = visits;
         updateLogsDashboardHeadings({
           totalLogs: dataCache.logs.value?.length || 0,
@@ -1584,10 +1137,8 @@
     function resetReportArchiveFilters(){
       if(el('reportDateFrom')) el('reportDateFrom').value = '';
       if(el('reportDateTo')) el('reportDateTo').value = '';
-      if(el('reportSiteFilter')) el('reportSiteFilter').value = REPORT_ARCHIVE_ALL_SITES;
       reportArchiveState.from = '';
       reportArchiveState.to = '';
-      reportArchiveState.site = REPORT_ARCHIVE_ALL_SITES;
       renderReportArchive();
     }
 
@@ -1977,12 +1528,16 @@
       return registerAccessRole === 'engineer';
     }
 
+    function getRegisterScreenTitle(){
+      return registerAccessRole === 'foreman' ? t('foremanRegisterTitle') : t('registerTitle');
+    }
+
     function updateRegisterAccessUi(){
       const canEdit = canEditRegister();
       const registerTabButton = el('tabRegisterBtn');
       const registerPane = el('registerPane');
       const visitPanel = document.querySelector('.visit-panel');
-      const saveAllButton = el('saveAllTableChangesBtn');
+      const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
       [
         'visitDate',
@@ -2012,15 +1567,15 @@
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !activeVisit;
-      if(saveAllButton){
-        saveAllButton.hidden = !canEdit;
-        saveAllButton.disabled = !canEdit;
-      }
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
       if(visitPanel){
         visitPanel.hidden = !canEdit;
       }
+      if(registerTopbar){
+        registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
+      }
+      el('registerScreenTitle').textContent = getRegisterScreenTitle();
 
       if(!canEdit && registerPane.classList.contains('active')){
         openRegisterTab('tablePane');
@@ -2033,11 +1588,6 @@
       }
 
       bindDateTextInputs();
-
-      if(lastTableEditMode !== canEdit){
-        lastTableEditMode = canEdit;
-        renderItemsTable();
-      }
     }
 
     function populateScanEditForm(item){
@@ -2085,20 +1635,18 @@
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');
       el('visitSiteLabelText').textContent = t('visitSiteLabel');
-      el('visitReportSiteFilterLabelText').textContent = t('visitReportSiteFilterLabel');
       el('visitSignatureLabelText').textContent = t('visitSignatureLabel');
       el('visitSignaturePadLabelText').textContent = t('visitSignaturePadLabel');
       el('visitNotesLabelText').textContent = t('visitNotesLabel');
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
-      if(el('historicalReportsBtn')) el('historicalReportsBtn').textContent = t('historicalReports');
+      el('exportVisitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
       el('visitSite').placeholder = t('visitSitePlaceholder');
       el('visitSignature').placeholder = t('visitSignaturePlaceholder');
-      populateVisitReportSiteFilter();
       el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
       el('legalOpenBtn').textContent = t('legalOpen');
       el('legalTitleText').textContent = t('legalTitle');
@@ -2159,9 +1707,10 @@
       el('scanEditSiteName').placeholder = t('siteNamePlaceholder');
       el('scanEditNotes').placeholder = t('notesPlaceholder');
       el('registerBackBtn').textContent = t('back');
-      updateRegisterScreenTitle(document.querySelector('.tab-pane.active')?.id || '');
+      el('registerScreenTitle').textContent = getRegisterScreenTitle();
       el('tabRegisterBtn').textContent = t('tabRegister');
       el('tabTableBtn').textContent = t('tabTable');
+      el('tabReportBtn').textContent = t('tabReport');
       el('tabLogsBtn').textContent = t('tabLogs');
       el('scanNewTagBtn').textContent = t('scanNewTag');
       el('clearFormBtn').textContent = t('clearForm');
@@ -2207,8 +1756,15 @@
       el('tableSearchInput').setAttribute('aria-label', t('tableSearchPlaceholder'));
       el('tableStatusFilter').setAttribute('aria-label', t('tableStatusFilterLabel'));
       el('clearTableFiltersBtn').textContent = t('clearTableFilters');
-      setSaveAllButtonState('idle');
       el('exportReportBtn').textContent = rt('exportReport');
+      el('reportPageTitleText').textContent = t('reportPageTitle');
+      el('reportPageSubtitleText').textContent = t('reportPageSubtitle');
+      el('reportPageRefreshBtn').textContent = t('reportPageRefresh');
+      el('reportPageExportBtn').textContent = rt('exportReport');
+      el('shareReportWhatsappBtn').textContent = t('shareWhatsapp');
+      el('shareReportEmailBtn').textContent = t('shareEmail');
+      el('reportPageWhatsappBtn').textContent = t('shareWhatsapp');
+      el('reportPageEmailBtn').textContent = t('shareEmail');
       el('exportTableBtn').textContent = t('exportExcel');
       el('refreshTableBtn').textContent = t('refresh');
       el('captureImageBtn').textContent = t('captureImage');
@@ -2218,7 +1774,6 @@
       el('reportArchiveSubtitleText').textContent = t('reportArchiveSubtitle');
       el('reportDateFromLabel').textContent = t('reportDateFrom');
       el('reportDateToLabel').textContent = t('reportDateTo');
-      if(el('reportSiteFilterLabel')) el('reportSiteFilterLabel').textContent = t('reportArchiveSite');
       el('reportArchiveLoadBtn').textContent = t('reportArchiveLoad');
       el('reportArchiveResetBtn').textContent = t('reportArchiveReset');
       el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
@@ -2229,20 +1784,13 @@
       updateScanEditOptions();
       updateRegisterAccessUi();
       updateTableFilterOptions();
-      populateReportArchiveSiteFilter(reportArchiveState.visits);
-      if(statusReportChooserVisible){
-        getItems().then((items) => {
-          renderStatusReportChooser(sortItems(items));
-        }).catch((error) => {
-          pushDebugLine(`Status report chooser refresh error: ${error.message}`);
-        });
-      }
       selectImageByType();
       if(scanDemoGalleryMode && dataCache.items.value?.length){
         renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
       }
       renderScanLogs();
       renderItemsTable();
+      renderPresentationReportPage();
       refreshDebugPanel();
       renderVisitStatus();
 
@@ -2286,39 +1834,6 @@
         shown: shownCount,
         total: totalCount
       });
-    }
-
-    function setSaveAllButtonState(mode = 'idle'){
-      const button = el('saveAllTableChangesBtn');
-      if(!button){
-        return;
-      }
-
-      if(saveAllFeedbackTimer){
-        clearTimeout(saveAllFeedbackTimer);
-        saveAllFeedbackTimer = null;
-      }
-
-      button.classList.remove('is-saving', 'is-done');
-      button.disabled = false;
-
-      if(mode === 'saving'){
-        button.textContent = t('saveAllTableChangesSaving');
-        button.classList.add('is-saving');
-        button.disabled = true;
-        return;
-      }
-
-      if(mode === 'done'){
-        button.textContent = t('saveAllTableChangesDoneShort');
-        button.classList.add('is-done');
-        saveAllFeedbackTimer = window.setTimeout(() => {
-          setSaveAllButtonState('idle');
-        }, 2200);
-        return;
-      }
-
-      button.textContent = t('saveAllTableChanges');
     }
 
     function isCacheFresh(entry){
@@ -2572,16 +2087,8 @@
       const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
-      if(!canEditRegister()){
-        if(statusNode){
-          statusNode.textContent = t('scanReadOnlyNote');
-        }
-        return false;
-      }
-
       if(!statusInput || !registrationDateInput || !dateInput || !siteNameInput || !notesInput || !statusNode){
-        pushDebugLine(`Inline table save skipped for ${tagId}: editable inputs are not ready.`);
-        return false;
+        return;
       }
 
       statusNode.textContent = t('saving');
@@ -2611,62 +2118,11 @@
         applySelectStatusClass(statusInput, statusInput.value);
         highlightSavedTableRow(tagId);
         statusNode.textContent = t('tableRowUpdated');
-        return true;
       } catch (e) {
         pushDebugLine(`Inline table save error for ${tagId}: ${e.message}`);
         statusNode.textContent = t('cloudSaveError');
         console.error(e);
-        return false;
       }
-    }
-
-    async function saveAllTableChanges(){
-      const tagIds = [...pendingTableEdits.keys()].filter(Boolean);
-      const statusText = el('saveStatus');
-
-      if(!canEditRegister()){
-        setSaveAllButtonState('idle');
-        if(statusText){
-          statusText.textContent = t('scanReadOnlyNote');
-        }
-        return;
-      }
-
-      if(!tagIds.length){
-        setSaveAllButtonState('done');
-        if(statusText){
-          statusText.textContent = t('tableNoPendingChanges');
-        }
-        return;
-      }
-
-      setSaveAllButtonState('saving');
-      if(statusText){
-        statusText.textContent = formatText('tableBulkSaveProgress', { saved: 0, total: tagIds.length });
-      }
-
-      let savedCount = 0;
-      let failedCount = 0;
-      for(const tagId of tagIds){
-        const didSave = await saveTableRow(tagId);
-        if(didSave){
-          savedCount += 1;
-        } else {
-          failedCount += 1;
-        }
-        if(statusText){
-          statusText.textContent = formatText('tableBulkSaveProgress', { saved: savedCount, total: tagIds.length });
-        }
-      }
-
-      if(statusText && failedCount && savedCount){
-        statusText.textContent = formatText('tableBulkSavePartial', { saved: savedCount, failed: failedCount });
-      } else if(statusText && failedCount){
-        statusText.textContent = t('tableBulkSaveFailed');
-      } else if(statusText){
-        statusText.textContent = formatText('tableBulkSaveDone', { count: savedCount });
-      }
-      setSaveAllButtonState(failedCount ? 'idle' : 'done');
     }
 
     async function deleteTableRow(tagId, triggerButton = null){
@@ -3005,7 +2461,7 @@
       const days = daysUntilInspection(item.nextInspection);
       if(days === null) return 'missing';
       if(days < 0) return 'overdue';
-      if(days <= 7) return 'upcoming';
+      if(days <= 30) return 'upcoming';
       return 'future';
     }
 
@@ -3013,7 +2469,7 @@
       const rankForDays = (days) => {
         if(days === null) return 2;
         if(days < 0) return 0;
-        if(days <= 7) return 1;
+        if(days <= 30) return 1;
         return 2;
       };
       const daysA = daysUntilInspection(itemA.nextInspection);
@@ -3027,18 +2483,175 @@
       return daysA - daysB;
     }
 
-    async function exportPresentationReport(siteFilter = '', options = {}){
-      if(!options?.skipChooser){
-        await openStatusReportChooser();
+    function buildPresentationPriorityRows(reportItems){
+      return reportItems.length
+        ? reportItems.map((item) => {
+            const days = daysUntilInspection(item.nextInspection);
+            const bucket = getInspectionBucket(item);
+            const urgencyText = bucket === 'overdue'
+              ? formatReportText('reportOverdueDays', { days: Math.abs(days) })
+              : bucket === 'upcoming'
+                ? formatReportText('reportUpcomingDays', { days })
+                : '-';
+            const rowClass = bucket === 'overdue' ? 'overdue-row' : bucket === 'upcoming' ? 'upcoming-row' : 'normal-row';
+            const badgeClass = bucket === 'overdue'
+              ? 'urgency-badge urgency-badge-overdue'
+              : bucket === 'upcoming'
+                ? 'urgency-badge urgency-badge-upcoming'
+                : 'urgency-badge urgency-badge-normal';
+            return `
+              <tr class="${rowClass}">
+                <td>${escapeHtml(item.tagId || '-')}</td>
+                <td>${escapeHtml(translateType(item.itemType))}</td>
+                <td>${escapeHtml(item.description || '-')}</td>
+                <td>${escapeHtml(translateStatus(item.status))}</td>
+                <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
+                <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
+                <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
+              </tr>
+            `;
+          }).join('')
+        : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+    }
+
+    async function renderPresentationReportPage(){
+      const container = el('reportPageContent');
+      const status = el('reportPageStatus');
+      if(!container || !status){
         return;
       }
 
+      container.innerHTML = `<div class="empty-text">Loading...</div>`;
+      status.textContent = '';
+
       try {
-        const normalizedSiteFilter = String(siteFilter || '').trim();
-        const baseItems = sortItems(await getItems());
-        const items = normalizedSiteFilter
-          ? baseItems.filter((item) => getItemSiteName(item) === normalizedSiteFilter)
-          : baseItems;
+        const allItems = await getItems();
+        const items = sortItems(getFilteredItems(allItems));
+        const total = items.length;
+        const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
+        const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
+        const disabledCount = items.filter((item) => normalizeStatus(item.status) === 'disabled').length;
+        const overdueItems = items.filter((item) => getInspectionBucket(item) === 'overdue');
+        const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
+        const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
+        const reportItems = [...items].sort(compareInspectionUrgency);
+        const priorityRows = buildPresentationPriorityRows(reportItems);
+        const cards = [
+          { label: rt('reportTotalItems'), value: total, tone: 'teal' },
+          { label: t('reportOkItems'), value: okCount, tone: 'green' },
+          { label: t('reportReviewItems'), value: reviewCount, tone: 'amber' },
+          { label: t('reportDisabledItems'), value: disabledCount, tone: 'slate' },
+          { label: rt('reportOverdue'), value: overdueItems.length, tone: 'rose' },
+          { label: t('reportMissingDate'), value: missingDateItems.length, tone: 'blue' }
+        ];
+
+        status.textContent = formatText('reportPageScope', {
+          shown: total,
+          total: allItems.length
+        });
+
+        if(!total){
+          container.innerHTML = `<div class="report-page-empty">${escapeHtml(t('reportNoItems'))}</div>`;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="report-page-grid">
+            ${cards.map((card) => `
+              <article class="report-page-card report-page-card-${card.tone}">
+                <div class="report-page-card-label">${escapeHtml(card.label)}</div>
+                <div class="report-page-card-value">${escapeHtml(card.value)}</div>
+              </article>
+            `).join('')}
+          </div>
+
+          <section class="report-page-section">
+            <h3>${escapeHtml(rt('reportExecutiveSummary'))}</h3>
+            <p class="report-page-summary">${escapeHtml(formatExecutiveSummaryText(items, {
+              total,
+              ok: okCount,
+              review: reviewCount,
+              disabled: disabledCount
+            }))}</p>
+            <ul class="report-page-points">
+              <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
+              <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
+              <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
+            </ul>
+          </section>
+
+          <section class="report-page-section">
+            <h3>${escapeHtml(rt('reportPriorityTable'))}</h3>
+            <div class="report-page-table-wrap">
+              <table class="report-page-table">
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('registrationDate'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('reportPriorityStatus'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${priorityRows}</tbody>
+              </table>
+            </div>
+          </section>
+        `;
+      } catch (error) {
+        container.innerHTML = `<div class="empty-text">${escapeHtml(t('reportPageLoadError'))}</div>`;
+        status.textContent = t('reportPageLoadError');
+        pushDebugLine(`Report page load error: ${error.message}`);
+      }
+    }
+
+    async function buildPresentationShareData(){
+      const items = sortItems(getFilteredItems(await getItems()));
+      const total = items.length;
+      const okCount = items.filter((item) => normalizeStatus(item.status) === 'ok').length;
+      const reviewCount = items.filter((item) => normalizeStatus(item.status) === 'review').length;
+      const disabledCount = items.filter((item) => normalizeStatus(item.status) === 'disabled').length;
+      const overdueItems = items.filter((item) => getInspectionBucket(item) === 'overdue');
+      const upcomingItems = items.filter((item) => getInspectionBucket(item) === 'upcoming');
+      const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
+      const generatedAt = formatDisplayDateTime(new Date());
+      const shareSubject = rt('reportTitle');
+      const shareLines = [
+        shareSubject,
+        formatReportText('reportGeneratedAt', { date: generatedAt }),
+        formatExecutiveSummaryText(items, {
+          total,
+          ok: okCount,
+          review: reviewCount,
+          disabled: disabledCount
+        }),
+        formatReportText('reportOverdueLine', { count: overdueItems.length }),
+        formatReportText('reportUpcomingLine', { count: upcomingItems.length }),
+        formatReportText('reportMissingDateLine', { count: missingDateItems.length })
+      ];
+      const shareText = shareLines.join('\n');
+
+      return {
+        whatsappShareUrl: `https://wa.me/?text=${encodeURIComponent(shareText)}`,
+        emailShareUrl: `mailto:?subject=${encodeURIComponent(shareSubject)}&body=${encodeURIComponent(shareText)}`
+      };
+    }
+
+    async function sharePresentationReport(channel = 'whatsapp'){
+      try {
+        const { whatsappShareUrl, emailShareUrl } = await buildPresentationShareData();
+        window.open(channel === 'email' ? emailShareUrl : whatsappShareUrl, '_blank', 'noopener,noreferrer');
+      } catch (error) {
+        pushDebugLine(`Report share error: ${error.message}`);
+        console.error(error);
+      }
+    }
+
+    async function exportPresentationReport(){
+      try {
+        const items = sortItems(getFilteredItems(await getItems()));
         const reportLogoSrc = await getReportLogoDataUrl();
         const reportLogoUrl = new URL('./logo-transparent.png', window.location.href).href;
         const total = items.length;
@@ -3050,9 +2663,22 @@
         const missingDateItems = items.filter((item) => getInspectionBucket(item) === 'missing');
         const reportItems = [...items].sort(compareInspectionUrgency);
         const generatedAt = formatDisplayDateTime(new Date());
-        const scopeText = normalizedSiteFilter
-          ? formatReportText('reportScopeSite', { site: normalizedSiteFilter })
-          : rt('reportScopeAll');
+        const { whatsappShareUrl, emailShareUrl } = await buildPresentationShareData();
+        const printLabel = currentLang === 'en'
+          ? 'Print / Save PDF'
+          : currentLang === 'ar'
+            ? 'طباعة / حفظ PDF'
+            : 'הדפס / שמור PDF';
+        const whatsappLabel = currentLang === 'en'
+          ? 'Share to WhatsApp'
+          : currentLang === 'ar'
+            ? 'مشاركة عبر واتساب'
+            : 'שתף ל-WhatsApp';
+        const emailLabel = currentLang === 'en'
+          ? 'Share by Email'
+          : currentLang === 'ar'
+            ? 'مشاركة بالبريد'
+            : 'שתף במייל';
 
         const priorityRows = reportItems.length
           ? reportItems.map((item) => {
@@ -3083,35 +2709,21 @@
             }).join('')
           : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
-        const actionText = getPdfActionText();
-        const safeSitePart = normalizedSiteFilter
-          ? `-${normalizedSiteFilter.replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').toLowerCase()}`
-          : '';
-        const safeDate = normalizeRegistrationDate(new Date()) || todayIsoDate();
-        const fileName = `status-report-${safeDate}${safeSitePart}.pdf`;
-
         const buildReportHtml = (logoSrc) => `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
           <head>
             <meta charset="UTF-8">
             <title>${escapeHtml(rt('reportTitle'))}</title>
-            <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
             <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:24px; background:#f8fafc; }
-              .report-actions { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
-              .report-btn { border:none; border-radius:12px; padding:12px 16px; color:#fff; font-size:15px; font-weight:700; cursor:pointer; }
-              .report-btn-download { background:#0f766e; }
-              .report-status { min-height:22px; font-weight:700; color:#334155; margin-bottom:14px; }
-              .report-sheet { background:#fff; border-radius:20px; padding:32px; box-shadow:0 16px 40px rgba(15,23,42,.08); }
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#ffffff; }
               .report-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; direction:${currentLang === 'en' ? 'ltr' : 'rtl'}; }
               .report-logo-wrap { flex:0 0 auto; }
               .report-logo { display:block; width:180px; height:180px; object-fit:contain; }
               .report-title-wrap { flex:1 1 auto; }
-              h1 { margin:0 0 10px; color:#0f766e; font-size:clamp(38px, 4vw, 52px); line-height:1.05; }
+              h1 { margin:0 0 8px; color:#0f766e; font-size:28px; }
               h2 { margin:28px 0 12px; font-size:18px; color:#111827; }
               p { margin:0 0 10px; line-height:1.7; }
-              .subtitle { color:#475569; margin-bottom:18px; }
+              .subtitle { color:#475569; margin-bottom:18px; font-size:18px; line-height:1.75; font-weight:600; }
               .section { border:1px solid #e2e8f0; border-radius:16px; padding:18px; margin-bottom:18px; background:#fff; }
               .highlight { color:#0f766e; font-weight:700; }
               ul { margin:8px 0 0; padding-${currentLang === 'en' ? 'left' : 'right'}:20px; }
@@ -3132,131 +2744,69 @@
                 100% { opacity:1; box-shadow:0 0 0 0 rgba(220,38,38,0); }
               }
               .footer { margin-top:18px; color:#64748b; font-size:12px; }
-              @media (max-width:700px) {
-                .report-sheet { padding:20px; }
-                .report-header { gap:12px; }
-                .report-logo { width:96px; height:96px; }
-                .subtitle { font-size:16px; line-height:1.6; margin-bottom:12px; }
-              }
-              @media print {
-                body { background:#fff; padding:0; }
-                .report-actions, .report-status { display:none; }
-                .report-sheet { box-shadow:none; border-radius:0; padding:0; }
+              @media (max-width: 700px) {
+                body { padding:20px; }
+                h1 { font-size:32px; line-height:1.2; }
+                .subtitle { font-size:21px; line-height:1.9; }
               }
             </style>
           </head>
           <body>
-            <div class="report-actions">
-              <button class="report-btn report-btn-download" onclick="downloadStatusPdf()" type="button">${escapeHtml(actionText.downloadPdf)}</button>
-            </div>
-            <div class="report-status" id="reportStatus"></div>
-
-            <div class="report-sheet" id="reportRoot">
-              <div class="report-header">
-                ${logoSrc ? `<div class="report-logo-wrap"><img class="report-logo" src="${logoSrc}" alt="Logo"></div>` : ''}
-                <div class="report-title-wrap">
-                  <h1>${escapeHtml(rt('reportTitle'))}</h1>
-                  <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
-                  <p class="subtitle">${escapeHtml(scopeText)}</p>
-                </div>
+            <div class="report-header">
+              ${logoSrc ? `<div class="report-logo-wrap"><img class="report-logo" src="${logoSrc}" alt="Logo"></div>` : ''}
+              <div class="report-title-wrap">
+                <h1>${escapeHtml(rt('reportTitle'))}</h1>
+                <p class="subtitle">${escapeHtml(formatReportText('reportGeneratedAt', { date: generatedAt }))}</p>
               </div>
-
-              <div class="section">
-                <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
-                <p>${escapeHtml(`${formatReportText('reportExecutiveText', {
-                  total,
-                  ok: okCount,
-                  review: reviewCount,
-                  disabled: disabledCount
-                })} ${getExecutiveSummarySiteLabel(items)}`)}</p>
-                <ul>
-                  <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
-                  <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
-                  <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
-                </ul>
-              </div>
-
-              <div class="section">
-                <h2>${escapeHtml(rt('reportPriorityTable'))}</h2>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>${escapeHtml(t('tagId'))}</th>
-                      <th>${escapeHtml(t('itemType'))}</th>
-                      <th>${escapeHtml(t('description'))}</th>
-                      <th>${escapeHtml(t('status'))}</th>
-                      <th>${escapeHtml(t('registrationDate'))}</th>
-                      <th>${escapeHtml(t('nextInspection'))}</th>
-                      <th>${escapeHtml(rt('reportUrgency'))}</th>
-                    </tr>
-                  </thead>
-                  <tbody>${priorityRows}</tbody>
-                </table>
-              </div>
-
-              <div class="footer">${escapeHtml(rt('reportFooter'))}</div>
             </div>
 
-            <script>
-              const reportText = ${JSON.stringify(actionText)};
-              const reportFileName = ${JSON.stringify(fileName)};
+            <div class="section">
+              <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
+              <p>${escapeHtml(formatExecutiveSummaryText(items, {
+                total,
+                ok: okCount,
+                review: reviewCount,
+                disabled: disabledCount
+              }))}</p>
+              <ul>
+                <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
+                <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
+                <li>${escapeHtml(formatReportText('reportMissingDateLine', { count: missingDateItems.length }))}</li>
+              </ul>
+            </div>
 
-              function setReportStatus(text){
-                const status = document.getElementById('reportStatus');
-                if(status) status.textContent = text || '';
-              }
+            <div class="section">
+              <h2>${escapeHtml(rt('reportPriorityTable'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('registrationDate'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(rt('reportUrgency'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${priorityRows}</tbody>
+              </table>
+            </div>
 
-              async function buildStatusPdf(){
-                setReportStatus(reportText.preparingPdf);
-                const reportRoot = document.getElementById('reportRoot');
-                const canvas = await html2canvas(reportRoot, {
-                  scale: Math.min(1.5, Number(window.devicePixelRatio || 1.25)),
-                  backgroundColor: '#ffffff',
-                  useCORS: true,
-                  logging: false
-                });
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'pt', 'a4');
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const margin = 20;
-                const contentWidth = pageWidth - (margin * 2);
-                const contentHeight = pageHeight - (margin * 2);
-                const canvasWidth = canvas.width || 1;
-                const canvasHeight = canvas.height || 1;
-                const fitRatio = Math.min(contentWidth / canvasWidth, contentHeight / canvasHeight);
-                const renderWidth = canvasWidth * fitRatio;
-                const renderHeight = canvasHeight * fitRatio;
-                const offsetX = margin + ((contentWidth - renderWidth) / 2);
-                const offsetY = margin + ((contentHeight - renderHeight) / 2);
-                const imageData = canvas.toDataURL('image/jpeg', 0.92);
-
-                pdf.addImage(imageData, 'JPEG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
-                setReportStatus(reportText.pdfReady);
-                return pdf;
-              }
-
-              async function downloadStatusPdf(){
-                try {
-                  const pdf = await buildStatusPdf();
-                  pdf.save(reportFileName);
-                } catch (error) {
-                  console.error(error);
-                  setReportStatus(reportText.pdfError);
-                  alert(reportText.pdfError);
-                }
-              }
-            </script>
+            <div class="footer">${escapeHtml(rt('reportFooter'))}</div>
           </body>
           </html>
         `;
 
         const reportHtml = buildReportHtml(reportLogoSrc || reportLogoUrl);
-        const blob = new Blob([reportHtml], { type: 'text/html;charset=utf-8' });
+        const printableHtml = reportHtml.replace(
+          '<body>',
+          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button><a href="${escapeHtml(whatsappShareUrl)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:12px 16px;background:#25d366;color:#ffffff;font-size:15px;font-weight:700;">${escapeHtml(whatsappLabel)}</a><a href="${escapeHtml(emailShareUrl)}" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:12px;padding:12px 16px;background:#2563eb;color:#ffffff;font-size:15px;font-weight:700;">${escapeHtml(emailLabel)}</a></div>`
+        );
+        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
-        closeStatusReportChooser();
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
         pushDebugLine(`Report export error: ${e.message}`);
@@ -3458,9 +3008,6 @@
         const filteredItems = sortItems(getFilteredItems(items));
 
         updateTableSummary(filteredItems.length, items.length);
-        if(statusReportChooserVisible){
-          renderStatusReportChooser(sortItems(items));
-        }
 
         if(!items.length){
           container.innerHTML = `<div class="empty-text">${t('noTableItems')}</div>`;
@@ -3647,9 +3194,6 @@
       el('engineerPasswordInput').value = '';
       el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
-      if(role === 'engineer' && (!activeVisit || activeVisit.status === 'closed')){
-        populateVisitForm(null);
-      }
       openScreen('registerScreen');
       openRegisterTab(role === 'engineer' ? 'registerPane' : 'tablePane');
       updateRegisterAccessUi();
@@ -3660,9 +3204,6 @@
       if(tabId === 'registerPane' && !canEditRegister()){
         tabId = 'tablePane';
       }
-      if(tabId !== 'tablePane' && !(tabId === 'logsPane' && logsPaneMode === 'status')){
-        closeStatusReportChooser();
-      }
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       el(tabId).classList.add('active');
@@ -3672,11 +3213,12 @@
         refreshVisitSignaturePad();
       } else if(tabId === 'tablePane'){
         el('tabTableBtn').classList.add('active');
+      } else if(tabId === 'reportPane'){
+        el('tabReportBtn').classList.add('active');
+        renderPresentationReportPage();
       } else {
         el('tabLogsBtn').classList.add('active');
-        updateLogsPaneMode();
       }
-      updateRegisterScreenTitle(tabId);
     }
 
     function saveVisitSession(){
@@ -3695,7 +3237,6 @@
         engineer: draft.engineer,
         client: draft.client,
         site: draft.site,
-        reportSiteFilter: normalizeVisitReportSiteFilter(draft.reportSiteFilter),
         signature: draft.signature || draft.engineer,
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit?.signatureDataUrl || '',
@@ -3804,31 +3345,128 @@
       try {
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const entries = buildVisitEntries(logs, items);
-        populateVisitReportSiteFilter(logs);
-        const reportSiteFilter = normalizeVisitReportSiteFilter(el('visitReportSiteFilter')?.value || activeVisit?.reportSiteFilter);
-        const reportEntries = reportSiteFilter === VISIT_REPORT_ALL_SITES
-          ? entries
-          : entries.filter((entry) => String(entry.siteName || '').trim() === reportSiteFilter);
-        const newEntries = reportEntries.filter((entry) => entry.actionType === 'register_new');
-        const checkedEntries = reportEntries.filter((entry) => entry.actionType !== 'register_new');
+        const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
+        const checkedEntries = entries.filter((entry) => entry.actionType !== 'register_new');
         const generatedAt = formatDisplayDateTime(new Date());
-        const reportVisit = {
-          ...activeVisit,
-          site: reportSiteFilter === VISIT_REPORT_ALL_SITES ? t('visitReportAllSitesOption') : reportSiteFilter
-        };
 
-        const html = buildVisitReportPage({
-          visit: reportVisit,
-          newEntries,
-          checkedEntries,
-          generatedAt,
-          reportLogoSrc
-        });
+        const renderRows = (rows) => rows.length ? rows.map((entry) => `
+          <tr>
+            <td>${escapeHtml(entry.tagId || '-')}</td>
+            <td>${escapeHtml(entry.actionLabel)}</td>
+            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(entry.description || '-')}</td>
+            <td>${escapeHtml(entry.serialNumber || '-')}</td>
+            <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(entry.contractor || '-')}</td>
+            <td>${escapeHtml(entry.siteName || '-')}</td>
+            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
+            <td>${escapeHtml(entry.notes || '-')}</td>
+          </tr>
+        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+
+        const html = `
+          <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
+          <head>
+            <meta charset="UTF-8">
+            <title>${escapeHtml(t('visitReportTitle'))}</title>
+            <style>
+              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
+              .logo { width:140px; height:140px; object-fit:contain; }
+              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
+              p { margin:0 0 10px; line-height:1.7; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
+              table { width:100%; border-collapse:collapse; margin-top:12px; }
+              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
+              th { background:#f8fafc; }
+              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
+              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div>
+                <h1>${escapeHtml(t('visitReportTitle'))}</h1>
+                <p>${escapeHtml(t('visitReportIntro'))}</p>
+                <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
+              </div>
+              ${reportLogoSrc ? `<img class="logo" src="${reportLogoSrc}" alt="Logo">` : ''}
+            </div>
+
+            <div class="meta">
+              <div class="meta-grid">
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(activeVisit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.endedAt || '-'))}</div>
+              </div>
+              ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportNewSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(newEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="section">
+              <h2>${escapeHtml(t('visitReportCheckedSection'))}</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>${escapeHtml(t('tagId'))}</th>
+                    <th>${escapeHtml(t('actions'))}</th>
+                    <th>${escapeHtml(t('itemType'))}</th>
+                    <th>${escapeHtml(t('description'))}</th>
+                    <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
+                    <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('nextInspection'))}</th>
+                    <th>${escapeHtml(t('notes'))}</th>
+                  </tr>
+                </thead>
+                <tbody>${renderRows(checkedEntries)}</tbody>
+              </table>
+            </div>
+
+            <div class="signature">
+              <strong>${escapeHtml(t('visitReportSignature'))}</strong>
+              ${activeVisit.signatureDataUrl ? `<p><img src="${activeVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
+              <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
+            </div>
+
+            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+          </body>
+          </html>
+        `;
 
         const printableHtml = `<!doctype html>${html}`;
         const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+        window.open(url, '_blank', 'noopener,noreferrer');
         setTimeout(() => URL.revokeObjectURL(url), 60000);
         renderVisitStatus();
       } catch (error) {
@@ -3891,6 +3529,12 @@
         if (tabParam === 'table') {
           openRegisterTab('tablePane');
           await renderItemsTable();
+          return;
+        }
+
+        if (tabParam === 'report') {
+          openRegisterTab('reportPane');
+          await renderPresentationReportPage();
           return;
         }
 
@@ -4187,15 +3831,6 @@
 
     el('itemType').addEventListener('change', selectImageByType);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
-    el('visitSite').addEventListener('input', () => {
-      populateVisitReportSiteFilter();
-    });
-    el('visitReportSiteFilter').addEventListener('change', (event) => {
-      if(activeVisit){
-        activeVisit.reportSiteFilter = normalizeVisitReportSiteFilter(event.target.value);
-        persistActiveVisit();
-      }
-    });
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
       if(!file){
@@ -4222,11 +3857,6 @@
     el('tableStatusFilter').addEventListener('change', (event) => {
       tableFilters.status = event.target.value || 'all';
       renderItemsTable();
-    });
-    document.addEventListener('change', (event) => {
-      if(event.target?.id === 'reportSiteFilter'){
-        renderReportArchive();
-      }
     });
 
     window.addEventListener('error', (event) => {
@@ -4264,12 +3894,13 @@
     window.applyNextInspectionOffset = applyNextInspectionOffset;
     window.saveScanItemEdits = saveScanItemEdits;
     window.saveTableRow = saveTableRow;
-    window.saveAllTableChanges = saveAllTableChanges;
     window.deleteTableRow = deleteTableRow;
     window.triggerImagePicker = triggerImagePicker;
     window.clearCustomImage = clearCustomImage;
     window.toggleTableSort = toggleTableSort;
     window.exportTableCsv = exportTableCsv;
+    window.renderPresentationReportPage = renderPresentationReportPage;
+    window.sharePresentationReport = sharePresentationReport;
     window.exportPresentationReport = exportPresentationReport;
     window.demoScan = demoScan;
     window.startScan = startScan;
@@ -4278,11 +3909,8 @@
     window.renderReportArchive = renderReportArchive;
     window.resetReportArchiveFilters = resetReportArchiveFilters;
     window.openArchivedVisitReport = openArchivedVisitReport;
-    window.openLogsPaneForLogs = openLogsPaneForLogs;
-    window.openLogsPaneForReports = openLogsPaneForReports;
 
     async function bootApp(){
-      ensureReportArchiveEnhancements();
       ensureScanLocationRow();
       bindTableActionDelegation();
       bindDateTextInputs();
