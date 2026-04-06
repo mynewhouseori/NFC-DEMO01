@@ -231,6 +231,7 @@
       visits: [],
       logsByKey: new Map()
     };
+    let logsPaneMode = 'logs';
     const pendingTableEdits = new Map();
     let lastSavedTagId = '';
     let passwordContext = 'register';
@@ -456,7 +457,7 @@
       }
 
       if(activeTabId === 'logsPane'){
-        title.textContent = t('historicalReports');
+        title.textContent = logsPaneMode === 'reports' ? t('historicalReports') : t('tabLogs');
         return;
       }
 
@@ -1077,7 +1078,30 @@
         }
       }
 
-      return { pane, summary, content, logsPanel };
+      const reportsPanel = pane.querySelector('.report-archive-panel');
+      return { pane, summary, content, logsPanel, reportsPanel };
+    }
+
+    function updateLogsPaneMode(){
+      const { logsPanel, reportsPanel } = ensureLogsDashboardShell();
+      if(reportsPanel){
+        reportsPanel.hidden = logsPaneMode !== 'reports';
+      }
+      if(logsPanel){
+        logsPanel.hidden = logsPaneMode !== 'logs';
+      }
+    }
+
+    function openLogsPaneForReports(){
+      logsPaneMode = 'reports';
+      openRegisterTab('logsPane');
+      renderReportArchive();
+    }
+
+    function openLogsPaneForLogs(){
+      logsPaneMode = 'logs';
+      openRegisterTab('logsPane');
+      renderScanLogs();
     }
 
     function countUniqueTags(logs = []){
@@ -3292,6 +3316,7 @@
         el('tabTableBtn').classList.add('active');
       } else {
         el('tabLogsBtn').classList.add('active');
+        updateLogsPaneMode();
       }
       updateRegisterScreenTitle(tabId);
     }
@@ -3894,6 +3919,8 @@
     window.renderReportArchive = renderReportArchive;
     window.resetReportArchiveFilters = resetReportArchiveFilters;
     window.openArchivedVisitReport = openArchivedVisitReport;
+    window.openLogsPaneForLogs = openLogsPaneForLogs;
+    window.openLogsPaneForReports = openLogsPaneForReports;
 
     async function bootApp(){
       ensureReportArchiveEnhancements();
