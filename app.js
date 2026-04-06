@@ -1548,6 +1548,7 @@
       const canEdit = canEditRegister();
       const registerTabButton = el('tabRegisterBtn');
       const registerPane = el('registerPane');
+      const tableTabButton = el('tabTableBtn');
       const visitPanel = document.querySelector('.visit-panel');
       const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
@@ -1582,6 +1583,10 @@
       el('visitReportBtn').hidden = !canEdit;
       el('scanNewTagBtn').hidden = !canEdit;
       registerTabButton.hidden = !canEdit;
+      registerPane.hidden = !canEdit;
+      if(canEdit){
+        registerPane.hidden = false;
+      }
       if(visitPanel){
         visitPanel.hidden = !canEdit;
       }
@@ -1589,6 +1594,13 @@
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
       }
       el('registerScreenTitle').textContent = getRegisterScreenTitle();
+
+      if(!canEdit){
+        registerPane.classList.remove('active');
+        if(tableTabButton){
+          tableTabButton.classList.add('active');
+        }
+      }
 
       if(!canEdit && registerPane.classList.contains('active')){
         openRegisterTab('tablePane');
