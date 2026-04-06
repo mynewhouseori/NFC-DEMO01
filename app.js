@@ -465,7 +465,11 @@
       }
 
       if(activeTabId === 'logsPane'){
-        title.textContent = logsPaneMode === 'reports' ? t('historicalReports') : t('tabLogs');
+        title.textContent = logsPaneMode === 'reports'
+          ? t('historicalReports')
+          : logsPaneMode === 'status'
+            ? rt('exportReport')
+            : t('tabLogs');
         return;
       }
 
@@ -1090,15 +1094,25 @@
         }
       }
 
+      let statusPanel = el('statusReportPanel');
+      if(!statusPanel){
+        statusPanel = document.createElement('section');
+        statusPanel.id = 'statusReportPanel';
+        statusPanel.className = 'status-report-panel status-report-chooser';
+        statusPanel.hidden = true;
+        content.appendChild(statusPanel);
+      }
+
       const reportsPanel = pane.querySelector('.report-archive-panel');
-      return { pane, summary, content, logsPanel, reportsPanel };
+      return { pane, summary, content, logsPanel, reportsPanel, statusPanel };
     }
 
     function updateLogsPaneMode(){
-      const { pane, summary, logsPanel, reportsPanel } = ensureLogsDashboardShell();
+      const { pane, summary, logsPanel, reportsPanel, statusPanel } = ensureLogsDashboardShell();
       if(pane){
         pane.classList.toggle('logs-pane-reports', logsPaneMode === 'reports');
         pane.classList.toggle('logs-pane-logs', logsPaneMode === 'logs');
+        pane.classList.toggle('logs-pane-status', logsPaneMode === 'status');
       }
       if(summary){
         summary.hidden = logsPaneMode !== 'logs';
@@ -1109,16 +1123,21 @@
       if(logsPanel){
         logsPanel.hidden = logsPaneMode !== 'logs';
       }
+      if(statusPanel){
+        statusPanel.hidden = logsPaneMode !== 'status';
+      }
     }
 
     function openLogsPaneForReports(){
       logsPaneMode = 'reports';
+      statusReportChooserVisible = false;
       openRegisterTab('logsPane');
       renderReportArchive();
     }
 
     function openLogsPaneForLogs(){
       logsPaneMode = 'logs';
+      statusReportChooserVisible = false;
       openRegisterTab('logsPane');
       renderScanLogs();
     }
@@ -1133,28 +1152,23 @@
     }
 
     function ensureStatusReportChooser(){
-      const tablePane = el('tablePane');
-      const tableContainer = el('itemsTableContainer');
-      if(!tablePane || !tableContainer){
+      const { statusPanel } = ensureLogsDashboardShell();
+      if(!statusPanel){
         return null;
       }
 
-      let panel = el('statusReportChooser');
-      if(!panel){
-        panel = document.createElement('section');
-        panel.id = 'statusReportChooser';
-        panel.className = 'status-report-chooser';
-        panel.hidden = true;
-        tablePane.insertBefore(panel, tableContainer);
-      }
-      return panel;
+      return statusPanel;
     }
 
     function closeStatusReportChooser(){
       statusReportChooserVisible = false;
-      const panel = el('statusReportChooser');
+      const panel = el('statusReportPanel');
       if(panel){
         panel.hidden = true;
+        panel.innerHTML = '';
+      }
+      if(logsPaneMode === 'status'){
+        openRegisterTab('tablePane');
       }
     }
 
@@ -1214,7 +1228,9 @@
     async function openStatusReportChooser(){
       try {
         const items = sortItems(await getItems());
+        logsPaneMode = 'status';
         statusReportChooserVisible = true;
+        openRegisterTab('logsPane');
         renderStatusReportChooser(items);
         pushDebugLine(`Opened status report chooser with ${items.length} items.`);
       } catch (e) {
@@ -3551,7 +3567,7 @@
       if(tabId === 'registerPane' && !canEditRegister()){
         tabId = 'tablePane';
       }
-      if(tabId !== 'tablePane'){
+      if(tabId !== 'tablePane' && !(tabId === 'logsPane' && logsPaneMode === 'status')){
         closeStatusReportChooser();
       }
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
