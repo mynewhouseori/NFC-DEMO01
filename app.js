@@ -395,8 +395,6 @@
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('visitReportBtn').hidden = !canEditRegister();
-      el('exportVisitReportBtn').disabled = !canEditRegister() || !activeVisit;
-      el('exportVisitReportBtn').hidden = !canEditRegister();
     }
 
     function getCurrentVisitForLogs(){
@@ -1644,7 +1642,6 @@
       el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
-      el('exportVisitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
@@ -1764,12 +1761,9 @@
       el('reportPageSubtitleText').textContent = t('reportPageSubtitle');
       el('reportPageRefreshBtn').textContent = t('reportPageRefresh');
       el('reportPageExportBtn').textContent = rt('exportReport');
-      el('shareReportWhatsappBtn').textContent = t('shareWhatsapp');
-      el('shareReportEmailBtn').textContent = t('shareEmail');
       el('reportPageWhatsappBtn').textContent = t('shareWhatsapp');
       el('reportPageEmailBtn').textContent = t('shareEmail');
       el('exportTableBtn').textContent = t('exportExcel');
-      el('refreshTableBtn').textContent = t('refresh');
       el('captureImageBtn').textContent = t('captureImage');
       el('clearImageBtn').textContent = t('clearImage');
       el('scanSafetyTitle').textContent = t('scanSafetyTitle');
