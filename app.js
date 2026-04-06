@@ -283,6 +283,18 @@
       }, rt(key));
     }
 
+    function getExecutiveSummarySiteLabel(items = []){
+      const uniqueSites = [...new Set(
+        items
+          .map((item) => String(item?.siteName || '').trim())
+          .filter(Boolean)
+      )];
+      const siteValue = uniqueSites.length === 1
+        ? uniqueSites[0]
+        : (currentLang === 'en' ? 'All Sites' : currentLang === 'ar' ? 'كل المواقع' : 'כל האתרים');
+      return `${t('siteName')}: ${siteValue}`;
+    }
+
     function formatLocationText(key, replacements = {}){
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
@@ -3107,12 +3119,12 @@
 
               <div class="section">
                 <h2>${escapeHtml(rt('reportExecutiveSummary'))}</h2>
-                <p>${escapeHtml(formatReportText('reportExecutiveText', {
+                <p>${escapeHtml(`${formatReportText('reportExecutiveText', {
                   total,
                   ok: okCount,
                   review: reviewCount,
                   disabled: disabledCount
-                }))}</p>
+                })} ${getExecutiveSummarySiteLabel(items)}`)}</p>
                 <ul>
                   <li>${escapeHtml(formatReportText('reportOverdueLine', { count: overdueItems.length }))}</li>
                   <li>${escapeHtml(formatReportText('reportUpcomingLine', { count: upcomingItems.length }))}</li>
