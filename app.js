@@ -1724,6 +1724,9 @@
       el('tabLogsBtn').textContent = t('tabLogs');
       el('scanNewTagBtn').textContent = t('scanNewTag');
       el('clearFormBtn').textContent = t('clearForm');
+      if(el('saveAllTableChangesBtn')){
+        el('saveAllTableChangesBtn').textContent = t('saveAllTableChanges');
+      }
 
       el('tagIdLabel').textContent = t('tagId');
       el('itemTypeLabel').textContent = t('itemType');
@@ -1966,6 +1969,41 @@
           applySelectStatusClass(select, select.value);
         });
       });
+      updateSaveAllTableButton();
+    }
+
+    function updateSaveAllTableButton(state = 'idle'){
+      const button = el('saveAllTableChangesBtn');
+      if(!button){
+        return;
+      }
+
+      const canEdit = canEditRegister();
+      const pendingCount = pendingTableEdits.size;
+      button.hidden = !canEdit;
+      button.classList.remove('is-saving', 'is-done');
+
+      if(state === 'saving'){
+        button.disabled = true;
+        button.classList.add('is-saving');
+        button.textContent = t('saveAllTableChangesSaving');
+        return;
+      }
+
+      if(state === 'done'){
+        button.disabled = false;
+        button.classList.add('is-done');
+        button.textContent = t('saveAllTableChangesDoneShort');
+        window.setTimeout(() => {
+          updateSaveAllTableButton();
+        }, 1200);
+        return;
+      }
+
+      button.disabled = !canEdit || pendingCount === 0;
+      button.textContent = pendingCount > 0
+        ? `${t('saveAllTableChanges')} (${pendingCount})`
+        : t('saveAllTableChanges');
     }
 
     function bindTableActionDelegation(){
@@ -1999,6 +2037,7 @@
         }
 
         pendingTableEdits.set(tagId, draft);
+        updateSaveAllTableButton();
       };
 
       container.addEventListener('input', (event) => {
@@ -2022,6 +2061,7 @@
             const draft = pendingTableEdits.get(tagId) || {};
             draft.notes = '';
             pendingTableEdits.set(tagId, draft);
+            updateSaveAllTableButton();
             notesInput.dispatchEvent(new Event('input', { bubbles: true }));
           }
           return;
@@ -2139,6 +2179,7 @@
         await saveItemToCloud(updatedItem);
         updateCachedItem(updatedItem);
         pendingTableEdits.delete(tagId);
+        updateSaveAllTableButton();
         lastSavedTagId = tagId;
         applySelectStatusClass(statusInput, statusInput.value);
         highlightSavedTableRow(tagId);
@@ -2179,6 +2220,7 @@
         await deleteDoc(doc(db, ITEMS_COLLECTION, tagId));
         invalidateItemsCache();
         pendingTableEdits.delete(tagId);
+        updateSaveAllTableButton();
         pushDebugLine(`Deleted item ${tagId}.`);
         statusNode.textContent = t('itemDeleted');
         if(lastSavedTagId === tagId){
@@ -3249,6 +3291,47 @@
       }
     }
 
+    async function saveAllTableChanges(){
+      if(!canEditRegister()){
+        return;
+      }
+
+      const entries = [...pendingTableEdits.keys()];
+      if(!entries.length){
+        updateSaveAllTableButton();
+        const container = el('itemsTableContainer');
+        const statusNode = container?.querySelector('.table-row-status');
+        if(statusNode){
+          statusNode.textContent = t('tableNoPendingChanges');
+        }
+        return;
+      }
+
+      updateSaveAllTableButton('saving');
+      let saved = 0;
+      let failed = 0;
+
+      for(const tagId of entries){
+        try {
+          await saveTableRow(tagId);
+          if(!pendingTableEdits.has(tagId)){
+            saved += 1;
+          } else {
+            failed += 1;
+          }
+        } catch (error) {
+          failed += 1;
+          pushDebugLine(`Bulk save error for ${tagId}: ${error.message}`);
+        }
+      }
+
+      if(saved > 0 && failed === 0){
+        updateSaveAllTableButton('done');
+      } else {
+        updateSaveAllTableButton();
+      }
+    }
+
     function saveVisitSession(){
       const draft = getVisitFormData();
       if(!draft.engineer){
@@ -3927,6 +4010,7 @@
     window.clearCustomImage = clearCustomImage;
     window.toggleTableSort = toggleTableSort;
     window.exportTableCsv = exportTableCsv;
+    window.saveAllTableChanges = saveAllTableChanges;
     window.renderPresentationReportPage = renderPresentationReportPage;
     window.sharePresentationReport = sharePresentationReport;
     window.exportPresentationReport = exportPresentationReport;
