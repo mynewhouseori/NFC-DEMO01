@@ -1605,9 +1605,15 @@
     }
 
     .table-toolbar-actions {
-      display:flex;
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0, 1fr));
       gap:10px;
-      flex-wrap:wrap;
+      width:100%;
+    }
+
+    .table-toolbar-actions .mini-btn {
+      width:100%;
+      justify-content:center;
     }
 
     .table-filters {
@@ -1628,6 +1634,10 @@
     }
 
     @media (max-width:700px){
+      .table-toolbar-actions {
+        grid-template-columns:1fr;
+      }
+
       .table-filters {
         grid-template-columns:1fr;
       }
