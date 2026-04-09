@@ -1242,6 +1242,19 @@
       return updatedItem;
     }
 
+    function withCapturedLocation(item, locationSnapshot){
+      if(!item || !locationSnapshot){
+        return item;
+      }
+
+      return {
+        ...item,
+        lastSeenLocation: locationSnapshot,
+        lastSeenAt: locationSnapshot.capturedAt,
+        updatedAt: new Date().toLocaleString()
+      };
+    }
+
     function readFileAsDataUrl(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -2260,7 +2273,8 @@
           return;
         }
 
-        const updatedItem = {
+        const locationSnapshot = await getCurrentLocationSnapshot();
+        const updatedItem = withCapturedLocation({
           ...existing,
           status: statusInput.value,
           registrationDate: normalizeRegistrationDate(registrationDateInput.value),
@@ -2268,9 +2282,12 @@
           siteName: siteNameInput.value.trim(),
           notes: notesInput.value.trim(),
           updatedAt: new Date().toLocaleString()
-        };
+        }, locationSnapshot);
 
         await saveItemToCloud(updatedItem);
+        await saveScanLog(tagId, true, updatedItem, locationSnapshot, {
+          actionType: 'register_update'
+        });
         updateCachedItem(updatedItem);
         pendingTableEdits.delete(tagId);
         updateSaveAllTableButton();
@@ -3778,7 +3795,8 @@
           }
         }
 
-        const updatedItem = {
+        const locationSnapshot = await getCurrentLocationSnapshot();
+        const updatedItem = withCapturedLocation({
           ...currentScannedItem,
           tagId: nextTagId,
           itemType: el('scanEditItemType').value,
@@ -3791,13 +3809,16 @@
           siteName: el('scanEditSiteName').value.trim(),
           notes: el('scanEditNotes').value.trim(),
           updatedAt: new Date().toLocaleString()
-        };
+        }, locationSnapshot);
 
         await saveItemToCloud(updatedItem);
         if(nextTagId !== originalTagId){
           await deleteDoc(doc(db, ITEMS_COLLECTION, originalTagId));
           invalidateItemsCache();
         }
+        await saveScanLog(nextTagId, true, updatedItem, locationSnapshot, {
+          actionType: 'register_update'
+        });
 
         currentScannedItem = updatedItem;
         lastSavedTagId = updatedItem.tagId;
@@ -3855,7 +3876,8 @@
       }
 
       const existing = await getItemByTag(tagId);
-      const item = {
+      const locationSnapshot = await getCurrentLocationSnapshot();
+      const item = withCapturedLocation({
         tagId,
         itemType: el('itemType').value,
         description: el('description').value.trim(),
@@ -3872,11 +3894,11 @@
         lastSeenAt: existing?.lastSeenAt || '',
         createdAt: existing?.createdAt || new Date().toLocaleString(),
         updatedAt: new Date().toLocaleString()
-      };
+      }, locationSnapshot);
 
       try {
         await saveItemToCloud(item);
-        await saveScanLog(tagId, true, item, item.lastSeenLocation, {
+        await saveScanLog(tagId, true, item, locationSnapshot, {
           actionType: existing ? 'register_update' : 'register_new'
         });
         pushDebugLine(`Save flow completed for ${tagId}.`);
