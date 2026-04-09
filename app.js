@@ -4012,9 +4012,7 @@
         pushDebugLine(`Save flow completed for ${tagId}.`);
         el('saveStatus').textContent = existing ? t('itemUpdated') : t('itemSaved');
         lastSavedTagId = tagId;
-        clearForm();
-        clearTableFilters();
-        openRegisterTab('tablePane');
+        fillRegisterForm(item);
         await renderItemsTable();
         await renderScanLogs();
       } catch (e) {
