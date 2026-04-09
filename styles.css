@@ -954,30 +954,43 @@
 
     .scan-safety-card {
       margin-top:16px;
-      border-radius:18px;
-      background:linear-gradient(180deg, rgba(236,253,245,1) 0%, rgba(239,246,255,1) 100%);
-      border:1px solid #99f6e4;
-      box-shadow:0 12px 28px rgba(15, 118, 110, .08);
+      border-radius:22px;
+      background:
+        linear-gradient(135deg, rgba(255,251,235,.96) 0%, rgba(236,253,245,1) 48%, rgba(239,246,255,.96) 100%);
+      border:2px solid rgba(245, 158, 11, .42);
+      box-shadow:0 16px 34px rgba(15, 118, 110, .10);
       overflow:hidden;
+      position:relative;
     }
 
     .scan-safety-card[open] {
-      border-color:#2dd4bf;
-      box-shadow:0 16px 34px rgba(15, 118, 110, .14);
+      border-color:#f59e0b;
+      box-shadow:0 20px 38px rgba(245, 158, 11, .14);
+    }
+
+    .scan-safety-card::before {
+      content:'';
+      position:absolute;
+      inset-inline-start:0;
+      top:0;
+      bottom:0;
+      width:7px;
+      background:linear-gradient(180deg, #f59e0b 0%, #f97316 100%);
     }
 
     .scan-safety-toggle {
       list-style:none;
       cursor:pointer;
-      padding:14px 16px;
-      font-size:15px;
-      font-weight:800;
-      color:#0f172a;
+      padding:16px 18px 16px 22px;
+      font-size:18px;
+      font-weight:900;
+      color:#7c2d12;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      background:linear-gradient(90deg, rgba(15,118,110,.12), rgba(59,130,246,.08));
+      background:linear-gradient(90deg, rgba(245,158,11,.18), rgba(249,115,22,.12), rgba(15,118,110,.08));
+      letter-spacing:.01em;
     }
 
     .scan-safety-toggle::-webkit-details-marker {
@@ -986,17 +999,17 @@
 
     .scan-safety-toggle::after {
       content:'+';
-      width:28px;
-      height:28px;
+      width:34px;
+      height:34px;
       display:grid;
       place-items:center;
       border-radius:999px;
       background:#ffffff;
-      color:#0f766e;
-      font-size:18px;
+      color:#c2410c;
+      font-size:22px;
       font-weight:900;
       flex-shrink:0;
-      box-shadow:0 4px 12px rgba(15, 118, 110, .12);
+      box-shadow:0 6px 14px rgba(194, 65, 12, .16);
     }
 
     .scan-safety-card[open] .scan-safety-toggle::after {
@@ -1004,27 +1017,29 @@
     }
 
     .scan-safety-body {
-      padding:14px 16px 16px;
-      border-top:1px solid rgba(45, 212, 191, .22);
+      padding:16px 18px 18px 22px;
+      border-top:1px solid rgba(245, 158, 11, .26);
     }
 
     .scan-safety-intro {
-      color:#155e75;
-      font-size:14px;
-      line-height:1.7;
-      font-weight:600;
-      margin-bottom:10px;
+      color:#9a3412;
+      font-size:16px;
+      line-height:1.75;
+      font-weight:800;
+      margin-bottom:12px;
     }
 
     .scan-safety-list {
       margin:0;
       padding-inline-start:20px;
-      color:#334155;
-      line-height:1.65;
+      color:#1f2937;
+      line-height:1.85;
+      font-size:15px;
+      font-weight:600;
     }
 
     .scan-safety-list li + li {
-      margin-top:4px;
+      margin-top:8px;
     }
 
     .scan-access-bar {
