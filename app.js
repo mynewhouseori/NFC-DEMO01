@@ -4077,7 +4077,7 @@
       bindDateTextInputs();
       setupVisitSignaturePad();
       loadActiveVisit();
-      populateVisitForm(activeVisit);
+      populateVisitForm();
       setLang(currentLang);
       clearStatuses();
       clearForm();
