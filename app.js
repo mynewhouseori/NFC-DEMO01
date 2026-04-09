@@ -1264,6 +1264,26 @@
       });
     }
 
+    function sanitizeDecimalInput(value){
+      const source = String(value || '').replace(/,/g, '.');
+      let result = '';
+      let hasDot = false;
+
+      for(const char of source){
+        if(char >= '0' && char <= '9'){
+          result += char;
+          continue;
+        }
+
+        if(char === '.' && !hasDot){
+          result += '.';
+          hasDot = true;
+        }
+      }
+
+      return result;
+    }
+
     function loadImageElement(src){
       return new Promise((resolve, reject) => {
         const image = new Image();
@@ -1689,6 +1709,7 @@
       }
 
       bindDateTextInputs();
+      bindDecimalInputs();
     }
 
     function populateScanEditForm(item){
@@ -2537,6 +2558,25 @@
       document.querySelectorAll('.native-date-picker').forEach((picker) => {
         picker.setAttribute('aria-label', getDatePickerLabel());
         picker.title = getDatePickerLabel();
+      });
+    }
+
+    function bindDecimalInputs(){
+      document.querySelectorAll('[data-decimal-input="1"]').forEach((input) => {
+        if(input.dataset.decimalBound === '1'){
+          return;
+        }
+
+        input.dataset.decimalBound = '1';
+        input.addEventListener('input', () => {
+          const sanitized = sanitizeDecimalInput(input.value);
+          if(input.value !== sanitized){
+            input.value = sanitized;
+          }
+        });
+        input.addEventListener('blur', () => {
+          input.value = sanitizeDecimalInput(input.value);
+        });
       });
     }
 
@@ -3802,7 +3842,7 @@
           itemType: el('scanEditItemType').value,
           description: el('scanEditDescription').value.trim(),
           serialNumber: el('scanEditSerial').value.trim(),
-          wll: el('scanEditWll').value.trim(),
+          wll: sanitizeDecimalInput(el('scanEditWll').value),
           registrationDate: normalizeRegistrationDate(el('scanEditRegistrationDate').value) || getRegistrationDateValue(currentScannedItem),
           nextInspection: normalizeRegistrationDate(el('scanEditNextInspection').value),
           status: el('scanEditStatus').value,
@@ -3883,7 +3923,7 @@
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
         contractor: el('contractor').value.trim(),
-        wll: el('wll').value.trim(),
+        wll: sanitizeDecimalInput(el('wll').value),
         registrationDate: normalizeRegistrationDate(el('registrationDate').value) || getRegistrationDateValue(existing),
         nextInspection: normalizeRegistrationDate(el('nextInspection').value),
         status: el('itemStatus').value,
@@ -4098,6 +4138,7 @@
       ensureScanLocationRow();
       bindTableActionDelegation();
       bindDateTextInputs();
+      bindDecimalInputs();
       setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm();
