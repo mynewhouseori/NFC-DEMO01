@@ -1640,9 +1640,8 @@
         el('saveAllTableChangesBtn').style.display = canEdit ? '' : 'none';
       }
       if(reportTabButton){
-        const showReportTab = registerAccessRole !== 'foreman';
-        reportTabButton.hidden = !showReportTab;
-        reportTabButton.style.display = showReportTab ? '' : 'none';
+        reportTabButton.hidden = true;
+        reportTabButton.style.display = 'none';
       }
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
