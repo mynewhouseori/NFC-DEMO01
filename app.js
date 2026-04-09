@@ -337,12 +337,13 @@
     }
 
     function getVisitFormData(){
+      const engineerName = String(el('visitEngineer')?.value || '').trim();
       return {
         date: normalizeRegistrationDate(el('visitDate')?.value) || todayIsoDate(),
-        engineer: String(el('visitEngineer')?.value || '').trim(),
+        engineer: engineerName,
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
-        signature: String(el('visitSignature')?.value || '').trim(),
+        signature: engineerName,
         notes: String(el('visitNotes')?.value || '').trim()
       };
     }
@@ -352,7 +353,6 @@
       el('visitEngineer').value = visit?.engineer || '';
       el('visitClient').value = visit?.client || '';
       el('visitSite').value = visit?.site || '';
-      el('visitSignature').value = visit?.signature || '';
       el('visitNotes').value = visit?.notes || '';
       loadVisitSignatureDataUrl(visit?.signatureDataUrl || '');
     }
@@ -1610,7 +1610,6 @@
         'visitEngineer',
         'visitClient',
         'visitSite',
-        'visitSignature',
         'visitNotes',
         'tagId',
         'itemType',
@@ -1740,7 +1739,6 @@
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');
       el('visitSiteLabelText').textContent = t('visitSiteLabel');
-      el('visitSignatureLabelText').textContent = t('visitSignatureLabel');
       el('visitSignaturePadLabelText').textContent = t('visitSignaturePadLabel');
       el('visitNotesLabelText').textContent = t('visitNotesLabel');
       el('visitSaveBtn').textContent = t('visitSave');
@@ -1750,7 +1748,6 @@
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
       el('visitSite').placeholder = t('visitSitePlaceholder');
-      el('visitSignature').placeholder = t('visitSignaturePlaceholder');
       el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
       el('legalOpenBtn').textContent = t('legalOpen');
       el('legalTitleText').textContent = t('legalTitle');
