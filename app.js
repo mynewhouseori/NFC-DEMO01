@@ -792,25 +792,7 @@
         pane.appendChild(content);
       }
 
-      let logsPanel = el('logsHistoryPanel');
-      if(!logsPanel){
-        const toolbar = el('logsHistoryTitleText')?.closest('.table-toolbar');
-        const list = el('logsList');
-        if(toolbar && list){
-          logsPanel = document.createElement('section');
-          logsPanel.id = 'logsHistoryPanel';
-          logsPanel.className = 'logs-history-panel';
-          content.appendChild(logsPanel);
-          logsPanel.appendChild(toolbar);
-          logsPanel.appendChild(list);
-        }
-      }
-
-      if(logsPanel){
-        logsPanel.hidden = false;
-      }
-
-      return { pane, summary, content, logsPanel };
+      return { pane, summary, content, logsPanel: null };
     }
 
     function countUniqueTags(logs = []){
@@ -857,19 +839,7 @@
     }
 
     function updateLogsDashboardHeadings({ totalLogs = 0, shownLogs = 0, visits = [] } = {}){
-      const logsTitle = el('logsHistoryTitleText');
-      const logsSubtitle = ensureLogsSubtitle();
       const archiveSubtitle = el('reportArchiveSubtitleText');
-
-      if(logsTitle){
-        logsTitle.textContent = formatText('logsHistoryTitleWithCount', { count: shownLogs });
-      }
-
-      if(logsSubtitle){
-        logsSubtitle.textContent = shownLogs
-          ? formatText('logsHistorySubtitleWithCount', { shown: shownLogs, total: totalLogs })
-          : t('logsHistoryEmptyHelp');
-      }
 
       if(archiveSubtitle){
         archiveSubtitle.textContent = visits.length
