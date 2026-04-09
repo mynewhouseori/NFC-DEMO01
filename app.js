@@ -1636,6 +1636,7 @@
       el('scanNewTagBtn').hidden = !canEdit;
       if(el('saveAllTableChangesBtn')){
         el('saveAllTableChangesBtn').hidden = !canEdit;
+        el('saveAllTableChangesBtn').style.display = canEdit ? '' : 'none';
       }
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
