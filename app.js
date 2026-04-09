@@ -3071,8 +3071,9 @@
           const typeText = effectiveType ? translateType(effectiveType) : '';
           const contractorText = log.itemContractor || fallbackItem?.contractor || '';
           const siteText = log.itemSiteName || fallbackItem?.siteName || '';
-          const locationText = log.lastSeenLocation?.label || formatLocationSnapshot(log.lastSeenLocation);
-          const locationMapUrl = getLocationMapUrl(log.lastSeenLocation);
+          const effectiveLocation = log.lastSeenLocation || fallbackItem?.lastSeenLocation || null;
+          const locationText = effectiveLocation?.label || formatLocationSnapshot(effectiveLocation) || lt('locationUnavailable');
+          const locationMapUrl = getLocationMapUrl(effectiveLocation);
           const actionText = formatLogAction(log);
           const nextInspectionText = log.itemNextInspection || fallbackItem?.nextInspection || '';
           return `
@@ -3092,7 +3093,7 @@
                 ${siteText ? `<div><strong>${t('siteName')}:</strong> ${escapeHtml(siteText)}</div>` : ''}
                 ${nextInspectionText ? `<div><strong>${t('nextInspection')}:</strong> ${escapeHtml(formatDisplayDate(nextInspectionText))}</div>` : ''}
                 ${locationText && locationText !== lt('locationUnavailable') ? `<div><strong>${lt('lastSeenLocation')}:</strong> ${locationMapUrl
-                  ? `<a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
+                  ? `${escapeHtml(locationText)} <a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
                   : escapeHtml(locationText)}</div>` : ''}
               </div>
             </div>
