@@ -3,6 +3,9 @@
   "private": true,
   "scripts": {
     "preview": "node tools/serve.js",
-    "preview:open": "node tools/serve.js --open"
+    "preview:open": "node tools/serve.js --open",
+    "present:deploy": "npx firebase-tools hosting:channel:deploy presentation --expires 1d",
+    "present:deploy:3d": "npx firebase-tools hosting:channel:deploy presentation --expires 3d",
+    "present:disable": "npx firebase-tools hosting:channel:delete presentation"
   }
 }
