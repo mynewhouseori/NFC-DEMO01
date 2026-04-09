@@ -984,10 +984,14 @@
     }
 
     async function openArchivedVisitReport(visitId){
+      const reportWindow = openReportWindow(t('visitReportTitle'));
       try {
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const visit = buildVisitArchiveRecords(logs).find((entry) => entry.id === visitId);
         if(!visit){
+          if(reportWindow && !reportWindow.closed){
+            reportWindow.close();
+          }
           el('reportArchiveStatus').textContent = t('reportArchiveEmpty');
           return;
         }
@@ -1109,11 +1113,13 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        if(!renderReportWindow(reportWindow, printableHtml)){
+          el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
+        }
       } catch (error) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Archived visit report error: ${error.message}`);
         el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
       }
@@ -2850,6 +2856,7 @@
     }
 
     async function exportPresentationReport(){
+      const reportWindow = openReportWindow(rt('reportTitle'));
       try {
         const items = sortItems(getFilteredItems(await getItems()));
         const reportLogoSrc = await getReportLogoDataUrl();
@@ -2992,12 +2999,12 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderReportWindow(reportWindow, printableHtml);
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Report export error: ${e.message}`);
         console.error(e);
       }
@@ -3307,6 +3314,30 @@
         .replaceAll("'", '&#39;');
     }
 
+    function openReportWindow(title = 'Report'){
+      const reportWindow = window.open('', '_blank');
+      if(!reportWindow){
+        return null;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(`<!doctype html><html><head><meta charset="UTF-8"><title>${escapeHtml(title)}</title></head><body style="font-family:Arial,sans-serif;padding:24px;color:#0f172a;">Loading report...</body></html>`);
+      reportWindow.document.close();
+      return reportWindow;
+    }
+
+    function renderReportWindow(reportWindow, html){
+      if(!reportWindow || reportWindow.closed){
+        return false;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(html);
+      reportWindow.document.close();
+      reportWindow.focus();
+      return true;
+    }
+
     function openScreen(screenId){
       el('homeScreen').style.display = 'none';
       document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -3575,7 +3606,11 @@
     }
 
     async function exportVisitReport(){
+      const reportWindow = openReportWindow(t('visitReportTitle'));
       if(!activeVisit){
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         renderVisitStatus(t('visitReportNoVisit'));
         return;
       }
@@ -3711,12 +3746,12 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderReportWindow(reportWindow, printableHtml);
         renderVisitStatus();
       } catch (error) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Visit report export error: ${error.message}`);
         renderVisitStatus(t('cloudReadError'));
       }

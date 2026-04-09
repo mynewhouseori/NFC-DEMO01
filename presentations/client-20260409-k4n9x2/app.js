@@ -348,6 +348,10 @@
       };
     }
 
+    function canEditVisitClosure(){
+      return canEditRegister() && !!activeVisit && activeVisit.status !== 'closed';
+    }
+
     function populateVisitForm(visit = null){
       el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
       el('visitEngineer').value = visit?.engineer || '';
@@ -399,9 +403,13 @@
         statusText.classList.add('status-ok');
       }
       const visitSaveBtn = el('visitSaveBtn');
+      const visitEndPanel = el('visitEndPanel');
       const isActiveVisit = !!activeVisit && activeVisit.status !== 'closed';
       visitSaveBtn.textContent = isActiveVisit ? t('visitSaveActive') : (!activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate'));
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
+      if(visitEndPanel){
+        visitEndPanel.hidden = !activeVisit;
+      }
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('visitReportBtn').hidden = !canEditRegister();
@@ -520,6 +528,9 @@
         if(source === 'mouse' && event.button !== 0){
           return;
         }
+        if(!canEditVisitClosure()){
+          return;
+        }
         event.preventDefault();
         canvas.focus?.();
         visitSignaturePadState.activeInput = source;
@@ -575,6 +586,9 @@
     }
 
     function clearVisitSignaturePad(){
+      if(!canEditVisitClosure()){
+        return;
+      }
       const canvas = getVisitSignatureCanvas();
       const context = canvas?.getContext('2d');
       if(!canvas || !context){
@@ -793,7 +807,7 @@
       }
 
       if(logsPanel){
-        logsPanel.hidden = true;
+        logsPanel.hidden = false;
       }
 
       return { pane, summary, content, logsPanel };
@@ -970,10 +984,14 @@
     }
 
     async function openArchivedVisitReport(visitId){
+      const reportWindow = openReportWindow(t('visitReportTitle'));
       try {
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const visit = buildVisitArchiveRecords(logs).find((entry) => entry.id === visitId);
         if(!visit){
+          if(reportWindow && !reportWindow.closed){
+            reportWindow.close();
+          }
           el('reportArchiveStatus').textContent = t('reportArchiveEmpty');
           return;
         }
@@ -1095,11 +1113,13 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        if(!renderReportWindow(reportWindow, printableHtml)){
+          el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
+        }
       } catch (error) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Archived visit report error: ${error.message}`);
         el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
       }
@@ -1242,6 +1262,19 @@
       return updatedItem;
     }
 
+    function withCapturedLocation(item, locationSnapshot){
+      if(!item || !locationSnapshot){
+        return item;
+      }
+
+      return {
+        ...item,
+        lastSeenLocation: locationSnapshot,
+        lastSeenAt: locationSnapshot.capturedAt,
+        updatedAt: new Date().toLocaleString()
+      };
+    }
+
     function readFileAsDataUrl(file){
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -1249,6 +1282,26 @@
         reader.onerror = () => reject(reader.error || new Error('File read failed'));
         reader.readAsDataURL(file);
       });
+    }
+
+    function sanitizeDecimalInput(value){
+      const source = String(value || '').replace(/,/g, '.');
+      let result = '';
+      let hasDot = false;
+
+      for(const char of source){
+        if(char >= '0' && char <= '9'){
+          result += char;
+          continue;
+        }
+
+        if(char === '.' && !hasDot){
+          result += '.';
+          hasDot = true;
+        }
+      }
+
+      return result;
     }
 
     function loadImageElement(src){
@@ -1603,6 +1656,7 @@
       const tableTabButton = el('tabTableBtn');
       const reportTabButton = el('tabReportBtn');
       const visitPanel = document.querySelector('.visit-panel');
+      const visitEndPanel = el('visitEndPanel');
       const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
       [
@@ -1610,7 +1664,6 @@
         'visitEngineer',
         'visitClient',
         'visitSite',
-        'visitNotes',
         'tagId',
         'itemType',
         'description',
@@ -1623,6 +1676,11 @@
       ].forEach((id) => {
         el(id).disabled = !canEdit;
       });
+
+      const canEditClosure = canEditVisitClosure();
+      el('visitNotes').disabled = !canEditClosure;
+      el('visitSignatureClearBtn').disabled = !canEditClosure;
+      el('visitSignaturePad').classList.toggle('signature-pad-disabled', !canEditClosure);
 
       el('scanNewTagBtn').disabled = !canEdit;
       el('saveBtn').disabled = !canEdit;
@@ -1653,6 +1711,9 @@
       if(visitPanel){
         visitPanel.hidden = !canEdit;
       }
+      if(visitEndPanel){
+        visitEndPanel.hidden = !activeVisit;
+      }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
       }
@@ -1676,6 +1737,7 @@
       }
 
       bindDateTextInputs();
+      bindDecimalInputs();
     }
 
     function populateScanEditForm(item){
@@ -1735,6 +1797,8 @@
       el('homeRegisterText').textContent = t('homeRegister');
       el('visitPanelTitleText').textContent = t('visitPanelTitle');
       el('visitPanelSubtitleText').textContent = t('visitPanelSubtitle');
+      el('visitEndPanelTitleText').textContent = t('visitClose');
+      el('visitEndPanelSubtitleText').textContent = t('visitReportIntro');
       el('visitDateLabelText').textContent = t('visitDateLabel');
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');
@@ -2260,7 +2324,8 @@
           return;
         }
 
-        const updatedItem = {
+        const locationSnapshot = await getCurrentLocationSnapshot();
+        const updatedItem = withCapturedLocation({
           ...existing,
           status: statusInput.value,
           registrationDate: normalizeRegistrationDate(registrationDateInput.value),
@@ -2268,9 +2333,12 @@
           siteName: siteNameInput.value.trim(),
           notes: notesInput.value.trim(),
           updatedAt: new Date().toLocaleString()
-        };
+        }, locationSnapshot);
 
         await saveItemToCloud(updatedItem);
+        await saveScanLog(tagId, true, updatedItem, locationSnapshot, {
+          actionType: 'register_update'
+        });
         updateCachedItem(updatedItem);
         pendingTableEdits.delete(tagId);
         updateSaveAllTableButton();
@@ -2523,6 +2591,25 @@
       });
     }
 
+    function bindDecimalInputs(){
+      document.querySelectorAll('[data-decimal-input="1"]').forEach((input) => {
+        if(input.dataset.decimalBound === '1'){
+          return;
+        }
+
+        input.dataset.decimalBound = '1';
+        input.addEventListener('input', () => {
+          const sanitized = sanitizeDecimalInput(input.value);
+          if(input.value !== sanitized){
+            input.value = sanitized;
+          }
+        });
+        input.addEventListener('blur', () => {
+          input.value = sanitizeDecimalInput(input.value);
+        });
+      });
+    }
+
     let reportLogoDataUrlPromise = null;
 
     function getReportLogoDataUrl(){
@@ -2769,6 +2856,7 @@
     }
 
     async function exportPresentationReport(){
+      const reportWindow = openReportWindow(rt('reportTitle'));
       try {
         const items = sortItems(getFilteredItems(await getItems()));
         const reportLogoSrc = await getReportLogoDataUrl();
@@ -2911,12 +2999,12 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderReportWindow(reportWindow, printableHtml);
         pushDebugLine(`Exported presentation report for ${items.length} items.`);
       } catch (e) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Report export error: ${e.message}`);
         console.error(e);
       }
@@ -3071,8 +3159,9 @@
           const typeText = effectiveType ? translateType(effectiveType) : '';
           const contractorText = log.itemContractor || fallbackItem?.contractor || '';
           const siteText = log.itemSiteName || fallbackItem?.siteName || '';
-          const locationText = log.lastSeenLocation?.label || formatLocationSnapshot(log.lastSeenLocation);
-          const locationMapUrl = getLocationMapUrl(log.lastSeenLocation);
+          const effectiveLocation = log.lastSeenLocation || fallbackItem?.lastSeenLocation || null;
+          const locationText = effectiveLocation?.label || formatLocationSnapshot(effectiveLocation) || lt('locationUnavailable');
+          const locationMapUrl = getLocationMapUrl(effectiveLocation);
           const actionText = formatLogAction(log);
           const nextInspectionText = log.itemNextInspection || fallbackItem?.nextInspection || '';
           return `
@@ -3092,7 +3181,7 @@
                 ${siteText ? `<div><strong>${t('siteName')}:</strong> ${escapeHtml(siteText)}</div>` : ''}
                 ${nextInspectionText ? `<div><strong>${t('nextInspection')}:</strong> ${escapeHtml(formatDisplayDate(nextInspectionText))}</div>` : ''}
                 ${locationText && locationText !== lt('locationUnavailable') ? `<div><strong>${lt('lastSeenLocation')}:</strong> ${locationMapUrl
-                  ? `<a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
+                  ? `${escapeHtml(locationText)} <a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
                   : escapeHtml(locationText)}</div>` : ''}
               </div>
             </div>
@@ -3223,6 +3312,30 @@
         .replaceAll('>', '&gt;')
         .replaceAll('"', '&quot;')
         .replaceAll("'", '&#39;');
+    }
+
+    function openReportWindow(title = 'Report'){
+      const reportWindow = window.open('', '_blank');
+      if(!reportWindow){
+        return null;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(`<!doctype html><html><head><meta charset="UTF-8"><title>${escapeHtml(title)}</title></head><body style="font-family:Arial,sans-serif;padding:24px;color:#0f172a;">Loading report...</body></html>`);
+      reportWindow.document.close();
+      return reportWindow;
+    }
+
+    function renderReportWindow(reportWindow, html){
+      if(!reportWindow || reportWindow.closed){
+        return false;
+      }
+
+      reportWindow.document.open();
+      reportWindow.document.write(html);
+      reportWindow.document.close();
+      reportWindow.focus();
+      return true;
     }
 
     function openScreen(screenId){
@@ -3416,14 +3529,18 @@
       }
 
       const now = new Date();
+      const draft = getVisitFormData();
       activeVisit = {
         ...activeVisit,
+        notes: draft.notes,
+        signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || '',
         status: 'closed',
         endedAt: now.toLocaleString(),
         endedAtIso: now.toISOString(),
         updatedAt: now.toLocaleString()
       };
       persistActiveVisit();
+      populateVisitForm(activeVisit);
       renderVisitStatus(t('visitStatusClosedMessage'));
       updateRegisterAccessUi();
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
@@ -3489,12 +3606,21 @@
     }
 
     async function exportVisitReport(){
+      const reportWindow = openReportWindow(t('visitReportTitle'));
       if(!activeVisit){
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         renderVisitStatus(t('visitReportNoVisit'));
         return;
       }
 
       try {
+        const reportVisit = {
+          ...activeVisit,
+          notes: String(el('visitNotes')?.value || activeVisit.notes || '').trim(),
+          signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || ''
+        };
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const entries = buildVisitEntries(logs, items);
         const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
@@ -3551,14 +3677,14 @@
 
             <div class="meta">
               <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(activeVisit.date || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.startedAt || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.endedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(reportVisit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(reportVisit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(reportVisit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(reportVisit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(reportVisit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(reportVisit.endedAt || '-'))}</div>
               </div>
-              ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
+              ${reportVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(reportVisit.notes)}</p>` : ''}
             </div>
 
             <div class="section">
@@ -3607,8 +3733,8 @@
 
             <div class="signature">
               <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              ${activeVisit.signatureDataUrl ? `<p><img src="${activeVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
-              <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
+              ${reportVisit.signatureDataUrl ? `<p><img src="${reportVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
+              <p>${escapeHtml(reportVisit.signature || reportVisit.engineer || '-')}</p>
             </div>
 
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
@@ -3620,12 +3746,12 @@
           '<body>',
           `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
-        const blob = new Blob([printableHtml], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank', 'noopener,noreferrer');
-        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        renderReportWindow(reportWindow, printableHtml);
         renderVisitStatus();
       } catch (error) {
+        if(reportWindow && !reportWindow.closed){
+          reportWindow.close();
+        }
         pushDebugLine(`Visit report export error: ${error.message}`);
         renderVisitStatus(t('cloudReadError'));
       }
@@ -3777,26 +3903,30 @@
           }
         }
 
-        const updatedItem = {
+        const locationSnapshot = await getCurrentLocationSnapshot();
+        const updatedItem = withCapturedLocation({
           ...currentScannedItem,
           tagId: nextTagId,
           itemType: el('scanEditItemType').value,
           description: el('scanEditDescription').value.trim(),
           serialNumber: el('scanEditSerial').value.trim(),
-          wll: el('scanEditWll').value.trim(),
+          wll: sanitizeDecimalInput(el('scanEditWll').value),
           registrationDate: normalizeRegistrationDate(el('scanEditRegistrationDate').value) || getRegistrationDateValue(currentScannedItem),
           nextInspection: normalizeRegistrationDate(el('scanEditNextInspection').value),
           status: el('scanEditStatus').value,
           siteName: el('scanEditSiteName').value.trim(),
           notes: el('scanEditNotes').value.trim(),
           updatedAt: new Date().toLocaleString()
-        };
+        }, locationSnapshot);
 
         await saveItemToCloud(updatedItem);
         if(nextTagId !== originalTagId){
           await deleteDoc(doc(db, ITEMS_COLLECTION, originalTagId));
           invalidateItemsCache();
         }
+        await saveScanLog(nextTagId, true, updatedItem, locationSnapshot, {
+          actionType: 'register_update'
+        });
 
         currentScannedItem = updatedItem;
         lastSavedTagId = updatedItem.tagId;
@@ -3854,13 +3984,14 @@
       }
 
       const existing = await getItemByTag(tagId);
-      const item = {
+      const locationSnapshot = await getCurrentLocationSnapshot();
+      const item = withCapturedLocation({
         tagId,
         itemType: el('itemType').value,
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
         contractor: el('contractor').value.trim(),
-        wll: el('wll').value.trim(),
+        wll: sanitizeDecimalInput(el('wll').value),
         registrationDate: normalizeRegistrationDate(el('registrationDate').value) || getRegistrationDateValue(existing),
         nextInspection: normalizeRegistrationDate(el('nextInspection').value),
         status: el('itemStatus').value,
@@ -3871,11 +4002,11 @@
         lastSeenAt: existing?.lastSeenAt || '',
         createdAt: existing?.createdAt || new Date().toLocaleString(),
         updatedAt: new Date().toLocaleString()
-      };
+      }, locationSnapshot);
 
       try {
         await saveItemToCloud(item);
-        await saveScanLog(tagId, true, item, item.lastSeenLocation, {
+        await saveScanLog(tagId, true, item, locationSnapshot, {
           actionType: existing ? 'register_update' : 'register_new'
         });
         pushDebugLine(`Save flow completed for ${tagId}.`);
@@ -4075,6 +4206,7 @@
       ensureScanLocationRow();
       bindTableActionDelegation();
       bindDateTextInputs();
+      bindDecimalInputs();
       setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm();

@@ -140,7 +140,7 @@
             </div>
             <div>
               <label for="scanEditWll" id="scanEditWllLabel"></label>
-              <input id="scanEditWll">
+              <input id="scanEditWll" type="text" inputmode="decimal" autocomplete="off" data-decimal-input="1">
             </div>
           </div>
           <div class="scan-edit-grid">
@@ -228,30 +228,8 @@
             </div>
           </div>
 
-          <div class="visit-grid visit-grid-single">
-            <div>
-              <div class="signature-canvas-header">
-                <label id="visitSignaturePadLabelText"></label>
-                <button class="mini-btn" onclick="clearVisitSignaturePad()" id="visitSignatureClearBtn" type="button"></button>
-              </div>
-              <canvas id="visitSignaturePad" class="signature-pad" width="640" height="180"></canvas>
-            </div>
-          </div>
-
           <div class="visit-primary-action">
             <button class="mini-btn" onclick="saveVisitSession()" id="visitSaveBtn" type="button"></button>
-          </div>
-
-          <div class="visit-grid visit-grid-single">
-            <div>
-              <label for="visitNotes" id="visitNotesLabelText"></label>
-              <textarea id="visitNotes" rows="3" autocomplete="off" spellcheck="false"></textarea>
-            </div>
-          </div>
-
-          <div class="visit-actions">
-            <button class="mini-btn" onclick="closeVisitSession()" id="visitCloseBtn" type="button"></button>
-            <button class="mini-btn" onclick="exportVisitReport()" id="visitReportBtn" type="button"></button>
           </div>
 
           <div class="visit-summary" id="visitSummaryText"></div>
@@ -309,8 +287,8 @@
 
         <div class="row">
           <div>
-            <label for="wll" id="wllLabel"></label>
-            <input id="wll" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <label for="wll" id="wllLabel"></label>
+              <input id="wll" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" data-decimal-input="1">
           </div>
           <div>
             <label for="registrationDate" id="registrationDateLabel"></label>
@@ -343,6 +321,37 @@
         <button class="save-btn" onclick="saveItem()" id="saveBtn"></button>
         <button class="secondary-btn" onclick="clearForm()" id="clearFormBtn"></button>
         <div id="saveStatus" class="status muted"></div>
+
+        <div id="visitEndPanel" class="visit-panel visit-end-panel" hidden>
+          <div class="visit-panel-header">
+            <div>
+              <div class="visit-panel-title" id="visitEndPanelTitleText"></div>
+              <div class="visit-panel-subtitle" id="visitEndPanelSubtitleText"></div>
+            </div>
+          </div>
+
+          <div class="visit-grid visit-grid-single">
+            <div>
+              <label for="visitNotes" id="visitNotesLabelText"></label>
+              <textarea id="visitNotes" rows="3" autocomplete="off" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <div class="visit-grid visit-grid-single">
+            <div>
+              <div class="signature-canvas-header">
+                <label id="visitSignaturePadLabelText"></label>
+                <button class="mini-btn" onclick="clearVisitSignaturePad()" id="visitSignatureClearBtn" type="button"></button>
+              </div>
+              <canvas id="visitSignaturePad" class="signature-pad" width="640" height="180"></canvas>
+            </div>
+          </div>
+
+          <div class="visit-actions">
+            <button class="mini-btn" onclick="closeVisitSession()" id="visitCloseBtn" type="button"></button>
+            <button class="mini-btn" onclick="exportVisitReport()" id="visitReportBtn" type="button"></button>
+          </div>
+        </div>
       </div>
 
       <div id="tablePane" class="tab-pane">
