@@ -348,6 +348,10 @@
       };
     }
 
+    function canEditVisitClosure(){
+      return canEditRegister() && !!activeVisit && activeVisit.status !== 'closed';
+    }
+
     function populateVisitForm(visit = null){
       el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
       el('visitEngineer').value = visit?.engineer || '';
@@ -399,9 +403,13 @@
         statusText.classList.add('status-ok');
       }
       const visitSaveBtn = el('visitSaveBtn');
+      const visitEndPanel = el('visitEndPanel');
       const isActiveVisit = !!activeVisit && activeVisit.status !== 'closed';
       visitSaveBtn.textContent = isActiveVisit ? t('visitSaveActive') : (!activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate'));
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
+      if(visitEndPanel){
+        visitEndPanel.hidden = !activeVisit;
+      }
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('visitReportBtn').hidden = !canEditRegister();
@@ -520,6 +528,9 @@
         if(source === 'mouse' && event.button !== 0){
           return;
         }
+        if(!canEditVisitClosure()){
+          return;
+        }
         event.preventDefault();
         canvas.focus?.();
         visitSignaturePadState.activeInput = source;
@@ -575,6 +586,9 @@
     }
 
     function clearVisitSignaturePad(){
+      if(!canEditVisitClosure()){
+        return;
+      }
       const canvas = getVisitSignatureCanvas();
       const context = canvas?.getContext('2d');
       if(!canvas || !context){
@@ -1636,6 +1650,7 @@
       const tableTabButton = el('tabTableBtn');
       const reportTabButton = el('tabReportBtn');
       const visitPanel = document.querySelector('.visit-panel');
+      const visitEndPanel = el('visitEndPanel');
       const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
       [
@@ -1643,7 +1658,6 @@
         'visitEngineer',
         'visitClient',
         'visitSite',
-        'visitNotes',
         'tagId',
         'itemType',
         'description',
@@ -1656,6 +1670,11 @@
       ].forEach((id) => {
         el(id).disabled = !canEdit;
       });
+
+      const canEditClosure = canEditVisitClosure();
+      el('visitNotes').disabled = !canEditClosure;
+      el('visitSignatureClearBtn').disabled = !canEditClosure;
+      el('visitSignaturePad').classList.toggle('signature-pad-disabled', !canEditClosure);
 
       el('scanNewTagBtn').disabled = !canEdit;
       el('saveBtn').disabled = !canEdit;
@@ -1685,6 +1704,9 @@
       }
       if(visitPanel){
         visitPanel.hidden = !canEdit;
+      }
+      if(visitEndPanel){
+        visitEndPanel.hidden = !activeVisit;
       }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
@@ -1769,6 +1791,8 @@
       el('homeRegisterText').textContent = t('homeRegister');
       el('visitPanelTitleText').textContent = t('visitPanelTitle');
       el('visitPanelSubtitleText').textContent = t('visitPanelSubtitle');
+      el('visitEndPanelTitleText').textContent = t('visitClose');
+      el('visitEndPanelSubtitleText').textContent = t('visitReportIntro');
       el('visitDateLabelText').textContent = t('visitDateLabel');
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');
@@ -3474,14 +3498,18 @@
       }
 
       const now = new Date();
+      const draft = getVisitFormData();
       activeVisit = {
         ...activeVisit,
+        notes: draft.notes,
+        signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || '',
         status: 'closed',
         endedAt: now.toLocaleString(),
         endedAtIso: now.toISOString(),
         updatedAt: now.toLocaleString()
       };
       persistActiveVisit();
+      populateVisitForm(activeVisit);
       renderVisitStatus(t('visitStatusClosedMessage'));
       updateRegisterAccessUi();
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
@@ -3553,6 +3581,11 @@
       }
 
       try {
+        const reportVisit = {
+          ...activeVisit,
+          notes: String(el('visitNotes')?.value || activeVisit.notes || '').trim(),
+          signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || ''
+        };
         const [logs, items, reportLogoSrc] = await Promise.all([getLogs(true), getItems(), getReportLogoDataUrl()]);
         const entries = buildVisitEntries(logs, items);
         const newEntries = entries.filter((entry) => entry.actionType === 'register_new');
@@ -3609,14 +3642,14 @@
 
             <div class="meta">
               <div class="meta-grid">
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(activeVisit.date || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(activeVisit.engineer || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(activeVisit.client || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(activeVisit.site || '-')}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.startedAt || '-'))}</div>
-                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(activeVisit.endedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(reportVisit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(reportVisit.engineer || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(reportVisit.client || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(reportVisit.site || '-')}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaStarted'))}</strong>${escapeHtml(formatDisplayDateTime(reportVisit.startedAt || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEnded'))}</strong>${escapeHtml(formatDisplayDateTime(reportVisit.endedAt || '-'))}</div>
               </div>
-              ${activeVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(activeVisit.notes)}</p>` : ''}
+              ${reportVisit.notes ? `<p><strong>${escapeHtml(t('visitNotesLabel'))}</strong><br>${escapeHtml(reportVisit.notes)}</p>` : ''}
             </div>
 
             <div class="section">
@@ -3665,8 +3698,8 @@
 
             <div class="signature">
               <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              ${activeVisit.signatureDataUrl ? `<p><img src="${activeVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
-              <p>${escapeHtml(activeVisit.signature || activeVisit.engineer || '-')}</p>
+              ${reportVisit.signatureDataUrl ? `<p><img src="${reportVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
+              <p>${escapeHtml(reportVisit.signature || reportVisit.engineer || '-')}</p>
             </div>
 
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>

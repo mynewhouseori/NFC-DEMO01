@@ -1283,6 +1283,11 @@
       box-shadow:0 8px 22px rgba(15,23,42,.05);
     }
 
+    .visit-end-panel {
+      border-color:#fde68a;
+      background:linear-gradient(180deg, #fffdf4 0%, #ffffff 100%);
+    }
+
     .visit-panel-header {
       display:flex;
       align-items:flex-start;
@@ -1337,6 +1342,14 @@
     }
 
     .visit-panel textarea { min-height:104px; }
+
+    .visit-end-panel textarea { min-height:124px; }
+
+    .signature-pad-disabled {
+      opacity:.6;
+      cursor:not-allowed;
+      pointer-events:none;
+    }
 
     .visit-primary-action {
       margin-bottom:12px;
