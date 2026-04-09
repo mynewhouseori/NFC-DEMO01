@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NFC Safety Demo Cloud Table</title>
+  <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
+  <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260406refreshcore002" />
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <div id="homeScreen" class="home-screen">
+    <div class="home-topbar">
+      <div class="home-logo-wrap">
+        <img class="home-logo" src="./logo-transparent.png" alt="Logo">
+      </div>
+      <div class="lang-switch">
+        <button class="flag-btn flag-btn-he" data-lang="he" onclick="setLang('he')" aria-label="�����">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">���</span>
+        </button>
+        <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">EN</span>
+        </button>
+        <button class="flag-btn flag-btn-ar" data-lang="ar" onclick="setLang('ar')" aria-label="???????">
+          <span class="flag-mark" aria-hidden="true"></span>
+          <span class="flag-label">???</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-check" onclick="openScreen('scanScreen')">
+        <span class="btn-inner"><span id="homeCheckText"></span><span class="icon">&#x1F50D;</span></span>
+      </button>
+      <button class="btn btn-register" onclick="openPasswordScreen()">
+        <span class="btn-inner"><span id="homeRegisterText"></span><span class="icon">&#x270E;</span></span>
+      </button>
+    </div>
+
+    <div class="demo-badge-bottom">DEMO</div>
+  </div>
+
+  <div id="passwordScreen" class="screen">
+    <div class="card topbar">
+      <button class="back-btn" onclick="goHome()" id="passwordBackBtn"></button>
+      <h2 id="passwordTitle"></h2>
+    </div>
+    <div class="card">
+      <div id="passwordRoleHint" class="access-note"></div>
+      <div class="role-login-grid">
+        <div class="role-login-card role-login-engineer">
+          <div class="role-login-title" id="engineerLoginTitleText"></div>
+          <div class="role-login-subtitle" id="engineerRoleHintText"></div>
+          <label for="engineerPasswordInput" id="engineerPasswordLabelText"></label>
+          <input id="engineerPasswordInput" type="password">
+          <button class="password-btn role-login-btn" onclick="checkPassword('engineer')" id="engineerEnterBtn"></button>
+        </div>
+        <div class="role-login-card role-login-foreman">
+          <div class="role-login-title" id="foremanLoginTitleText"></div>
+          <div class="role-login-subtitle" id="foremanRoleHintText"></div>
+          <label for="foremanPasswordInput" id="foremanPasswordLabelText"></label>
+          <input id="foremanPasswordInput" type="password">
+          <button class="password-btn role-login-btn" onclick="checkPassword('foreman')" id="foremanEnterBtn"></button>
+        </div>
+      </div>
+      <div id="passwordStatus" class="status error-text"></div>
+    </div>
+  </div>
+
+  <div id="scanScreen" class="screen">
+    <div class="card topbar">
+      <button class="back-btn" onclick="goHome()" id="scanBackBtn"></button>
+      <h2 id="scanScreenTitle"></h2>
+    </div>
+    <div class="card">
+      <button class="main-action" onclick="startScan('scan')" id="scanNowBtn"></button>
+      <button class="secondary-btn" onclick="demoScan()" id="demoScanBtn"></button>
+      <div id="scanStatus" class="status muted"></div>
+      <div id="scanDemoGallery" class="scan-demo-gallery"></div>
+
+      <div id="scanResult" class="result-card">
+        <div class="result-grid">
+          <div class="thumb"><img id="scanItemImage" src="" alt="Item image"></div>
+          <div>
+            <h3 id="scanItemType"></h3>
+            <div><span id="lblContractor"></span>: <span id="scanContractor"></span></div>
+            <div><span id="lblSiteName"></span>: <span id="scanSiteName"></span></div>
+            <div><span id="lblTagId"></span>: <span id="scanTagId" class="mono"></span></div>
+            <div><span id="lblDescription"></span>: <span id="scanDescription"></span></div>
+            <div><span id="lblSerial"></span>: <span id="scanSerial"></span></div>
+            <div><span id="lblWll"></span>: <span id="scanWll"></span></div>
+            <div><span id="lblNextInspection"></span>: <span id="scanNextInspection"></span></div>
+            <div><span id="lblStatus"></span>: <span id="scanItemStatus"></span></div>
+            <div id="scanNotesRow" class="card-note-row"><span id="lblNotes"></span>: <span id="scanNotes"></span></div>
+            <div><span id="lblLastSeenLocation"></span>: <a id="scanLastSeenLocation" class="map-link" href="#" target="_blank" rel="noopener noreferrer"></a></div>
+          </div>
+        </div>
+
+        <details class="scan-safety-card">
+          <summary class="scan-safety-toggle" id="scanSafetyTitle"></summary>
+          <div class="scan-safety-body">
+            <div class="scan-safety-intro" id="scanSafetyIntro"></div>
+            <ul class="scan-safety-list" id="scanSafetyList"></ul>
+          </div>
+        </details>
+
+        <div id="scanEditPanel" class="scan-edit-panel" hidden>
+          <div class="scan-edit-title" id="scanEditTitle"></div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditTagId" id="scanEditTagIdLabel"></label>
+              <input id="scanEditTagId">
+            </div>
+            <div>
+              <label for="scanEditItemType" id="scanEditItemTypeLabel"></label>
+              <select id="scanEditItemType"></select>
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditDescription" id="scanEditDescriptionLabel"></label>
+              <input id="scanEditDescription">
+            </div>
+            <div>
+              <label for="scanEditSerial" id="scanEditSerialLabel"></label>
+              <input id="scanEditSerial">
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditRegistrationDate" id="scanEditRegistrationDateLabel"></label>
+              <input id="scanEditRegistrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
+              <label for="scanEditWll" id="scanEditWllLabel"></label>
+              <input id="scanEditWll">
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
+              <input id="scanEditNextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+              <div class="date-quick-actions">
+                <button type="button" class="date-quick-btn" id="scanNextInspectionPlus6Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 6)"></button>
+                <button type="button" class="date-quick-btn" id="scanNextInspectionPlus12Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 12)"></button>
+              </div>
+            </div>
+            <div>
+              <label for="scanEditStatus" id="scanEditStatusLabel"></label>
+              <select id="scanEditStatus"></select>
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditSiteName" id="scanEditSiteNameLabel"></label>
+              <input id="scanEditSiteName">
+            </div>
+            <div>
+              <label></label>
+            </div>
+          </div>
+          <div class="scan-edit-grid">
+            <div>
+              <label for="scanEditNotes" id="scanEditNotesLabel"></label>
+              <input id="scanEditNotes">
+            </div>
+            <div>
+              <label></label>
+            </div>
+          </div>
+          <button class="save-btn" onclick="saveScanItemEdits()" id="scanSaveBtn"></button>
+          <div id="scanEditStatusText" class="status muted"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="registerScreen" class="screen">
+    <div class="card topbar">
+      <button class="back-btn" onclick="goHome()" id="registerBackBtn"></button>
+      <h2 id="registerScreenTitle"></h2>
+    </div>
+
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" id="tabRegisterBtn" onclick="openRegisterTab('registerPane')"></button>
+        <button class="tab-btn" id="tabTableBtn" onclick="openRegisterTab('tablePane')"></button>
+        <button class="tab-btn" id="tabReportBtn" onclick="openRegisterTab('reportPane')"></button>
+        <button class="tab-btn" id="tabLogsBtn" onclick="openRegisterTab('logsPane')"></button>
+      </div>
+
+      <div id="registerPane" class="tab-pane active">
+        <div class="visit-panel">
+          <div class="visit-panel-header">
+            <div>
+              <div class="visit-panel-title" id="visitPanelTitleText"></div>
+              <div class="visit-panel-subtitle" id="visitPanelSubtitleText"></div>
+            </div>
+            <div class="visit-badge" id="visitStatusBadge"></div>
+          </div>
+
+          <div class="visit-grid">
+            <div>
+              <label for="visitDate" id="visitDateLabelText"></label>
+              <input id="visitDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
+            </div>
+            <div>
+              <label for="visitEngineer" id="visitEngineerLabelText"></label>
+              <input id="visitEngineer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+          </div>
+
+          <div class="visit-grid">
+            <div>
+              <label for="visitClient" id="visitClientLabelText"></label>
+              <input id="visitClient" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div>
+              <label for="visitSite" id="visitSiteLabelText"></label>
+              <input id="visitSite" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+          </div>
+
+          <div class="visit-grid visit-grid-single">
+            <div>
+              <div class="signature-canvas-header">
+                <label id="visitSignaturePadLabelText"></label>
+                <button class="mini-btn" onclick="clearVisitSignaturePad()" id="visitSignatureClearBtn" type="button"></button>
+              </div>
+              <canvas id="visitSignaturePad" class="signature-pad" width="640" height="180"></canvas>
+            </div>
+          </div>
+
+          <div class="visit-primary-action">
+            <button class="mini-btn" onclick="saveVisitSession()" id="visitSaveBtn" type="button"></button>
+          </div>
+
+          <div class="visit-grid visit-grid-single">
+            <div>
+              <label for="visitNotes" id="visitNotesLabelText"></label>
+              <textarea id="visitNotes" rows="3" autocomplete="off" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <div class="visit-actions">
+            <button class="mini-btn" onclick="closeVisitSession()" id="visitCloseBtn" type="button"></button>
+            <button class="mini-btn" onclick="exportVisitReport()" id="visitReportBtn" type="button"></button>
+          </div>
+
+          <div class="visit-summary" id="visitSummaryText"></div>
+          <div class="status muted" id="visitStatusText"></div>
+        </div>
+
+        <button class="main-action" onclick="startScan('register')" id="scanNewTagBtn"></button>
+        <div id="registerStatus" class="status muted"></div>
+
+        <div class="row">
+          <div>
+            <label for="tagId" id="tagIdLabel"></label>
+            <input id="tagId" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div>
+            <div class="preview-wrap">
+              <div style="flex:1;">
+                <label for="itemType" id="itemTypeLabel"></label>
+                <select id="itemType"></select>
+              </div>
+              <div>
+                <label id="imageLabel"></label>
+                <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
+                <input id="itemImageInput" type="file" accept="image/*" capture="environment" hidden>
+                <div class="image-actions">
+                  <button class="mini-btn image-btn" onclick="triggerImagePicker()" id="captureImageBtn"></button>
+                  <button class="mini-btn image-btn" onclick="clearCustomImage()" id="clearImageBtn"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="description" id="descriptionLabel"></label>
+            <input id="description" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div>
+            <label for="serialNumber" id="serialLabel"></label>
+            <input id="serialNumber" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div>
+            <label for="contractor" id="contractorLabel"></label>
+            <input id="contractor" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="siteName" id="siteNameLabel"></label>
+            <input id="siteName" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="wll" id="wllLabel"></label>
+            <input id="wll" autocomplete="off" autocapitalize="off" spellcheck="false">
+          </div>
+          <div>
+            <label for="registrationDate" id="registrationDateLabel"></label>
+            <input id="registrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="nextInspection" id="nextInspectionLabel"></label>
+            <input id="nextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+            <div class="date-quick-actions">
+              <button type="button" class="date-quick-btn" id="nextInspectionPlus6Btn" onclick="applyNextInspectionOffset('nextInspection', 6)"></button>
+              <button type="button" class="date-quick-btn" id="nextInspectionPlus12Btn" onclick="applyNextInspectionOffset('nextInspection', 12)"></button>
+            </div>
+          </div>
+          <div>
+            <label for="itemStatus" id="itemStatusLabel"></label>
+            <select id="itemStatus"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="notes" id="notesLabel"></label>
+            <input id="notes">
+          </div>
+        </div>
+
+        <button class="save-btn" onclick="saveItem()" id="saveBtn"></button>
+        <button class="secondary-btn" onclick="clearForm()" id="clearFormBtn"></button>
+        <div id="saveStatus" class="status muted"></div>
+      </div>
+
+      <div id="tablePane" class="tab-pane">
+        <div class="table-toolbar">
+          <div id="tableTitleText" style="font-weight:700;"></div>
+          <div class="table-summary" id="tableSummaryText"></div>
+        </div>
+        <div class="table-toolbar">
+          <div class="table-filters">
+            <input id="tableSearchInput" class="toolbar-input" type="search">
+            <select id="tableStatusFilter" class="toolbar-input"></select>
+            <button class="mini-btn" onclick="clearTableFilters()" id="clearTableFiltersBtn"></button>
+          </div>
+          <div class="table-toolbar-actions">
+            <button class="mini-btn" onclick="saveAllTableChanges()" id="saveAllTableChangesBtn" type="button"></button>
+            <button class="mini-btn" onclick="exportPresentationReport()" id="exportReportBtn"></button>
+            <button class="mini-btn" onclick="exportTableCsv()" id="exportTableBtn"></button>
+          </div>
+        </div>
+        <div id="itemsTableContainer" class="table-wrap"></div>
+      </div>
+
+      <div id="reportPane" class="tab-pane">
+        <div class="report-page-shell">
+          <div class="report-page-header">
+            <div>
+              <div class="report-page-title" id="reportPageTitleText"></div>
+              <div class="report-page-subtitle" id="reportPageSubtitleText"></div>
+            </div>
+            <div class="report-page-actions">
+              <button class="mini-btn" onclick="exportPresentationReport()" id="reportPageExportBtn" type="button"></button>
+            </div>
+          </div>
+          <div id="reportPageStatus" class="status muted"></div>
+          <div id="reportPageContent"></div>
+        </div>
+      </div>
+
+      <div id="logsPane" class="tab-pane">
+        <div class="report-archive-panel">
+          <div class="table-toolbar">
+            <div>
+              <div class="report-archive-title" id="reportArchiveTitleText"></div>
+              <div class="report-archive-subtitle" id="reportArchiveSubtitleText"></div>
+            </div>
+          </div>
+          <div class="table-toolbar">
+            <div class="report-archive-filters">
+              <div>
+                <label for="reportDateFrom" id="reportDateFromLabel"></label>
+                <input id="reportDateFrom" class="toolbar-input date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+              </div>
+              <div>
+                <label for="reportDateTo" id="reportDateToLabel"></label>
+                <input id="reportDateTo" class="toolbar-input date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+              </div>
+              <div>
+                <label for="reportArchiveSiteFilter" id="reportArchiveSiteLabel"></label>
+                <select id="reportArchiveSiteFilter" class="toolbar-input"></select>
+              </div>
+              <button class="mini-btn" onclick="renderReportArchive()" id="reportArchiveLoadBtn" type="button"></button>
+              <button class="mini-btn" onclick="resetReportArchiveFilters()" id="reportArchiveResetBtn" type="button"></button>
+            </div>
+          </div>
+          <div id="reportArchiveStatus" class="status muted"></div>
+          <div id="reportArchiveList" class="report-archive-list"></div>
+        </div>
+          <section id="logsHistoryPanel" class="logs-history-panel" hidden>
+            <div class="table-toolbar">
+              <div class="report-archive-title" id="logsHistoryTitleText"></div>
+            </div>
+            <div id="logsList" class="log-list"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+  <footer class="site-legal-bar">
+    <div class="build-stamp" id="buildStampText"></div>
+    <div class="site-legal-copy" id="legalCopyrightText"></div>
+    <button class="legal-link-btn" onclick="openLegalNotice()" id="legalOpenBtn" type="button"></button>
+  </footer>
+
+  <div id="legalModal" class="legal-modal" hidden>
+    <div class="legal-backdrop" onclick="closeLegalNotice()"></div>
+    <div class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="legalTitleText">
+      <div class="legal-header">
+        <h2 id="legalTitleText"></h2>
+        <button class="legal-close-btn" onclick="closeLegalNotice()" id="legalCloseBtn" type="button"></button>
+      </div>
+      <p class="legal-intro" id="legalIntroText"></p>
+      <ul class="legal-list">
+        <li id="legalLine1Text"></li>
+        <li id="legalLine2Text"></li>
+        <li id="legalLine3Text"></li>
+        <li id="legalLine4Text"></li>
+        <li id="legalLine5Text"></li>
+      </ul>
+      <div class="legal-note" id="legalDisclaimerText"></div>
+    </div>
+  </div>
+
+  <aside id="debugPanel" class="debug-panel" aria-live="polite">
+    <div class="debug-header">
+      <div class="debug-title">Debug Panel</div>
+      <div class="debug-actions">
+        <button class="debug-btn" onclick="copyDebugInfo()">Copy Debug Info</button>
+        <button class="debug-btn" onclick="toggleDebugPanel()">Hide</button>
+      </div>
+    </div>
+    <div class="debug-grid">
+      <div class="debug-stat">
+        <div class="debug-label">Mode</div>
+        <div class="debug-value" id="debugModeValue">Waiting</div>
+      </div>
+      <div class="debug-stat">
+        <div class="debug-label">Host</div>
+        <div class="debug-value" id="debugHostValue">Waiting</div>
+      </div>
+      <div class="debug-stat">
+        <div class="debug-label">Firebase</div>
+        <div class="debug-value" id="debugFirebaseValue">Waiting</div>
+      </div>
+      <div class="debug-stat">
+        <div class="debug-label">Web NFC</div>
+        <div class="debug-value" id="debugNfcValue">Waiting</div>
+      </div>
+    </div>
+    <div class="debug-log" id="debugLog">Debug panel ready.</div>
+  </aside>
+
+  <script>
+    (async function bootApp() {
+      const BOOTSTRAP_ASSET_VERSION = '20260406refreshcore002';
+      const VERSION_MANIFEST_URL = './version.json';
+
+      const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = src;
+        if (module) script.type = 'module';
+        script.onload = () => resolve(true);
+        script.onerror = () => optional ? resolve(false) : reject(new Error(`Failed to load script: ${src}`));
+        document.body.appendChild(script);
+      });
+
+      const getAssetVersion = async () => {
+        try {
+          const response = await fetch(`${VERSION_MANIFEST_URL}?t=${Date.now()}`, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error(`Version manifest request failed with ${response.status}`);
+          }
+          const payload = await response.json();
+          return payload?.version || BOOTSTRAP_ASSET_VERSION;
+        } catch (error) {
+          console.warn('Falling back to bootstrap asset version.', error);
+          return BOOTSTRAP_ASSET_VERSION;
+        }
+      };
+
+      if (window.location.protocol === 'file:') {
+        document.body.innerHTML = `
+          <div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#f5f7fa;font-family:Arial,sans-serif;">
+            <div style="max-width:720px;background:#fff;border-radius:18px;padding:28px;box-shadow:0 10px 30px rgba(0,0,0,.08);color:#111827;">
+              <h1 style="margin:0 0 12px;font-size:30px;">Open this app from localhost</h1>
+              <p style="margin:0 0 10px;line-height:1.6;">This app uses a browser module setup for Firebase, so opening <strong>index.html</strong> directly with <strong>file://</strong> will not work correctly.</p>
+              <p style="margin:0 0 10px;line-height:1.6;">Use one of these simple options instead:</p>
+              <ul style="margin:0 0 18px 20px;line-height:1.7;">
+                <li>Double-click <strong>start-local.bat</strong></li>
+                <li>Run <strong>npm run preview:open</strong></li>
+                <li>Open <strong>http://127.0.0.1:4173/?debug=1</strong> if the local preview is already running</li>
+              </ul>
+              <button onclick="window.location.href='http://127.0.0.1:4173/?debug=1'" style="border:none;border-radius:14px;padding:14px 18px;background:#111827;color:#fff;font-size:16px;font-weight:700;cursor:pointer;">Try localhost preview</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      const assetVersion = await getAssetVersion();
+      window.__ASSET_VERSION = assetVersion;
+
+      const stylesheet = document.getElementById('appStylesheet');
+      if (stylesheet) {
+        stylesheet.href = `./styles.css?v=${encodeURIComponent(assetVersion)}`;
+      }
+
+      await appendScript(`./config.demo.js?v=${encodeURIComponent(assetVersion)}`);
+      await appendScript(`./config.local.js?v=${encodeURIComponent(assetVersion)}`, { optional: true });
+      await appendScript(`./app.js?v=${encodeURIComponent(assetVersion)}`, { module: true });
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
