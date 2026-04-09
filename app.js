@@ -1601,6 +1601,7 @@
       const registerTabButton = el('tabRegisterBtn');
       const registerPane = el('registerPane');
       const tableTabButton = el('tabTableBtn');
+      const reportTabButton = el('tabReportBtn');
       const visitPanel = document.querySelector('.visit-panel');
       const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
@@ -1637,6 +1638,11 @@
       if(el('saveAllTableChangesBtn')){
         el('saveAllTableChangesBtn').hidden = !canEdit;
         el('saveAllTableChangesBtn').style.display = canEdit ? '' : 'none';
+      }
+      if(reportTabButton){
+        const showReportTab = registerAccessRole !== 'foreman';
+        reportTabButton.hidden = !showReportTab;
+        reportTabButton.style.display = showReportTab ? '' : 'none';
       }
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
