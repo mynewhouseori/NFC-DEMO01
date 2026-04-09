@@ -793,7 +793,7 @@
       }
 
       if(logsPanel){
-        logsPanel.hidden = true;
+        logsPanel.hidden = false;
       }
 
       return { pane, summary, content, logsPanel };
