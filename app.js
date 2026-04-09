@@ -3518,7 +3518,7 @@
       pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
     }
 
-    function closeVisitSession(){
+    async function closeVisitSession(){
       if(!activeVisit){
         renderVisitStatus(t('visitStatusNoVisit'));
         return;
@@ -3530,7 +3530,7 @@
 
       const now = new Date();
       const draft = getVisitFormData();
-      activeVisit = {
+      const closedVisit = {
         ...activeVisit,
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || '',
@@ -3539,10 +3539,44 @@
         endedAtIso: now.toISOString(),
         updatedAt: now.toLocaleString()
       };
+      activeVisit = closedVisit;
+
+      try {
+        await addDoc(collection(db, LOGS_COLLECTION), {
+          tagId: `visit:${closedVisit.id}`,
+          found: true,
+          actionType: 'visit_closed',
+          itemStatus: '',
+          itemType: '',
+          itemDescription: '',
+          itemSerialNumber: '',
+          itemContractor: '',
+          itemWll: '',
+          itemSiteName: '',
+          itemNextInspection: '',
+          itemNotes: closedVisit.notes || '',
+          lastSeenLocation: null,
+          lastSeenAt: '',
+          visitId: closedVisit.id || '',
+          visitDate: closedVisit.date || '',
+          visitEngineer: closedVisit.engineer || '',
+          visitClient: closedVisit.client || '',
+          visitSite: closedVisit.site || '',
+          visitSignature: closedVisit.signature || '',
+          time: closedVisit.endedAt || new Date().toLocaleString(),
+          sortTime: closedVisit.endedAtIso || new Date().toISOString()
+        });
+        invalidateLogsCache();
+      } catch (error) {
+        pushDebugLine(`Visit close log error: ${error.message}`);
+      }
+
       persistActiveVisit();
       populateVisitForm(activeVisit);
       renderVisitStatus(t('visitStatusClosedMessage'));
       updateRegisterAccessUi();
+      await renderReportArchive();
+      await renderScanLogs();
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
     }
 
@@ -4015,6 +4049,7 @@
         fillRegisterForm(item);
         await renderItemsTable();
         await renderScanLogs();
+        await renderReportArchive();
       } catch (e) {
         pushDebugLine(`Save error for ${tagId}: ${e.message}`);
         el('saveStatus').textContent = t('cloudSaveError');
