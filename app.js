@@ -288,7 +288,13 @@
     }
 
     function formatExecutiveSummaryText(items, counts){
-      return `${formatReportText('reportExecutiveText', counts)} ${t('siteName')}: ${getReportSiteScope(items)}`;
+      let summaryText = formatReportText('reportExecutiveText', counts);
+      if(currentLang === 'he'){
+        summaryText = summaryText.replace(/^נכון לעכשיו קיימים/, 'בהתאם לבחירה קיימים');
+      } else if(currentLang === 'en'){
+        summaryText = summaryText.replace(/^There are currently/, 'Based on the current selection there are');
+      }
+      return `${summaryText} ${t('siteName')}: ${getReportSiteScope(items)}`;
     }
 
     function formatLocationText(key, replacements = {}){
