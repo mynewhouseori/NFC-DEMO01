@@ -792,25 +792,7 @@
         pane.appendChild(content);
       }
 
-      let logsPanel = el('logsHistoryPanel');
-      if(!logsPanel){
-        const toolbar = el('logsHistoryTitleText')?.closest('.table-toolbar');
-        const list = el('logsList');
-        if(toolbar && list){
-          logsPanel = document.createElement('section');
-          logsPanel.id = 'logsHistoryPanel';
-          logsPanel.className = 'logs-history-panel';
-          content.appendChild(logsPanel);
-          logsPanel.appendChild(toolbar);
-          logsPanel.appendChild(list);
-        }
-      }
-
-      if(logsPanel){
-        logsPanel.hidden = false;
-      }
-
-      return { pane, summary, content, logsPanel };
+      return { pane, summary, content, logsPanel: null };
     }
 
     function countUniqueTags(logs = []){
@@ -857,19 +839,7 @@
     }
 
     function updateLogsDashboardHeadings({ totalLogs = 0, shownLogs = 0, visits = [] } = {}){
-      const logsTitle = el('logsHistoryTitleText');
-      const logsSubtitle = ensureLogsSubtitle();
       const archiveSubtitle = el('reportArchiveSubtitleText');
-
-      if(logsTitle){
-        logsTitle.textContent = formatText('logsHistoryTitleWithCount', { count: shownLogs });
-      }
-
-      if(logsSubtitle){
-        logsSubtitle.textContent = shownLogs
-          ? formatText('logsHistorySubtitleWithCount', { shown: shownLogs, total: totalLogs })
-          : t('logsHistoryEmptyHelp');
-      }
 
       if(archiveSubtitle){
         archiveSubtitle.textContent = visits.length
@@ -3518,7 +3488,7 @@
       pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
     }
 
-    function closeVisitSession(){
+    async function closeVisitSession(){
       if(!activeVisit){
         renderVisitStatus(t('visitStatusNoVisit'));
         return;
@@ -3530,7 +3500,7 @@
 
       const now = new Date();
       const draft = getVisitFormData();
-      activeVisit = {
+      const closedVisit = {
         ...activeVisit,
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || '',
@@ -3539,10 +3509,44 @@
         endedAtIso: now.toISOString(),
         updatedAt: now.toLocaleString()
       };
+      activeVisit = closedVisit;
+
+      try {
+        await addDoc(collection(db, LOGS_COLLECTION), {
+          tagId: `visit:${closedVisit.id}`,
+          found: true,
+          actionType: 'visit_closed',
+          itemStatus: '',
+          itemType: '',
+          itemDescription: '',
+          itemSerialNumber: '',
+          itemContractor: '',
+          itemWll: '',
+          itemSiteName: '',
+          itemNextInspection: '',
+          itemNotes: closedVisit.notes || '',
+          lastSeenLocation: null,
+          lastSeenAt: '',
+          visitId: closedVisit.id || '',
+          visitDate: closedVisit.date || '',
+          visitEngineer: closedVisit.engineer || '',
+          visitClient: closedVisit.client || '',
+          visitSite: closedVisit.site || '',
+          visitSignature: closedVisit.signature || '',
+          time: closedVisit.endedAt || new Date().toLocaleString(),
+          sortTime: closedVisit.endedAtIso || new Date().toISOString()
+        });
+        invalidateLogsCache();
+      } catch (error) {
+        pushDebugLine(`Visit close log error: ${error.message}`);
+      }
+
       persistActiveVisit();
       populateVisitForm(activeVisit);
       renderVisitStatus(t('visitStatusClosedMessage'));
       updateRegisterAccessUi();
+      await renderReportArchive();
+      await renderScanLogs();
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
     }
 
@@ -4012,11 +4016,10 @@
         pushDebugLine(`Save flow completed for ${tagId}.`);
         el('saveStatus').textContent = existing ? t('itemUpdated') : t('itemSaved');
         lastSavedTagId = tagId;
-        clearForm();
-        clearTableFilters();
-        openRegisterTab('tablePane');
+        fillRegisterForm(item);
         await renderItemsTable();
         await renderScanLogs();
+        await renderReportArchive();
       } catch (e) {
         pushDebugLine(`Save error for ${tagId}: ${e.message}`);
         el('saveStatus').textContent = t('cloudSaveError');
