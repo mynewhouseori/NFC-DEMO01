@@ -324,10 +324,10 @@
 
     .actions {
       width:100%;
-      max-width:360px;
+      max-width:320px;
       display:flex;
       flex-direction:column;
-      gap:16px;
+      gap:14px;
       margin-inline:auto;
       margin-bottom:clamp(58px, 10vh, 110px);
     }
@@ -504,7 +504,7 @@
       width:100%;
       border:2px solid rgba(0,0,0,.4);
       border-radius:18px;
-      padding:18px 16px;
+      padding:14px 14px;
       font-size:18px;
       font-weight:700;
       cursor:pointer;
@@ -530,18 +530,18 @@
       align-items:center;
       justify-content:center;
       gap:10px;
-      min-height:52px;
-      padding-bottom:26px;
+      min-height:44px;
+      padding-bottom:20px;
     }
 
     .home-action-image-label {
       position:absolute;
       left:50%;
-      bottom:16px;
+      bottom:12px;
       transform:translateX(-50%);
-      height:24px;
+      height:22px;
       width:auto;
-      max-width:220px;
+      max-width:200px;
       object-fit:contain;
       pointer-events:none;
       z-index:3;
@@ -646,6 +646,7 @@
       }
 
       .actions {
+        max-width:300px;
         margin-bottom:0;
       }
 
