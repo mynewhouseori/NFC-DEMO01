@@ -530,13 +530,15 @@
       align-items:center;
       justify-content:center;
       gap:10px;
+      min-height:52px;
+      padding-bottom:26px;
     }
 
     .home-action-image-label {
       position:absolute;
-      top:50%;
       left:50%;
-      transform:translate(-50%, -50%);
+      bottom:16px;
+      transform:translateX(-50%);
       height:24px;
       width:auto;
       max-width:220px;
@@ -592,6 +594,7 @@
     .icon {
       font-size:21px;
       line-height:1;
+      transform:translateY(-8px);
     }
 
     .screen {
