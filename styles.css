@@ -502,22 +502,33 @@
 
     .btn {
       width:100%;
-      border:2px solid rgba(0,0,0,.4);
+      border:1px solid rgba(255,255,255,.18);
       border-radius:18px;
       padding:14px 14px;
       font-size:18px;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 12px 30px rgba(0,0,0,.22);
-      transition:transform .12s ease, box-shadow .2s ease;
+      box-shadow:0 14px 28px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.24);
+      transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease;
       font-family:inherit;
     }
 
     .btn:active { transform:scale(.98); }
-    .btn:hover { box-shadow:0 14px 34px rgba(0,0,0,.26); }
+    .btn:hover {
+      box-shadow:0 18px 34px rgba(15,23,42,.22), inset 0 1px 0 rgba(255,255,255,.3);
+    }
 
-    .btn-check { background:var(--accent); color:#fff; }
-    .btn-register { background:#f0f1f4; color:var(--text); }
+    .btn-check {
+      background:linear-gradient(135deg, #159588 0%, #0f766e 100%);
+      color:#fff;
+      border-color:rgba(15,118,110,.62);
+    }
+
+    .btn-register {
+      background:linear-gradient(180deg, #ffffff 0%, #e7ecf3 100%);
+      color:var(--text);
+      border-color:rgba(148,163,184,.46);
+    }
     .btn-ghost {
       background:rgba(255,255,255,.14);
       color:#ffffff;
