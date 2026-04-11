@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NFC Safety Demo Cloud Table</title>
+  <title>NFC Engineer Workspace</title>
   <meta name="copyright" content="NFC Safety Demo Cloud Table. All rights reserved." />
   <meta name="robots" content="index,follow,noarchive,max-snippet:0,max-image-preview:standard" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
+  <link rel="icon" type="image/png" sizes="64x64" href="./favicon-engineer.png?v=20260410yellow2" />
+  <link rel="shortcut icon" href="./favicon-engineer.png?v=20260410yellow2" />
   <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260411visual002" />
+  <script>
+    window.APP_VARIANT = 'engineer';
+  </script>
 </head>
 <body>
   <div class="overlay"></div>
 
-  <div id="homeScreen" class="home-screen">
+  <div id="homeScreen" class="home-screen home-screen-engineer">
     <div class="home-topbar">
       <div class="home-logo-wrap">
         <img class="home-logo" src="./logo-transparent.png" alt="Logo">
@@ -27,10 +32,6 @@
         <button class="flag-btn flag-btn-en" data-lang="en" onclick="setLang('en')" aria-label="English">
           <span class="flag-mark" aria-hidden="true"></span>
           <span class="flag-label">EN</span>
-        </button>
-        <button class="flag-btn flag-btn-ar" data-lang="ar" onclick="setLang('ar')" aria-label="???????">
-          <span class="flag-mark" aria-hidden="true"></span>
-          <span class="flag-label">???</span>
         </button>
       </div>
     </div>
@@ -58,7 +59,7 @@
       </div>
     </div>
 
-    <div class="demo-badge-bottom">DEMO</div>
+    <div class="demo-badge-bottom">ENGINEER</div>
   </div>
 
   <div id="passwordScreen" class="screen">

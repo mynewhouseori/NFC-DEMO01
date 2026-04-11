@@ -151,6 +151,147 @@
       }
     };
     LANG.ar.registrationDate = LANG.ar.registrationDate || 'تاريخ التسجيل الأولي';
+    Object.assign(LANG.he, {
+      homeBusiness: 'מודול לחברת בנייה',
+      homeEngineer: 'גרסת מהנדס בודק',
+      homeKickerBusiness: 'construction demo',
+      homeTitleBusiness: 'מערכת דמו לחברת בנייה',
+      homeSubtitleBusiness: 'בדיקת ציוד, קליטת ציוד, טבלה ולוגים באותו ממשק הדגמה קיים.',
+      homeCheckHintBusiness: 'סריקה ובדיקת פריט קיים בשטח',
+      homeRegisterHintBusiness: 'קליטה, עריכה וניהול ציוד',
+      homeKickerEngineer: 'engineer workspace',
+      homeTitleEngineer: 'גרסת מהנדס עם מסלול מלא למנהל עבודה',
+      homeSubtitleEngineer: 'כל אפשרויות הגרסה המקורית נשארות זמינות, ובנוסף מסלול מהנדס בודק עם תסקיר ודוח מקצועי.',
+      homeEngineerHint: 'כניסה למסלול מהנדס בודק',
+      homeCheckHintEngineer: 'בדיקת פריט לפי תג או סריקה',
+      homeRegisterHintEngineer: 'קליטה, עריכה וניהול ציוד למהנדס ולמנהל עבודה',
+      businessPasswordTitle: 'כניסה למודול חברת הבנייה',
+      engineerPasswordTitle: 'כניסה לגרסת מהנדס בודק',
+      businessPasswordHint: 'כאן נשמרת גרסת הדמו המקורית לחברת בנייה.',
+      engineerPasswordHint: 'כאן נפתחת סביבת עבודה מקצועית למהנדס בודק.',
+      engineerWorkspaceRoleHint: 'כניסה לטופס תסקיר, בדיקה מקצועית והפקת דוח.',
+      engineerWorkspaceIntro: 'אותו מאגר ציוד, אבל עם מסך עבודה נפרד למהנדס.',
+      engineerOnlyAccess: 'לגרסת המהנדס יש כניסת מהנדס בלבד.',
+      engineerWorkspaceTitle: 'גרסת מהנדס בודק',
+      engineerWorkspaceReady: 'גרסת המהנדס מוכנה לעבודה ולמילוי תסקיר.',
+      engineerTabInspection: 'תסקיר בדיקה',
+      engineerTabItems: 'כרטיסי פריט',
+      engineerTabReport: 'דוח תסקיר',
+      engineerAssessmentTitle: 'תסקיר בדיקת מהנדס',
+      engineerAssessmentSubtitle: 'שומרים על כרטיס הפריט המשותף ומוסיפים עליו תסקיר בדיקה מקצועי.',
+      engineerReportNumber: 'מספר תסקיר',
+      engineerInspectorName: 'שם מהנדס',
+      engineerInspectionDate: 'תאריך בדיקה',
+      engineerValidityUntil: 'תוקף בדיקה',
+      engineerManufacturer: 'יצרן',
+      engineerModel: 'דגם',
+      engineerResult: 'תוצאה',
+      engineerFailureReason: 'ליקוי / סיבת פסילה',
+      engineerProfessionalNotes: 'הערות מקצועיות',
+      engineerResultPass: 'תקין',
+      engineerResultConditional: 'תקין בכפוף לתיקון',
+      engineerResultFail: 'פסול',
+      engineerReportNumberPlaceholder: 'לדוגמה: ENG-2026-014',
+      engineerInspectorNamePlaceholder: 'לדוגמה: מהנדס אורי לוין',
+      engineerManufacturerPlaceholder: 'לדוגמה: Crosby',
+      engineerModelPlaceholder: 'לדוגמה: G-2130',
+      engineerFailureReasonPlaceholder: 'לדוגמה: שחיקה, עיוות או סימון חסר',
+      engineerProfessionalNotesPlaceholder: 'כתוב כאן ממצאים, המלצות והערות מקצועיות.'
+    });
+    Object.assign(LANG.en, {
+      homeBusiness: 'Construction Module',
+      homeEngineer: 'Engineer Inspector Version',
+      homeKickerBusiness: 'construction demo',
+      homeTitleBusiness: 'Demo System for Construction Teams',
+      homeSubtitleBusiness: 'Equipment check, registration, table, and logs in the original demo flow.',
+      homeCheckHintBusiness: 'Scan and review an existing item',
+      homeRegisterHintBusiness: 'Register, edit, and manage equipment',
+      homeKickerEngineer: 'engineer workspace',
+      homeTitleEngineer: 'Engineer Version with Full Foreman Access',
+      homeSubtitleEngineer: 'All original flows remain available, plus the enhanced engineer assessment and report workflow.',
+      homeEngineerHint: 'Open the engineer inspector workflow',
+      homeCheckHintEngineer: 'Check an item by tag or scan',
+      homeRegisterHintEngineer: 'Register, edit, and manage equipment for engineer and foreman',
+      businessPasswordTitle: 'Construction Module Access',
+      engineerPasswordTitle: 'Engineer Workspace Access',
+      businessPasswordHint: 'This keeps the original construction-company demo intact.',
+      engineerPasswordHint: 'This route opens the professional inspection workflow and report.',
+      engineerWorkspaceRoleHint: 'Access the inspection form, findings, and printable engineer report.',
+      engineerWorkspaceIntro: 'The same equipment pool appears here through a dedicated engineer workflow.',
+      engineerOnlyAccess: 'The engineer version is available through Engineer Login only.',
+      engineerWorkspaceTitle: 'Engineer Inspector Workspace',
+      engineerWorkspaceReady: 'Engineer workspace ready for inspection and report entry.',
+      engineerTabInspection: 'Inspection',
+      engineerTabItems: 'Items',
+      engineerTabReport: 'Report',
+      engineerAssessmentTitle: 'Engineer Inspection Report',
+      engineerAssessmentSubtitle: 'Keep the shared item card, then add the professional inspection record separately.',
+      engineerReportNumber: 'Report Number',
+      engineerInspectorName: 'Engineer Name',
+      engineerInspectionDate: 'Inspection Date',
+      engineerValidityUntil: 'Validity Until',
+      engineerManufacturer: 'Manufacturer',
+      engineerModel: 'Model',
+      engineerResult: 'Result',
+      engineerFailureReason: 'Defect / Rejection Reason',
+      engineerProfessionalNotes: 'Professional Notes',
+      engineerResultPass: 'Pass',
+      engineerResultConditional: 'Conditional',
+      engineerResultFail: 'Fail',
+      engineerReportNumberPlaceholder: 'Example: ENG-2026-014',
+      engineerInspectorNamePlaceholder: 'Example: Eng. O. Levin',
+      engineerManufacturerPlaceholder: 'Example: Crosby',
+      engineerModelPlaceholder: 'Example: G-2130',
+      engineerFailureReasonPlaceholder: 'Example: wear, deformation, missing marking',
+      engineerProfessionalNotesPlaceholder: 'Write findings, recommendations, and professional notes here.'
+    });
+    Object.assign(LANG.ar, {
+      homeBusiness: 'وحدة شركة البناء',
+      homeEngineer: 'نسخة المهندس الفاحص',
+      homeKickerBusiness: 'construction demo',
+      homeTitleBusiness: 'نظام عرض لشركة بناء',
+      homeSubtitleBusiness: 'فحص معدّات وتسجيل وجدول وسجلات ضمن نسخة العرض الأصلية.',
+      homeCheckHintBusiness: 'مسح وفحص معدّة موجودة',
+      homeRegisterHintBusiness: 'تسجيل وتعديل وإدارة المعدّات',
+      homeKickerEngineer: 'engineer workspace',
+      homeTitleEngineer: 'نسخة مهندس مع صلاحيات كاملة لمدير العمل',
+      homeSubtitleEngineer: 'كل مسارات النسخة الأصلية تبقى متاحة، مع إضافة مسار المهندس الفاحص والتقرير المهني.',
+      homeEngineerHint: 'الدخول إلى مسار المهندس الفاحص',
+      homeCheckHintEngineer: 'فحص معدّة بواسطة الوسم أو المسح',
+      homeRegisterHintEngineer: 'تسجيل وتعديل وإدارة المعدّات للمهندس ومدير العمل',
+      businessPasswordTitle: 'الدخول إلى وحدة شركة البناء',
+      engineerPasswordTitle: 'الدخول إلى مساحة المهندس',
+      businessPasswordHint: 'هذه هي نسخة العرض الأصلية لشركات البناء.',
+      engineerPasswordHint: 'هذا المسار مخصص لنموذج الفحص المهني والتقرير.',
+      engineerWorkspaceRoleHint: 'الوصول إلى نموذج الفحص والملاحظات وتقرير المهندس الجاهز للطباعة.',
+      engineerWorkspaceIntro: 'يتم استخدام نفس المعدات هنا لكن من خلال سير عمل منفصل للمهندس.',
+      engineerOnlyAccess: 'نسخة المهندس متاحة عبر دخول المهندس فقط.',
+      engineerWorkspaceTitle: 'مساحة المهندس الفاحص',
+      engineerWorkspaceReady: 'مساحة المهندس جاهزة لإدخال الفحص والتقرير.',
+      engineerTabInspection: 'الفحص',
+      engineerTabItems: 'المعدّات',
+      engineerTabReport: 'التقرير',
+      engineerAssessmentTitle: 'تقرير فحص مهندس',
+      engineerAssessmentSubtitle: 'حافظ على بطاقة المعدّة المشتركة ثم أضف سجل الفحص المهني بشكل منفصل.',
+      engineerReportNumber: 'رقم التقرير',
+      engineerInspectorName: 'اسم المهندس',
+      engineerInspectionDate: 'تاريخ الفحص',
+      engineerValidityUntil: 'صلاحية الفحص',
+      engineerManufacturer: 'الشركة المصنعة',
+      engineerModel: 'الطراز',
+      engineerResult: 'النتيجة',
+      engineerFailureReason: 'العيب / سبب الرفض',
+      engineerProfessionalNotes: 'ملاحظات مهنية',
+      engineerResultPass: 'ناجح',
+      engineerResultConditional: 'مشروط',
+      engineerResultFail: 'راسب',
+      engineerReportNumberPlaceholder: 'مثال: ENG-2026-014',
+      engineerInspectorNamePlaceholder: 'مثال: م. سامر خليل',
+      engineerManufacturerPlaceholder: 'مثال: Crosby',
+      engineerModelPlaceholder: 'مثال: G-2130',
+      engineerFailureReasonPlaceholder: 'مثال: تآكل، تشوه، أو علامة مفقودة',
+      engineerProfessionalNotesPlaceholder: 'اكتب هنا النتائج والتوصيات والملاحظات المهنية.'
+    });
     const IMAGE_VERSION = '20260403f';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
     const IMAGE_PATHS = {
@@ -211,6 +352,11 @@
     const savedLang = localStorage.getItem('lang');
     let currentLang = LANG[savedLang] ? savedLang : 'he';
     const APP_COPYRIGHT_YEAR = new Date().getFullYear();
+    const APP_MODES = {
+      business: 'business',
+      engineer: 'engineer'
+    };
+    const APP_VARIANT = window.APP_VARIANT === APP_MODES.engineer ? APP_MODES.engineer : APP_MODES.business;
     const VISIT_STORAGE_KEY = 'nfc_demo_active_visit_v1';
     const tableFilters = {
       query: '',
@@ -236,6 +382,7 @@
     let lastSavedTagId = '';
     let passwordContext = 'register';
     let registerAccessRole = '';
+    let currentAppMode = APP_VARIANT;
     let currentScannedItem = null;
     let scanDemoGalleryMode = false;
     let customImageSrc = '';
@@ -254,10 +401,100 @@
       return LANG[currentLang][key] || key;
     }
 
+    function isEngineerWorkspace(){
+      return currentAppMode === APP_MODES.engineer;
+    }
+
+    function getHomeCopy(){
+      if(isEngineerWorkspace()){
+      return {
+        kicker: t('homeKickerEngineer'),
+        title: t('homeTitleEngineer'),
+        subtitle: t('homeSubtitleEngineer'),
+        primaryHint: t('homeEngineerHint'),
+        secondaryHint: t('homeRegisterHintEngineer')
+      };
+      }
+
+      return {
+        kicker: t('homeKickerBusiness'),
+        title: t('homeTitleBusiness'),
+        subtitle: t('homeSubtitleBusiness'),
+        primaryHint: t('homeCheckHintBusiness'),
+        secondaryHint: t('homeRegisterHintBusiness')
+      };
+    }
+
+    function openBusinessModule(){
+      currentAppMode = APP_MODES.business;
+      openPasswordScreen();
+    }
+
+    function openEngineerModule(){
+      currentAppMode = APP_MODES.engineer;
+      openPasswordScreen();
+    }
+
+    function getEngineerAssessment(item = null){
+      const source = item?.engineerAssessment || {};
+      return {
+        reportNumber: source.reportNumber || '',
+        engineerName: source.engineerName || '',
+        inspectionDate: source.inspectionDate || '',
+        manufacturer: source.manufacturer || '',
+        model: source.model || '',
+        result: source.result || 'pass',
+        failureReason: source.failureReason || '',
+        validityUntil: source.validityUntil || '',
+        professionalNotes: source.professionalNotes || ''
+      };
+    }
+
+    function fillEngineerAssessmentForm(item = null){
+      if(!el('engineerReportNumber')){
+        return;
+      }
+      const assessment = getEngineerAssessment(item);
+      el('engineerReportNumber').value = assessment.reportNumber;
+      el('engineerInspectorName').value = assessment.engineerName || activeVisit?.engineer || '';
+      el('engineerInspectionDate').value = formatDateInputValue(assessment.inspectionDate || activeVisit?.date || todayIsoDate());
+      el('engineerManufacturer').value = assessment.manufacturer;
+      el('engineerModel').value = assessment.model;
+      el('engineerResult').value = assessment.result;
+      el('engineerFailureReason').value = assessment.failureReason;
+      el('engineerValidityUntil').value = formatDateInputValue(assessment.validityUntil);
+      el('engineerProfessionalNotes').value = assessment.professionalNotes;
+    }
+
+    function readEngineerAssessment(existing = null){
+      if(!el('engineerReportNumber')){
+        return getEngineerAssessment(existing);
+      }
+      const previous = getEngineerAssessment(existing);
+      return {
+        reportNumber: String(el('engineerReportNumber')?.value || previous.reportNumber || '').trim(),
+        engineerName: String(el('engineerInspectorName')?.value || activeVisit?.engineer || previous.engineerName || '').trim(),
+        inspectionDate: normalizeRegistrationDate(el('engineerInspectionDate')?.value) || previous.inspectionDate || activeVisit?.date || todayIsoDate(),
+        manufacturer: String(el('engineerManufacturer')?.value || previous.manufacturer || '').trim(),
+        model: String(el('engineerModel')?.value || previous.model || '').trim(),
+        result: String(el('engineerResult')?.value || previous.result || 'pass').trim() || 'pass',
+        failureReason: String(el('engineerFailureReason')?.value || previous.failureReason || '').trim(),
+        validityUntil: normalizeRegistrationDate(el('engineerValidityUntil')?.value) || previous.validityUntil || '',
+        professionalNotes: String(el('engineerProfessionalNotes')?.value || previous.professionalNotes || '').trim(),
+        updatedAt: new Date().toLocaleString(),
+        createdAt: previous.createdAt || new Date().toLocaleString()
+      };
+    }
+
     function formatText(key, replacements = {}){
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, t(key));
+    }
+
+    function capitalize(value){
+      const text = String(value || '');
+      return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}` : '';
     }
 
     function rt(key){
@@ -979,14 +1216,21 @@
             <td>${escapeHtml(translateType(entry.itemType))}</td>
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
-            <td>${escapeHtml(entry.wll || '-')}</td>
+            <td>${escapeHtml(entry.engineerAssessment?.reportNumber || '-')}</td>
+            <td>${escapeHtml(entry.engineerAssessment?.manufacturer || '-')}</td>
+            <td>${escapeHtml(entry.engineerAssessment?.model || '-')}</td>
+            <td>${escapeHtml(t(`engineerResult${capitalize(entry.engineerAssessment?.result || '')}`) || entry.engineerAssessment?.result || '-')}</td>
+            <td>${escapeHtml(entry.engineerAssessment?.failureReason || '-')}</td>
+            <td>${escapeHtml(formatReportDate(entry.engineerAssessment?.validityUntil || ''))}</td>
             <td>${escapeHtml(entry.contractor || '-')}</td>
+            <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
             <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
+            <td>${escapeHtml(entry.engineerAssessment?.professionalNotes || '-')}</td>
           </tr>
-        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+        `).join('') : `<tr><td colspan="18">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
 
         const html = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -1038,12 +1282,19 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('engineerReportNumber'))}</th>
+                    <th>${escapeHtml(t('engineerManufacturer'))}</th>
+                    <th>${escapeHtml(t('engineerModel'))}</th>
+                    <th>${escapeHtml(t('engineerResult'))}</th>
+                    <th>${escapeHtml(t('engineerFailureReason'))}</th>
+                    <th>${escapeHtml(t('engineerValidityUntil'))}</th>
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
+                    <th>${escapeHtml(t('engineerProfessionalNotes'))}</th>
                   </tr>
                 </thead>
                 <tbody>${renderRows(newEntries)}</tbody>
@@ -1059,12 +1310,19 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
+                    <th>${escapeHtml(t('engineerReportNumber'))}</th>
+                    <th>${escapeHtml(t('engineerManufacturer'))}</th>
+                    <th>${escapeHtml(t('engineerModel'))}</th>
+                    <th>${escapeHtml(t('engineerResult'))}</th>
+                    <th>${escapeHtml(t('engineerFailureReason'))}</th>
+                    <th>${escapeHtml(t('engineerValidityUntil'))}</th>
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
+                    <th>${escapeHtml(t('engineerProfessionalNotes'))}</th>
                   </tr>
                 </thead>
                 <tbody>${renderRows(checkedEntries)}</tbody>
@@ -1616,11 +1874,18 @@
     }
 
     function getRegisterScreenTitle(){
-      return registerAccessRole === 'foreman' ? t('foremanRegisterTitle') : t('registerTitle');
+      if(registerAccessRole === 'foreman'){
+        return t('foremanRegisterTitle');
+      }
+      if(isEngineerWorkspace()){
+        return t('engineerWorkspaceTitle');
+      }
+      return t('registerTitle');
     }
 
     function updateRegisterAccessUi(){
       const canEdit = canEditRegister();
+      const engineerWorkspace = isEngineerWorkspace();
       const registerTabButton = el('tabRegisterBtn');
       const registerPane = el('registerPane');
       const tableTabButton = el('tabTableBtn');
@@ -1647,6 +1912,22 @@
         el(id).disabled = !canEdit;
       });
 
+      [
+        'engineerReportNumber',
+        'engineerInspectorName',
+        'engineerInspectionDate',
+        'engineerManufacturer',
+        'engineerModel',
+        'engineerResult',
+        'engineerFailureReason',
+        'engineerValidityUntil',
+        'engineerProfessionalNotes'
+      ].forEach((id) => {
+        if(el(id)){
+          el(id).disabled = !canEdit || !engineerWorkspace;
+        }
+      });
+
       const canEditClosure = canEditVisitClosure();
       el('visitNotes').disabled = !canEditClosure;
       el('visitSignatureClearBtn').disabled = !canEditClosure;
@@ -1667,8 +1948,8 @@
         el('saveAllTableChangesBtn').style.display = canEdit ? '' : 'none';
       }
       if(reportTabButton){
-        reportTabButton.hidden = true;
-        reportTabButton.style.display = 'none';
+        reportTabButton.hidden = !engineerWorkspace || !canEdit;
+        reportTabButton.style.display = engineerWorkspace && canEdit ? '' : 'none';
       }
       registerTabButton.hidden = !canEdit;
       registerPane.hidden = !canEdit;
@@ -1679,14 +1960,17 @@
         registerPane.style.display = '';
       }
       if(visitPanel){
-        visitPanel.hidden = !canEdit;
+        visitPanel.hidden = !canEdit || !engineerWorkspace;
       }
       if(visitEndPanel){
-        visitEndPanel.hidden = !activeVisit;
+        visitEndPanel.hidden = !engineerWorkspace || !activeVisit;
       }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
       }
+      document.querySelectorAll('.engineer-workspace-only').forEach((node) => {
+        node.hidden = !engineerWorkspace;
+      });
       el('registerScreenTitle').textContent = getRegisterScreenTitle();
 
       if(!canEdit){
@@ -1702,6 +1986,8 @@
 
       if(registerAccessRole === 'foreman'){
         el('registerStatus').textContent = t('scanReadOnlyNote');
+      } else if(engineerWorkspace && canEdit){
+        el('registerStatus').textContent = t('engineerWorkspaceReady');
       } else if(registerAccessRole === 'engineer' && el('registerStatus').textContent === t('scanReadOnlyNote')) {
         el('registerStatus').textContent = t('waitingForScan');
       }
@@ -1763,8 +2049,25 @@
         }
       });
 
-      el('homeCheckText').textContent = t('homeCheck');
-      el('homeRegisterText').textContent = t('homeRegister');
+      const homeCopy = getHomeCopy();
+      if(el('homeBusinessText')) el('homeBusinessText').textContent = t('homeBusiness');
+      if(el('homeEngineerText')) el('homeEngineerText').textContent = t('homeEngineer');
+      if(el('homeKickerText')) el('homeKickerText').textContent = homeCopy.kicker;
+      if(el('homeTitleText')) el('homeTitleText').textContent = homeCopy.title;
+      if(el('homeSubtitleText')) el('homeSubtitleText').textContent = homeCopy.subtitle;
+      if(el('homeCheckText')) el('homeCheckText').textContent = t('homeCheck');
+      if(el('homeCheckTextImage')){
+        el('homeCheckTextImage').src = `./label-home-check-${currentLang}.png`;
+        el('homeCheckTextImage').alt = t('homeCheck');
+      }
+      if(el('homeCheckHintText')) el('homeCheckHintText').textContent = isEngineerWorkspace() ? t('homeCheckHintEngineer') : homeCopy.primaryHint;
+      if(el('homeRegisterText')) el('homeRegisterText').textContent = t('homeRegister');
+      if(el('homeRegisterTextImage')){
+        el('homeRegisterTextImage').src = `./label-home-register-${currentLang}.png`;
+        el('homeRegisterTextImage').alt = t('homeRegister');
+      }
+      if(el('homeRegisterHintText')) el('homeRegisterHintText').textContent = homeCopy.secondaryHint;
+      if(el('homeEngineerHintText')) el('homeEngineerHintText').textContent = homeCopy.primaryHint;
       el('visitPanelTitleText').textContent = t('visitPanelTitle');
       el('visitPanelSubtitleText').textContent = t('visitPanelSubtitle');
       el('visitEndPanelTitleText').textContent = t('visitClose');
@@ -1797,18 +2100,19 @@
 
       el('passwordBackBtn').textContent = t('back');
       if(passwordContext === 'register'){
-        el('passwordTitle').textContent = t('passwordTitle');
-        el('passwordRoleHint').textContent = '';
+        el('passwordTitle').textContent = isEngineerWorkspace() ? t('engineerPasswordTitle') : t('businessPasswordTitle');
+        el('passwordRoleHint').textContent = isEngineerWorkspace() ? t('engineerPasswordHint') : t('businessPasswordHint');
         el('engineerLoginTitleText').textContent = t('engineerLoginTitle');
-        el('engineerRoleHintText').textContent = t('engineerRoleHint');
+        el('engineerRoleHintText').textContent = isEngineerWorkspace() ? t('engineerWorkspaceRoleHint') : t('engineerRoleHint');
         el('engineerPasswordLabelText').textContent = t('engineerPasswordLabel');
         el('engineerEnterBtn').textContent = t('passwordEnter');
         el('foremanLoginTitleText').textContent = t('foremanLoginTitle');
         el('foremanRoleHintText').textContent = t('foremanRoleHint');
         el('foremanPasswordLabelText').textContent = t('foremanPasswordLabel');
         el('foremanEnterBtn').textContent = t('passwordEnter');
+        if(el('engineerWorkspaceIntroText')) el('engineerWorkspaceIntroText').textContent = t('engineerWorkspaceIntro');
       } else {
-        el('passwordTitle').textContent = t('passwordTitle');
+        el('passwordTitle').textContent = isEngineerWorkspace() ? t('engineerPasswordTitle') : t('businessPasswordTitle');
         el('passwordRoleHint').textContent = '';
       }
       if(el('engineerPasswordInput')){
@@ -1844,10 +2148,10 @@
       el('scanEditNotes').placeholder = t('notesPlaceholder');
       el('registerBackBtn').textContent = t('back');
       el('registerScreenTitle').textContent = getRegisterScreenTitle();
-      el('tabRegisterBtn').textContent = t('tabRegister');
-      el('tabTableBtn').textContent = t('tabTable');
-      el('tabReportBtn').textContent = t('tabReport');
-      el('tabLogsBtn').textContent = t('tabLogs');
+      el('tabRegisterBtn').textContent = isEngineerWorkspace() ? t('engineerTabInspection') : t('tabRegister');
+      el('tabTableBtn').textContent = isEngineerWorkspace() ? t('engineerTabItems') : t('tabTable');
+      el('tabReportBtn').textContent = isEngineerWorkspace() ? t('engineerTabReport') : t('tabReport');
+      el('tabLogsBtn').textContent = isEngineerWorkspace() ? t('historicalReports') : t('tabLogs');
       el('scanNewTagBtn').textContent = t('scanNewTag');
       el('clearFormBtn').textContent = t('clearForm');
       if(el('saveAllTableChangesBtn')){
@@ -1868,6 +2172,24 @@
       el('itemStatusLabel').textContent = t('status');
       el('siteNameLabel').textContent = t('siteName');
       el('notesLabel').textContent = t('notes');
+      if(el('engineerAssessmentTitleText')) el('engineerAssessmentTitleText').textContent = t('engineerAssessmentTitle');
+      if(el('engineerAssessmentSubtitleText')) el('engineerAssessmentSubtitleText').textContent = t('engineerAssessmentSubtitle');
+      if(el('engineerReportNumberLabelText')) el('engineerReportNumberLabelText').textContent = t('engineerReportNumber');
+      if(el('engineerInspectorNameLabelText')) el('engineerInspectorNameLabelText').textContent = t('engineerInspectorName');
+      if(el('engineerInspectionDateLabelText')) el('engineerInspectionDateLabelText').textContent = t('engineerInspectionDate');
+      if(el('engineerValidityUntilLabelText')) el('engineerValidityUntilLabelText').textContent = t('engineerValidityUntil');
+      if(el('engineerManufacturerLabelText')) el('engineerManufacturerLabelText').textContent = t('engineerManufacturer');
+      if(el('engineerModelLabelText')) el('engineerModelLabelText').textContent = t('engineerModel');
+      if(el('engineerResultLabelText')) el('engineerResultLabelText').textContent = t('engineerResult');
+      if(el('engineerFailureReasonLabelText')) el('engineerFailureReasonLabelText').textContent = t('engineerFailureReason');
+      if(el('engineerProfessionalNotesLabelText')) el('engineerProfessionalNotesLabelText').textContent = t('engineerProfessionalNotes');
+      if(el('engineerResult')){
+        el('engineerResult').innerHTML = `
+          <option value="pass">${t('engineerResultPass')}</option>
+          <option value="conditional">${t('engineerResultConditional')}</option>
+          <option value="fail">${t('engineerResultFail')}</option>
+        `;
+      }
       el('saveBtn').textContent = t('saveItem');
 
       el('tagId').placeholder = t('tagPlaceholder');
@@ -1875,6 +2197,12 @@
       el('serialNumber').placeholder = t('serialPlaceholder');
       el('contractor').placeholder = t('contractorPlaceholder');
       el('wll').placeholder = t('wllPlaceholder');
+      if(el('engineerReportNumber')) el('engineerReportNumber').placeholder = t('engineerReportNumberPlaceholder');
+      if(el('engineerInspectorName')) el('engineerInspectorName').placeholder = t('engineerInspectorNamePlaceholder');
+      if(el('engineerManufacturer')) el('engineerManufacturer').placeholder = t('engineerManufacturerPlaceholder');
+      if(el('engineerModel')) el('engineerModel').placeholder = t('engineerModelPlaceholder');
+      if(el('engineerFailureReason')) el('engineerFailureReason').placeholder = t('engineerFailureReasonPlaceholder');
+      if(el('engineerProfessionalNotes')) el('engineerProfessionalNotes').placeholder = t('engineerProfessionalNotesPlaceholder');
       el('siteName').placeholder = t('siteNamePlaceholder');
       el('notes').placeholder = t('notesPlaceholder');
 
@@ -1912,13 +2240,17 @@
       el('reportArchiveSiteLabel').textContent = t('reportArchiveSite');
       el('reportArchiveLoadBtn').textContent = t('reportArchiveLoad');
       el('reportArchiveResetBtn').textContent = t('reportArchiveReset');
-      el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
-      ensureLogsSubtitle().textContent = t('logsHistorySubtitle');
+      if(el('logsHistoryTitleText')) el('logsHistoryTitleText').textContent = t('logsHistoryTitle');
+      const logsSubtitle = ensureLogsSubtitle();
+      if(logsSubtitle){
+        logsSubtitle.textContent = t('logsHistorySubtitle');
+      }
       populateReportArchiveSiteOptions(reportArchiveState.visits, reportArchiveState.site || 'all');
 
       updateTypeOptions();
       updateStatusOptions();
       updateScanEditOptions();
+      fillEngineerAssessmentForm({ engineerAssessment: readEngineerAssessment() });
       updateRegisterAccessUi();
       updateTableFilterOptions();
       selectImageByType();
@@ -3046,6 +3378,15 @@
         itemSiteName: item?.siteName || '',
         itemNextInspection: item?.nextInspection || '',
         itemNotes: item?.notes || '',
+        engineerReportNumber: item?.engineerAssessment?.reportNumber || '',
+        engineerInspectorName: item?.engineerAssessment?.engineerName || '',
+        engineerInspectionDate: item?.engineerAssessment?.inspectionDate || '',
+        engineerManufacturer: item?.engineerAssessment?.manufacturer || '',
+        engineerModel: item?.engineerAssessment?.model || '',
+        engineerResult: item?.engineerAssessment?.result || '',
+        engineerFailureReason: item?.engineerAssessment?.failureReason || '',
+        engineerValidityUntil: item?.engineerAssessment?.validityUntil || '',
+        engineerProfessionalNotes: item?.engineerAssessment?.professionalNotes || '',
         lastSeenLocation: locationSnapshot || item?.lastSeenLocation || null,
         lastSeenAt: locationSnapshot?.capturedAt || item?.lastSeenAt || '',
         visitId: visit?.id || '',
@@ -3343,7 +3684,9 @@
       hideScanDemoGallery();
       currentScannedItem = null;
       registerAccessRole = '';
+      currentAppMode = APP_VARIANT;
       populateScanEditForm(null);
+      fillEngineerAssessmentForm();
       updateRegisterAccessUi();
     }
 
@@ -3376,6 +3719,7 @@
       el('engineerPasswordInput').value = '';
       el('foremanPasswordInput').value = '';
       el('passwordStatus').textContent = '';
+      if(el('foremanLoginCard')) el('foremanLoginCard').classList.remove('module-hidden');
       setLang(currentLang);
     }
 
@@ -3562,6 +3906,7 @@
       el('itemStatus').value = '׳×׳§׳™׳';
       el('siteName').value = '';
       el('notes').value = '';
+      fillEngineerAssessmentForm();
       customImageSrc = '';
       pendingImageTask = null;
       el('itemImageInput').value = '';
@@ -3603,6 +3948,17 @@
             status: log.itemStatus || fallbackItem?.status || '',
             nextInspection: log.itemNextInspection || fallbackItem?.nextInspection || '',
             notes: log.itemNotes || fallbackItem?.notes || '',
+            engineerAssessment: {
+              reportNumber: log.engineerReportNumber || fallbackItem?.engineerAssessment?.reportNumber || '',
+              engineerName: log.engineerInspectorName || fallbackItem?.engineerAssessment?.engineerName || '',
+              inspectionDate: log.engineerInspectionDate || fallbackItem?.engineerAssessment?.inspectionDate || '',
+              manufacturer: log.engineerManufacturer || fallbackItem?.engineerAssessment?.manufacturer || '',
+              model: log.engineerModel || fallbackItem?.engineerAssessment?.model || '',
+              result: log.engineerResult || fallbackItem?.engineerAssessment?.result || '',
+              failureReason: log.engineerFailureReason || fallbackItem?.engineerAssessment?.failureReason || '',
+              validityUntil: log.engineerValidityUntil || fallbackItem?.engineerAssessment?.validityUntil || '',
+              professionalNotes: log.engineerProfessionalNotes || fallbackItem?.engineerAssessment?.professionalNotes || ''
+            },
             time: log.time || ''
           };
         })
@@ -3956,6 +4312,7 @@
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('siteName').value = item.siteName || '';
       el('notes').value = item.notes || '';
+      fillEngineerAssessmentForm(item);
       customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
       pendingImageTask = null;
       el('itemImageInput').value = '';
@@ -3989,6 +4346,7 @@
 
       const existing = await getItemByTag(tagId);
       const locationSnapshot = await getCurrentLocationSnapshot();
+      const engineerAssessment = isEngineerWorkspace() ? readEngineerAssessment(existing) : (existing?.engineerAssessment || null);
       const item = withCapturedLocation({
         tagId,
         itemType: el('itemType').value,
@@ -4001,6 +4359,7 @@
         status: el('itemStatus').value,
         siteName: el('siteName').value.trim(),
         notes: el('notes').value.trim(),
+        engineerAssessment,
         imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
         lastSeenLocation: existing?.lastSeenLocation || null,
         lastSeenAt: existing?.lastSeenAt || '',
@@ -4171,6 +4530,8 @@
 
     window.setLang = setLang;
     window.openScreen = openScreen;
+    window.openBusinessModule = openBusinessModule;
+    window.openEngineerModule = openEngineerModule;
     window.openLegalNotice = openLegalNotice;
     window.closeLegalNotice = closeLegalNotice;
     window.openPasswordScreen = openPasswordScreen;
