@@ -3661,6 +3661,15 @@
       document.body.classList.add('screen-open');
       clearStatuses();
 
+      if(screenId === 'registerScreen'){
+        const registerScreen = el('registerScreen');
+        if(registerScreen){
+          registerScreen.scrollTop = 0;
+          registerScreen.scrollLeft = 0;
+          requestAnimationFrame(() => registerScreen.scrollTo({ top: 0, left: 0, behavior: 'auto' }));
+        }
+      }
+
       if(screenId === 'scanScreen'){
         hideScanDemoGallery();
         el('scanResult').classList.remove('active');
