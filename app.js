@@ -158,6 +158,7 @@
       homeTitleBusiness: 'מערכת דמו לחברת בנייה',
       homeSubtitleBusiness: 'בדיקת ציוד, קליטת ציוד, טבלה ולוגים באותו ממשק הדגמה קיים.',
       homeCheckHintBusiness: 'סריקה ובדיקת פריט קיים בשטח',
+      homeRegisterBusinessLabel: 'תסקיר בדיקה',
       homeRegisterHintBusiness: 'קליטה, עריכה וניהול ציוד',
       homeKickerEngineer: 'engineer workspace',
       homeTitleEngineer: 'גרסת מהנדס עם מסלול מלא למנהל עבודה',
@@ -205,6 +206,7 @@
       homeTitleBusiness: 'Demo System for Construction Teams',
       homeSubtitleBusiness: 'Equipment check, registration, table, and logs in the original demo flow.',
       homeCheckHintBusiness: 'Scan and review an existing item',
+      homeRegisterBusinessLabel: 'Inspection Report',
       homeRegisterHintBusiness: 'Register, edit, and manage equipment',
       homeKickerEngineer: 'engineer workspace',
       homeTitleEngineer: 'Engineer Version with Full Foreman Access',
@@ -252,6 +254,7 @@
       homeTitleBusiness: 'نظام عرض لشركة بناء',
       homeSubtitleBusiness: 'فحص معدّات وتسجيل وجدول وسجلات ضمن نسخة العرض الأصلية.',
       homeCheckHintBusiness: 'مسح وفحص معدّة موجودة',
+      homeRegisterBusinessLabel: 'تقرير فحص',
       homeRegisterHintBusiness: 'تسجيل وتعديل وإدارة المعدّات',
       homeKickerEngineer: 'engineer workspace',
       homeTitleEngineer: 'نسخة مهندس مع صلاحيات كاملة لمدير العمل',
@@ -2061,10 +2064,11 @@
         el('homeCheckTextImage').alt = t('homeCheck');
       }
       if(el('homeCheckHintText')) el('homeCheckHintText').textContent = isEngineerWorkspace() ? t('homeCheckHintEngineer') : homeCopy.primaryHint;
-      if(el('homeRegisterText')) el('homeRegisterText').textContent = t('homeRegister');
+      const homeRegisterLabel = isEngineerWorkspace() ? t('homeRegister') : t('homeRegisterBusinessLabel');
+      if(el('homeRegisterText')) el('homeRegisterText').textContent = homeRegisterLabel;
       if(el('homeRegisterTextImage')){
         el('homeRegisterTextImage').src = `./label-home-register-${currentLang}.png`;
-        el('homeRegisterTextImage').alt = t('homeRegister');
+        el('homeRegisterTextImage').alt = homeRegisterLabel;
       }
       if(el('homeRegisterHintText')) el('homeRegisterHintText').textContent = homeCopy.secondaryHint;
       if(el('homeEngineerHintText')) el('homeEngineerHintText').textContent = homeCopy.primaryHint;
