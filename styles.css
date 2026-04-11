@@ -25,6 +25,8 @@
       --button-shadow-hover:0 14px 28px rgba(15,23,42,.16), inset 0 1px 0 rgba(255,255,255,.28);
       --button-shadow-green:0 12px 26px rgba(15,118,110,.26), inset 0 1px 0 rgba(255,255,255,.2);
       --button-shadow-green-hover:0 16px 32px rgba(15,118,110,.32), inset 0 1px 0 rgba(255,255,255,.26);
+      --button-shadow-amber:0 12px 26px rgba(217,119,6,.26), inset 0 1px 0 rgba(255,255,255,.22);
+      --button-shadow-amber-hover:0 16px 32px rgba(217,119,6,.32), inset 0 1px 0 rgba(255,255,255,.28);
       --button-shadow-white:0 12px 24px rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.82);
       --button-shadow-white-hover:0 16px 30px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.92);
     }
@@ -1325,6 +1327,7 @@
     .role-login-engineer .role-login-btn {
       background:#0f766e;
       color:#fff;
+      box-shadow:var(--button-shadow-green);
     }
 
     .role-login-foreman {
@@ -1339,6 +1342,7 @@
     .role-login-foreman .role-login-btn {
       background:#d97706;
       color:#fff;
+      box-shadow:var(--button-shadow-amber);
     }
 
     .role-login-title {
@@ -1373,6 +1377,14 @@
       margin-top:10px;
       width:100%;
       min-height:var(--control-height);
+    }
+
+    .role-login-engineer .role-login-btn:hover {
+      box-shadow:var(--button-shadow-green-hover);
+    }
+
+    .role-login-foreman .role-login-btn:hover {
+      box-shadow:var(--button-shadow-amber-hover);
     }
 
     .scan-edit-panel {
