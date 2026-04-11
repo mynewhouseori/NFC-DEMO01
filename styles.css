@@ -21,6 +21,8 @@
       --control-padding-x:14px;
       --field-shadow:0 1px 2px rgba(15,23,42,.06);
       --screen-glow:0 22px 60px rgba(15,23,42,.12);
+      --button-shadow:0 10px 22px rgba(15,23,42,.12), inset 0 1px 0 rgba(255,255,255,.22);
+      --button-shadow-hover:0 14px 28px rgba(15,23,42,.16), inset 0 1px 0 rgba(255,255,255,.28);
     }
 
     html, body {
@@ -407,7 +409,8 @@
       color:#ffffff;
       cursor:pointer;
       font-weight:700;
-      transition:background-color .2s ease, transform .12s ease;
+      box-shadow:var(--button-shadow);
+      transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
     .legal-link-btn {
@@ -425,6 +428,8 @@
     .legal-link-btn:hover,
     .legal-close-btn:hover {
       background:rgba(255,255,255,.18);
+      box-shadow:var(--button-shadow-hover);
+      transform:translateY(-1px);
     }
 
     .legal-link-btn:active,
@@ -508,14 +513,15 @@
       font-size:18px;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 14px 28px rgba(15,23,42,.18), inset 0 1px 0 rgba(255,255,255,.24);
+      box-shadow:var(--button-shadow);
       transition:transform .12s ease, box-shadow .2s ease, border-color .2s ease;
       font-family:inherit;
     }
 
     .btn:active { transform:scale(.98); }
     .btn:hover {
-      box-shadow:0 18px 34px rgba(15,23,42,.22), inset 0 1px 0 rgba(255,255,255,.3);
+      box-shadow:var(--button-shadow-hover);
+      transform:translateY(-1px);
     }
 
     .btn-check {
@@ -725,6 +731,7 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
+      box-shadow:var(--button-shadow);
     }
 
     h2, h3 { margin:0 0 12px; }
@@ -767,13 +774,41 @@
       font-size:18px;
       font-weight:700;
       cursor:pointer;
-      box-shadow:0 6px 14px rgba(0,0,0,.12);
+      box-shadow:var(--button-shadow);
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
       line-height:1.2;
       transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
+    }
+
+    .back-btn:hover,
+    .main-action:hover,
+    .save-btn:hover,
+    .password-btn:hover,
+    .secondary-btn:hover,
+    .mini-btn:hover,
+    .date-quick-btn:hover,
+    .tab-btn:hover,
+    .table-save-btn:hover,
+    .table-delete-btn:hover,
+    .debug-btn:hover {
+      box-shadow:var(--button-shadow-hover);
+      transform:translateY(-1px);
+    }
+
+    .back-btn:active,
+    .main-action:active,
+    .save-btn:active,
+    .password-btn:active,
+    .secondary-btn:active,
+    .mini-btn:active,
+    .tab-btn:active,
+    .table-save-btn:active,
+    .table-delete-btn:active,
+    .debug-btn:active {
+      transform:scale(.98);
     }
 
     .main-action, .save-btn, .password-btn {
@@ -804,7 +839,6 @@
       font-size:14px;
       padding:9px 14px;
       border-radius:13px;
-      box-shadow:0 4px 10px rgba(15,23,42,.08);
     }
 
     .date-quick-actions {
@@ -826,7 +860,8 @@
       padding:6px 10px;
       min-height:28px;
       cursor:pointer;
-      transition:background-color .2s ease, border-color .2s ease, transform .2s ease;
+      box-shadow:var(--button-shadow);
+      transition:background-color .2s ease, border-color .2s ease, transform .2s ease, box-shadow .2s ease;
     }
 
     .date-quick-btn:hover {
@@ -1395,11 +1430,12 @@
       cursor:pointer;
       background:linear-gradient(180deg, #ffffff, #e5e7eb);
       color:#111827;
-      box-shadow:0 8px 20px rgba(15,23,42,.06);
+      box-shadow:var(--button-shadow);
       display:inline-flex;
       align-items:center;
       justify-content:center;
       text-align:center;
+      transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
     .tab-btn.active {
@@ -2147,7 +2183,13 @@
       min-height:40px;
       font-size:13px;
       padding:8px 12px;
+      border:1px solid rgba(15,23,42,.14);
+      border-radius:12px;
+      background:linear-gradient(180deg, #ffffff, #e2e8f0);
+      color:#0f172a;
       cursor:pointer;
+      box-shadow:var(--button-shadow);
+      transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
     .table-delete-btn {
@@ -2155,10 +2197,14 @@
       min-height:40px;
       font-size:13px;
       padding:8px 12px;
+      border:1px solid rgba(220,38,38,.28);
+      border-radius:12px;
       border-color:rgba(220,38,38,.28);
       background:#fef2f2;
       color:#991b1b;
       cursor:pointer;
+      box-shadow:var(--button-shadow);
+      transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
     .table-delete-btn.delete-confirm {
@@ -2215,7 +2261,7 @@
     }
 
     .debug-btn {
-      border:none;
+      border:1px solid rgba(148,163,184,.32);
       border-radius:10px;
       padding:8px 10px;
       font-size:12px;
@@ -2223,6 +2269,8 @@
       cursor:pointer;
       background:#e2e8f0;
       color:#0f172a;
+      box-shadow:var(--button-shadow);
+      transition:transform .12s ease, box-shadow .2s ease, background-color .2s ease, border-color .2s ease;
     }
 
     .debug-grid {
