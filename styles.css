@@ -529,22 +529,16 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:10px;
-      min-height:44px;
-      padding-bottom:20px;
+      gap:12px;
+      min-height:28px;
     }
 
-    .home-action-image-label {
-      position:absolute;
-      left:50%;
-      bottom:12px;
-      transform:translateX(-50%);
-      height:22px;
-      width:auto;
-      max-width:200px;
-      object-fit:contain;
-      pointer-events:none;
-      z-index:3;
+    .home-action-label {
+      display:inline-block;
+      font-size:19px;
+      font-weight:800;
+      line-height:1.1;
+      white-space:nowrap;
     }
 
     body.modal-open {
@@ -594,7 +588,7 @@
     .icon {
       font-size:21px;
       line-height:1;
-      transform:translateY(-8px);
+      flex:0 0 auto;
     }
 
     .screen {
