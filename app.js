@@ -2114,7 +2114,6 @@
         el('foremanRoleHintText').textContent = t('foremanRoleHint');
         el('foremanPasswordLabelText').textContent = t('foremanPasswordLabel');
         el('foremanEnterBtn').textContent = t('passwordEnter');
-        if(el('engineerWorkspaceIntroText')) el('engineerWorkspaceIntroText').textContent = t('engineerWorkspaceIntro');
       } else {
         el('passwordTitle').textContent = isEngineerWorkspace() ? t('engineerPasswordTitle') : t('businessPasswordTitle');
         el('passwordRoleHint').textContent = '';
