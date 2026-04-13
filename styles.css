@@ -2168,6 +2168,7 @@
       border-color:#0f766e;
       color:#ffffff;
       box-shadow:0 0 0 3px rgba(15,118,110,.18), 0 10px 24px rgba(15,118,110,.18);
+      cursor:progress;
     }
 
     #saveAllTableChangesBtn.is-done {
@@ -2178,8 +2179,8 @@
     }
 
     #saveAllTableChangesBtn:disabled {
-      opacity:1;
-      cursor:progress;
+      opacity:.65;
+      cursor:not-allowed;
     }
 
     .table-filters {
