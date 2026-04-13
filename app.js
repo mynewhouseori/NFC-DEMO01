@@ -2208,14 +2208,14 @@
       el('imageLabel').textContent = t('image');
       el('descriptionLabel').textContent = t('description');
       el('serialLabel').textContent = t('serial');
-      el('contractorLabel').textContent = t('contractor');
+      if(el('contractorLabel')) el('contractorLabel').textContent = t('contractor');
       el('wllLabel').textContent = t('wll');
       el('registrationDateLabel').textContent = t('registrationDate');
       el('nextInspectionLabel').textContent = t('nextInspection');
       el('nextInspectionPlus6Btn').textContent = t('nextInspectionPlus6');
       el('nextInspectionPlus12Btn').textContent = t('nextInspectionPlus12');
       el('itemStatusLabel').textContent = t('status');
-      el('siteNameLabel').textContent = t('siteName');
+      if(el('siteNameLabel')) el('siteNameLabel').textContent = t('siteName');
       el('notesLabel').textContent = t('notes');
       if(el('engineerAssessmentTitleText')) el('engineerAssessmentTitleText').textContent = t('engineerAssessmentTitle');
       if(el('engineerAssessmentSubtitleText')) el('engineerAssessmentSubtitleText').textContent = t('engineerAssessmentSubtitle');
@@ -2240,7 +2240,7 @@
       el('tagId').placeholder = t('tagPlaceholder');
       el('description').placeholder = t('descriptionPlaceholder');
       el('serialNumber').placeholder = t('serialPlaceholder');
-      el('contractor').placeholder = t('contractorPlaceholder');
+      if(el('contractor')) el('contractor').placeholder = t('contractorPlaceholder');
       el('wll').placeholder = t('wllPlaceholder');
       if(el('engineerReportNumber')) el('engineerReportNumber').placeholder = t('engineerReportNumberPlaceholder');
       if(el('engineerInspectorName')) el('engineerInspectorName').placeholder = t('engineerInspectorNamePlaceholder');
@@ -2248,7 +2248,7 @@
       if(el('engineerModel')) el('engineerModel').placeholder = t('engineerModelPlaceholder');
       if(el('engineerFailureReason')) el('engineerFailureReason').placeholder = t('engineerFailureReasonPlaceholder');
       if(el('engineerProfessionalNotes')) el('engineerProfessionalNotes').placeholder = t('engineerProfessionalNotesPlaceholder');
-      el('siteName').placeholder = t('siteNamePlaceholder');
+      if(el('siteName')) el('siteName').placeholder = t('siteNamePlaceholder');
       el('notes').placeholder = t('notesPlaceholder');
 
       el('lblContractor').textContent = t('contractor');
