@@ -2009,7 +2009,7 @@
         visitPanel.hidden = !canEdit;
       }
       if(visitEndPanel){
-        visitEndPanel.hidden = false;
+        visitEndPanel.hidden = !activeVisit;
       }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
