@@ -319,18 +319,64 @@
         <input id="contractor" type="hidden">
         <input id="siteName" type="hidden">
 
-        <div class="row">
-          <div>
-            <label for="tagId" id="tagIdLabel"></label>
-            <input id="tagId" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <div class="register-item-layout">
+          <div class="register-item-main">
+            <div class="row">
+              <div>
+                <label for="tagId" id="tagIdLabel"></label>
+                <input id="tagId" autocomplete="off" autocapitalize="off" spellcheck="false">
+              </div>
+              <div>
+                <label for="description" id="descriptionLabel"></label>
+                <input id="description" autocomplete="off" autocapitalize="off" spellcheck="false">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="serialNumber" id="serialLabel"></label>
+                <input id="serialNumber" autocomplete="off" autocapitalize="off" spellcheck="false">
+              </div>
+              <div>
+                <label for="wll" id="wllLabel"></label>
+                <input id="wll" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" data-decimal-input="1">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="nextInspection" id="nextInspectionLabel"></label>
+                <input id="nextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+                <div class="date-quick-actions">
+                  <button type="button" class="date-quick-btn" id="nextInspectionPlus6Btn" onclick="applyNextInspectionOffset('nextInspection', 6)"></button>
+                  <button type="button" class="date-quick-btn" id="nextInspectionPlus12Btn" onclick="applyNextInspectionOffset('nextInspection', 12)"></button>
+                </div>
+              </div>
+              <div>
+                <label for="registrationDate" id="registrationDateLabel"></label>
+                <input id="registrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
+              </div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="notes" id="notesLabel"></label>
+                <input id="notes">
+              </div>
+              <div>
+                <label for="itemStatus" id="itemStatusLabel"></label>
+                <select id="itemStatus"></select>
+              </div>
+            </div>
           </div>
-          <div>
-            <div class="preview-wrap">
-              <div style="flex:1;">
+
+          <div class="register-item-media">
+            <div class="preview-wrap register-preview-wrap">
+              <div class="register-type-field">
                 <label for="itemType" id="itemTypeLabel"></label>
                 <select id="itemType"></select>
               </div>
-              <div>
+              <div class="register-image-field">
                 <label id="imageLabel"></label>
                 <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
                 <input id="itemImageInput" type="file" accept="image/*" capture="environment" hidden>
@@ -340,50 +386,6 @@
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="description" id="descriptionLabel"></label>
-            <input id="description" autocomplete="off" autocapitalize="off" spellcheck="false">
-          </div>
-          <div>
-            <label for="serialNumber" id="serialLabel"></label>
-            <input id="serialNumber" autocomplete="off" autocapitalize="off" spellcheck="false">
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-              <label for="wll" id="wllLabel"></label>
-              <input id="wll" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" data-decimal-input="1">
-          </div>
-          <div>
-            <label for="registrationDate" id="registrationDateLabel"></label>
-            <input id="registrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="nextInspection" id="nextInspectionLabel"></label>
-            <input id="nextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
-            <div class="date-quick-actions">
-              <button type="button" class="date-quick-btn" id="nextInspectionPlus6Btn" onclick="applyNextInspectionOffset('nextInspection', 6)"></button>
-              <button type="button" class="date-quick-btn" id="nextInspectionPlus12Btn" onclick="applyNextInspectionOffset('nextInspection', 12)"></button>
-            </div>
-          </div>
-          <div>
-            <label for="itemStatus" id="itemStatusLabel"></label>
-            <select id="itemStatus"></select>
-          </div>
-        </div>
-
-        <div class="row">
-          <div>
-            <label for="notes" id="notesLabel"></label>
-            <input id="notes">
           </div>
         </div>
 

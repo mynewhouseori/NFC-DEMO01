@@ -1004,8 +1004,47 @@
       margin-bottom:14px;
     }
 
+    .register-item-layout {
+      display:grid;
+      grid-template-columns:minmax(0, 1.4fr) minmax(240px, .86fr);
+      gap:18px;
+      align-items:start;
+      margin-bottom:14px;
+    }
+
+    .register-item-main .row:last-child {
+      margin-bottom:0;
+    }
+
+    .register-item-media {
+      border:1px solid rgba(148,163,184,.22);
+      border-radius:20px;
+      padding:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(241,245,249,.92));
+      box-shadow:0 12px 28px rgba(15,23,42,.06);
+    }
+
+    .register-preview-wrap {
+      align-items:flex-start;
+      gap:16px;
+    }
+
+    .register-type-field {
+      flex:1;
+      min-width:0;
+    }
+
+    .register-image-field {
+      width:104px;
+      flex-shrink:0;
+    }
+
     @media (max-width:700px){
       .row { grid-template-columns:1fr; }
+      .register-item-layout { grid-template-columns:1fr; }
+      .register-item-media { order:-1; }
+      .register-preview-wrap { align-items:flex-end; }
+      .register-image-field { width:92px; }
 
       .date-input-shell .date-text-input {
         font-size:15px;
