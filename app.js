@@ -1998,7 +1998,7 @@
         registerPane.style.display = '';
       }
       if(visitPanel){
-        visitPanel.hidden = !canEdit || !engineerWorkspace;
+        visitPanel.hidden = !canEdit;
       }
       if(visitEndPanel){
         visitEndPanel.hidden = false;
