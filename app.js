@@ -3724,6 +3724,9 @@
       document.documentElement.classList.add('screen-open');
       document.body.classList.add('screen-open');
       clearStatuses();
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
 
       if(screenId === 'registerScreen'){
         const registerScreen = el('registerScreen');
@@ -3820,6 +3823,12 @@
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
       el(tabId).classList.add('active');
+
+      if(tabId === 'registerPane'){
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+      }
 
       if(tabId === 'registerPane'){
         el('tabRegisterBtn').classList.add('active');
