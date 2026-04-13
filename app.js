@@ -78,7 +78,7 @@
         reportOverdueDays: 'איחור של {days} ימים',
         reportUpcomingDays: 'בעוד {days} ימים',
         reportNoUrgentItems: 'אין כרגע פריטים דחופים להצגה.',
-        reportFooter: 'הדוח נוצר אוטומטית ממסך הטבלה לצורכי הצגה, בקרה ושיתוף.'
+        reportFooter: ''
       },
       en: {
         exportReport: 'Current Status Report',
@@ -98,7 +98,7 @@
         reportOverdueDays: 'Overdue by {days} days',
         reportUpcomingDays: 'Due in {days} days',
         reportNoUrgentItems: 'There are currently no urgent items to display.',
-        reportFooter: 'This report was generated automatically from the table view for presentation and follow-up.'
+        reportFooter: ''
       },
       ar: {
         exportReport: 'تقرير حالة محدث',
@@ -118,7 +118,7 @@
         reportOverdueDays: 'متأخر {days} يوماً',
         reportUpcomingDays: 'خلال {days} يوماً',
         reportNoUrgentItems: 'لا توجد حالياً معدات عاجلة للعرض.',
-        reportFooter: 'تم إنشاء هذا التقرير تلقائياً من شاشة الجدول لأغراض العرض والمتابعة.'
+        reportFooter: ''
       }
     };
     const LOCATION_TEXT = {
