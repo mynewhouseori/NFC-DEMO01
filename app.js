@@ -3724,6 +3724,7 @@
           registerScreen.scrollLeft = 0;
           requestAnimationFrame(() => registerScreen.scrollTo({ top: 0, left: 0, behavior: 'auto' }));
         }
+        renderVisitStatus();
       }
 
       if(screenId === 'scanScreen'){
