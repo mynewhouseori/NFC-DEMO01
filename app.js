@@ -1342,12 +1342,13 @@
             <td>${escapeHtml(entry.contractor || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
+            <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
             <td>${escapeHtml(entry.engineerAssessment?.professionalNotes || '-')}</td>
           </tr>
-        `).join('') : `<tr><td colspan="18">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+        `).join('') : `<tr><td colspan="19">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
 
         const html = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -1421,6 +1422,7 @@
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
@@ -1449,6 +1451,7 @@
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
@@ -2138,6 +2141,7 @@
         el('scanEditSerial').value = '';
         el('scanEditWll').value = '';
         el('scanEditRegistrationDate').value = '';
+        el('scanEditPreviousInspectionDate').value = '';
         el('scanEditNextInspection').value = '';
         el('scanEditStatus').value = '׳×׳§׳™׳';
         el('scanEditSiteName').value = '';
@@ -2151,6 +2155,7 @@
       el('scanEditSerial').value = item.serialNumber || '';
       el('scanEditWll').value = item.wll || '';
       el('scanEditRegistrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
+      el('scanEditPreviousInspectionDate').value = formatDateInputValue(getPreviousInspectionDateValue(item));
       el('scanEditNextInspection').value = formatDateInputValue(item.nextInspection);
       el('scanEditStatus').value = item.status || '׳×׳§׳™׳';
       el('scanEditSiteName').value = item.siteName || '';
@@ -2267,6 +2272,7 @@
       el('scanEditSerialLabel').textContent = t('serial');
       el('scanEditWllLabel').textContent = t('wll');
       el('scanEditRegistrationDateLabel').textContent = t('registrationDate');
+      el('scanEditPreviousInspectionDateLabel').textContent = t('previousInspectionDate');
       el('scanEditNextInspectionLabel').textContent = t('nextInspection');
       el('scanNextInspectionPlus6Btn').textContent = t('nextInspectionPlus6');
       el('scanNextInspectionPlus12Btn').textContent = t('nextInspectionPlus12');
@@ -2300,6 +2306,7 @@
       if(el('contractorLabel')) el('contractorLabel').textContent = t('contractor');
       el('wllLabel').textContent = t('wll');
       el('registrationDateLabel').textContent = t('registrationDate');
+      el('previousInspectionDateLabel').textContent = t('previousInspectionDate');
       el('nextInspectionLabel').textContent = t('nextInspection');
       el('nextInspectionPlus6Btn').textContent = t('nextInspectionPlus6');
       el('nextInspectionPlus12Btn').textContent = t('nextInspectionPlus12');
@@ -2490,6 +2497,7 @@
       if(key === 'status') return translateStatus(item.status);
       if(key === 'itemType') return translateType(item.itemType);
       if(key === 'registrationDate') return getRegistrationDateValue(item);
+      if(key === 'previousInspectionDate') return getPreviousInspectionDateValue(item);
       return item?.[key] || '';
     }
 
@@ -2621,6 +2629,8 @@
           applySelectStatusClass(target, target.value);
         } else if(target.classList.contains('table-registration-date-input')){
           draft.registrationDate = target.value;
+        } else if(target.classList.contains('table-previous-inspection-date-input')){
+          draft.previousInspectionDate = target.value;
         } else if(target.classList.contains('table-date-input')){
           draft.nextInspection = target.value;
         } else if(target.classList.contains('table-site-name-input')){
@@ -2742,12 +2752,13 @@
       const safeTagId = CSS.escape(String(tagId || ''));
       const statusInput = document.querySelector(`.table-status-select[data-tag-id="${safeTagId}"]`);
       const registrationDateInput = document.querySelector(`.table-registration-date-input[data-tag-id="${safeTagId}"]`);
+      const previousInspectionDateInput = document.querySelector(`.table-previous-inspection-date-input[data-tag-id="${safeTagId}"]`);
       const dateInput = document.querySelector(`.table-date-input[data-tag-id="${safeTagId}"]`);
       const siteNameInput = document.querySelector(`.table-site-name-input[data-tag-id="${safeTagId}"]`);
       const notesInput = document.querySelector(`.table-notes-input[data-tag-id="${safeTagId}"]`);
       const statusNode = document.querySelector(`.table-row-status[data-tag-id="${safeTagId}"]`);
 
-      if(!statusInput || !registrationDateInput || !dateInput || !siteNameInput || !notesInput || !statusNode){
+      if(!statusInput || !registrationDateInput || !previousInspectionDateInput || !dateInput || !siteNameInput || !notesInput || !statusNode){
         return;
       }
 
@@ -2766,6 +2777,7 @@
           ...existing,
           status: statusInput.value,
           registrationDate: normalizeRegistrationDate(registrationDateInput.value),
+          previousInspectionDate: normalizeRegistrationDate(previousInspectionDateInput.value),
           nextInspection: normalizeRegistrationDate(dateInput.value),
           siteName: siteNameInput.value.trim(),
           notes: notesInput.value.trim(),
@@ -3133,6 +3145,10 @@
       return normalizeRegistrationDate(item?.registrationDate || item?.createdAt) || todayIsoDate();
     }
 
+    function getPreviousInspectionDateValue(item = null){
+      return normalizeRegistrationDate(item?.previousInspectionDate || '');
+    }
+
     function addMonthsToIsoDate(baseDate, monthsToAdd){
       const normalizedBaseDate = normalizeRegistrationDate(baseDate) || todayIsoDate();
       const [yearText, monthText, dayText] = normalizedBaseDate.split('-');
@@ -3213,12 +3229,13 @@
                 <td>${escapeHtml(item.description || '-')}</td>
                 <td>${escapeHtml(translateStatus(item.status))}</td>
                 <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
+                <td>${escapeHtml(formatReportDate(getPreviousInspectionDateValue(item)))}</td>
                 <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
                 <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
               </tr>
             `;
           }).join('')
-        : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+        : `<tr><td colspan="8">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
     }
 
     async function renderPresentationReportPage(){
@@ -3298,6 +3315,7 @@
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('registrationDate'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('reportPriorityStatus'))}</th>
                   </tr>
@@ -3357,12 +3375,13 @@
                   <td>${escapeHtml(item.description || '-')}</td>
                   <td>${escapeHtml(translateStatus(item.status))}</td>
                   <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
+                  <td>${escapeHtml(formatReportDate(getPreviousInspectionDateValue(item)))}</td>
                   <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
                   <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
                 </tr>
               `;
             }).join('')
-          : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+          : `<tr><td colspan="8">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
         const buildReportHtml = (logoSrc) => `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -3440,6 +3459,7 @@
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('registrationDate'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(rt('reportUrgency'))}</th>
                   </tr>
@@ -3496,6 +3516,7 @@
           item.wll,
           item.siteName,
           getRegistrationDateValue(item),
+          getPreviousInspectionDateValue(item),
           item.notes,
           translateStatus(item.status)
         ];
@@ -3533,6 +3554,7 @@
         itemContractor: item?.contractor || '',
         itemWll: item?.wll || '',
         itemSiteName: item?.siteName || '',
+        itemPreviousInspection: item?.previousInspectionDate || '',
         itemNextInspection: item?.nextInspection || '',
         itemNotes: item?.notes || '',
         engineerReportNumber: item?.engineerAssessment?.reportNumber || '',
@@ -3631,6 +3653,7 @@
           const locationText = effectiveLocation?.label || formatLocationSnapshot(effectiveLocation) || lt('locationUnavailable');
           const locationMapUrl = getLocationMapUrl(effectiveLocation);
           const actionText = formatLogAction(log);
+          const previousInspectionText = log.itemPreviousInspection || fallbackItem?.previousInspectionDate || '';
           const nextInspectionText = log.itemNextInspection || fallbackItem?.nextInspection || '';
           return `
             <div class="${itemClass}">
@@ -3647,6 +3670,7 @@
                 ${typeText ? `<div><strong>${t('itemType')}:</strong> ${typeText}</div>` : ''}
                 ${contractorText ? `<div><strong>${t('contractor')}:</strong> ${escapeHtml(contractorText)}</div>` : ''}
                 ${siteText ? `<div><strong>${t('siteName')}:</strong> ${escapeHtml(siteText)}</div>` : ''}
+                ${previousInspectionText ? `<div><strong>${t('previousInspectionDate')}:</strong> ${escapeHtml(formatDisplayDate(previousInspectionText))}</div>` : ''}
                 ${nextInspectionText ? `<div><strong>${t('nextInspection')}:</strong> ${escapeHtml(formatDisplayDate(nextInspectionText))}</div>` : ''}
                 ${locationText && locationText !== lt('locationUnavailable') ? `<div><strong>${lt('lastSeenLocation')}:</strong> ${locationMapUrl
                   ? `${escapeHtml(locationText)} <a class="map-link" href="${escapeHtml(locationMapUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('locationMapLink'))}</a>`
@@ -3699,6 +3723,7 @@
                 <th>${t('wll')}</th>
                 <th>${sortableHeader(t('siteName'), 'siteName')}</th>
                 <th>${sortableHeader(t('registrationDate'), 'registrationDate')}</th>
+                <th>${sortableHeader(t('previousInspectionDate'), 'previousInspectionDate')}</th>
                 <th>${sortableHeader(t('nextInspection'), 'nextInspection')}</th>
                 <th>${t('notes')}</th>
                 <th>${t('actions')}</th>
@@ -3710,6 +3735,7 @@
                 const draftStatus = draft.status ?? item.status;
                 const draftSiteName = draft.siteName ?? item.siteName ?? '';
                 const draftRegistrationDate = draft.registrationDate ?? getRegistrationDateValue(item);
+                const draftPreviousInspectionDate = draft.previousInspectionDate ?? getPreviousInspectionDateValue(item);
                 const draftNextInspection = draft.nextInspection ?? item.nextInspection ?? '';
                 const draftNotes = draft.notes ?? item.notes ?? '';
                 return `
@@ -3733,6 +3759,11 @@
                     ${canEditRegister()
                       ? `<input class="toolbar-input table-inline-input table-registration-date-input date-text-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" value="${escapeHtml(formatDateInputValue(draftRegistrationDate))}">`
                       : `<span>${escapeHtml(formatDisplayDate(draftRegistrationDate))}</span>`}
+                  </td>
+                  <td class="table-edit-cell" data-label="${t('previousInspectionDate')}">
+                    ${canEditRegister()
+                      ? `<input class="toolbar-input table-inline-input table-previous-inspection-date-input date-text-input" data-tag-id="${escapeHtml(item.tagId || '')}" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" value="${escapeHtml(formatDateInputValue(draftPreviousInspectionDate))}">`
+                      : `<span>${escapeHtml(formatDisplayDate(draftPreviousInspectionDate))}</span>`}
                   </td>
                   <td class="table-edit-cell" data-label="${t('nextInspection')}">
                     ${canEditRegister()
@@ -4038,6 +4069,7 @@
           itemContractor: '',
           itemWll: '',
           itemSiteName: '',
+          itemPreviousInspection: '',
           itemNextInspection: '',
           itemNotes: closedVisit.notes || '',
           lastSeenLocation: null,
@@ -4073,6 +4105,7 @@
       el('contractor').value = getVisitClientValue();
       el('wll').value = '';
       el('registrationDate').value = formatDateInputValue(todayIsoDate());
+      el('previousInspectionDate').value = '';
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
       el('siteName').value = getVisitSiteValue();
@@ -4116,6 +4149,7 @@
             wll: log.itemWll || fallbackItem?.wll || '',
             contractor: log.itemContractor || fallbackItem?.contractor || '',
             siteName: log.itemSiteName || fallbackItem?.siteName || '',
+            previousInspectionDate: log.itemPreviousInspection || fallbackItem?.previousInspectionDate || '',
             status: log.itemStatus || fallbackItem?.status || '',
             nextInspection: log.itemNextInspection || fallbackItem?.nextInspection || '',
             notes: log.itemNotes || fallbackItem?.notes || '',
@@ -4170,6 +4204,7 @@
             <td>${escapeHtml(entry.contractor || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
             <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
           </tr>
@@ -4246,6 +4281,7 @@
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
                   </tr>
@@ -4268,6 +4304,7 @@
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
+                    <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
                   </tr>
@@ -4456,6 +4493,7 @@
           serialNumber: el('scanEditSerial').value.trim(),
           wll: sanitizeDecimalInput(el('scanEditWll').value),
           registrationDate: normalizeRegistrationDate(el('scanEditRegistrationDate').value) || getRegistrationDateValue(currentScannedItem),
+          previousInspectionDate: normalizeRegistrationDate(el('scanEditPreviousInspectionDate').value),
           nextInspection: normalizeRegistrationDate(el('scanEditNextInspection').value),
           status: el('scanEditStatus').value,
           siteName: el('scanEditSiteName').value.trim(),
@@ -4492,6 +4530,7 @@
       el('contractor').value = getVisitClientValue() || item.contractor || '';
       el('wll').value = item.wll || '';
       el('registrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
+      el('previousInspectionDate').value = formatDateInputValue(getPreviousInspectionDateValue(item));
       el('nextInspection').value = formatDateInputValue(item.nextInspection);
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
       el('siteName').value = getVisitSiteValue() || item.siteName || '';
@@ -4539,6 +4578,7 @@
         contractor: getVisitClientValue() || el('contractor').value.trim() || existing?.contractor || '',
         wll: sanitizeDecimalInput(el('wll').value),
         registrationDate: normalizeRegistrationDate(el('registrationDate').value) || getRegistrationDateValue(existing),
+        previousInspectionDate: normalizeRegistrationDate(el('previousInspectionDate').value),
         nextInspection: normalizeRegistrationDate(el('nextInspection').value),
         status: el('itemStatus').value,
         siteName: getVisitSiteValue() || el('siteName').value.trim() || existing?.siteName || '',

@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413visitSignatureBlock001" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413previousInspection001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -163,16 +163,16 @@
           </div>
           <div class="scan-edit-grid">
             <div>
+              <label for="scanEditPreviousInspectionDate" id="scanEditPreviousInspectionDateLabel"></label>
+              <input id="scanEditPreviousInspectionDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
+            </div>
+            <div>
               <label for="scanEditNextInspection" id="scanEditNextInspectionLabel"></label>
               <input id="scanEditNextInspection" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY">
               <div class="date-quick-actions">
                 <button type="button" class="date-quick-btn" id="scanNextInspectionPlus6Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 6)"></button>
                 <button type="button" class="date-quick-btn" id="scanNextInspectionPlus12Btn" onclick="applyNextInspectionOffset('scanEditNextInspection', 12)"></button>
               </div>
-            </div>
-            <div>
-              <label for="scanEditStatus" id="scanEditStatusLabel"></label>
-              <select id="scanEditStatus"></select>
             </div>
           </div>
           <div class="scan-edit-grid">
@@ -181,7 +181,8 @@
               <input id="scanEditSiteName">
             </div>
             <div>
-              <label></label>
+              <label for="scanEditStatus" id="scanEditStatusLabel"></label>
+              <select id="scanEditStatus"></select>
             </div>
           </div>
           <div class="scan-edit-grid">
@@ -346,7 +347,11 @@
               </div>
             </div>
 
-            <div class="row">
+            <div class="row register-date-row">
+              <div>
+                <label for="previousInspectionDate" id="previousInspectionDateLabel"></label>
+                <input id="previousInspectionDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
+              </div>
               <div>
                 <label for="registrationDate" id="registrationDateLabel"></label>
                 <input id="registrationDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
@@ -561,7 +566,7 @@
 
   <script>
     (async function bootApp() {
-      const BOOTSTRAP_ASSET_VERSION = '20260413visitSignatureBlock001';
+      const BOOTSTRAP_ASSET_VERSION = '20260413previousInspection001';
       const VERSION_MANIFEST_URL = './version.json';
 
       const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {

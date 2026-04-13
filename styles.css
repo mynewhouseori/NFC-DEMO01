@@ -1017,6 +1017,10 @@
       margin-bottom:14px;
     }
 
+    .register-date-row {
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+    }
+
     .register-item-layout {
       display:grid;
       grid-template-columns:minmax(0, 1.4fr) minmax(240px, .86fr);
@@ -1058,6 +1062,7 @@
 
     @media (max-width:700px){
       .row { grid-template-columns:1fr; }
+      .register-date-row { grid-template-columns:1fr; }
       .register-item-layout { grid-template-columns:1fr; }
       .register-item-media { order:-1; }
       .register-preview-wrap { align-items:flex-end; }
