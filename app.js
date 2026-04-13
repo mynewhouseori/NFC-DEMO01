@@ -1966,7 +1966,7 @@
         visitPanel.hidden = !canEdit || !engineerWorkspace;
       }
       if(visitEndPanel){
-        visitEndPanel.hidden = !engineerWorkspace || !activeVisit;
+        visitEndPanel.hidden = false;
       }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
@@ -2855,6 +2855,28 @@
       shell.appendChild(triggerWrap);
 
       const refreshPicker = () => syncDatePickerState(input, picker);
+      const openPicker = () => {
+        refreshPicker();
+        if(typeof picker.showPicker === 'function'){
+          try {
+            picker.showPicker();
+            return;
+          } catch (error) {
+            pushDebugLine(`Date picker fallback used: ${error.message}`);
+          }
+        }
+        picker.focus();
+        picker.click();
+      };
+
+      triggerWrap.addEventListener('click', (event) => {
+        if(input.disabled || picker.disabled){
+          return;
+        }
+        event.preventDefault();
+        openPicker();
+      });
+
       picker.addEventListener('focus', refreshPicker);
       picker.addEventListener('pointerdown', refreshPicker);
       picker.addEventListener('click', refreshPicker);
