@@ -1039,26 +1039,8 @@
       flex-shrink:0;
     }
 
-    .visit-end-placeholder {
-      margin-top:14px;
-      margin-bottom:14px;
-      border:1px dashed #cbd5e1;
-      border-radius:18px;
-      padding:16px 18px;
-      background:linear-gradient(180deg, rgba(248,250,252,.95), rgba(241,245,249,.95));
-      color:#475569;
-    }
-
-    .visit-end-placeholder-title {
-      font-size:15px;
-      font-weight:800;
-      color:#0f766e;
-      margin-bottom:6px;
-    }
-
-    .visit-end-placeholder-text {
-      font-size:14px;
-      line-height:1.6;
+    .register-notes-status-row {
+      grid-template-columns:minmax(0, 1.45fr) minmax(170px, .55fr);
     }
 
     @media (max-width:700px){
@@ -1067,6 +1049,7 @@
       .register-item-media { order:-1; }
       .register-preview-wrap { align-items:flex-end; }
       .register-image-field { width:92px; }
+      .register-notes-status-row { grid-template-columns:1fr; }
 
       .date-input-shell .date-text-input {
         font-size:15px;
