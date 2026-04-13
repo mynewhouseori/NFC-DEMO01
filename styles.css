@@ -1815,10 +1815,40 @@
 
 .report-archive-filters {
   display:grid;
-  grid-template-columns:repeat(3, minmax(160px, 1fr)) auto auto;
-  gap:10px;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:14px;
   width:100%;
   align-items:end;
+}
+
+.report-archive-filter-grid {
+  display:grid;
+  grid-template-columns:repeat(3, minmax(180px, 1fr));
+  gap:12px;
+  align-items:end;
+}
+
+.report-archive-field {
+  display:grid;
+  gap:8px;
+  min-width:0;
+}
+
+.report-archive-field .toolbar-input {
+  width:100%;
+}
+
+.report-archive-filter-actions {
+  display:grid;
+  grid-auto-flow:column;
+  grid-auto-columns:minmax(150px, max-content);
+  gap:10px;
+  align-self:end;
+}
+
+.report-archive-filter-actions .mini-btn {
+  width:100%;
+  justify-content:center;
 }
 
 .report-archive-panel {
@@ -2008,6 +2038,13 @@
   .report-archive-card-meta,
   .log-meta-grid {
     grid-template-columns:1fr;
+  }
+  .report-archive-filter-grid {
+    grid-template-columns:1fr;
+  }
+  .report-archive-filter-actions {
+    grid-auto-flow:row;
+    grid-auto-columns:1fr;
   }
   .log-top {
     justify-content:flex-start;
