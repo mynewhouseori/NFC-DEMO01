@@ -2193,7 +2193,7 @@
 
     #saveAllTableChangesBtn:disabled {
       opacity:.65;
-      cursor:not-allowed;
+      cursor:default;
     }
 
     .table-filters {
