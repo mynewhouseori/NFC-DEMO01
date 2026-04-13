@@ -1333,22 +1333,15 @@
             <td>${escapeHtml(translateType(entry.itemType))}</td>
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
-            <td>${escapeHtml(entry.engineerAssessment?.reportNumber || '-')}</td>
-            <td>${escapeHtml(entry.engineerAssessment?.manufacturer || '-')}</td>
-            <td>${escapeHtml(entry.engineerAssessment?.model || '-')}</td>
-            <td>${escapeHtml(t(`engineerResult${capitalize(entry.engineerAssessment?.result || '')}`) || entry.engineerAssessment?.result || '-')}</td>
-            <td>${escapeHtml(entry.engineerAssessment?.failureReason || '-')}</td>
-            <td>${escapeHtml(formatReportDate(entry.engineerAssessment?.validityUntil || ''))}</td>
             <td>${escapeHtml(entry.contractor || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
-            <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
-            <td>${escapeHtml(entry.engineerAssessment?.professionalNotes || '-')}</td>
           </tr>
-        `).join('') : `<tr><td colspan="19">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
 
         const html = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -1413,12 +1406,6 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('engineerReportNumber'))}</th>
-                    <th>${escapeHtml(t('engineerManufacturer'))}</th>
-                    <th>${escapeHtml(t('engineerModel'))}</th>
-                    <th>${escapeHtml(t('engineerResult'))}</th>
-                    <th>${escapeHtml(t('engineerFailureReason'))}</th>
-                    <th>${escapeHtml(t('engineerValidityUntil'))}</th>
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
@@ -1426,7 +1413,6 @@
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
-                    <th>${escapeHtml(t('engineerProfessionalNotes'))}</th>
                   </tr>
                 </thead>
                 <tbody>${renderRows(newEntries)}</tbody>
@@ -1442,12 +1428,6 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('engineerReportNumber'))}</th>
-                    <th>${escapeHtml(t('engineerManufacturer'))}</th>
-                    <th>${escapeHtml(t('engineerModel'))}</th>
-                    <th>${escapeHtml(t('engineerResult'))}</th>
-                    <th>${escapeHtml(t('engineerFailureReason'))}</th>
-                    <th>${escapeHtml(t('engineerValidityUntil'))}</th>
                     <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
@@ -1455,7 +1435,6 @@
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
                     <th>${escapeHtml(t('notes'))}</th>
-                    <th>${escapeHtml(t('engineerProfessionalNotes'))}</th>
                   </tr>
                 </thead>
                 <tbody>${renderRows(checkedEntries)}</tbody>
