@@ -588,6 +588,14 @@
       };
     }
 
+    function getVisitClientValue(){
+      return String(el('visitClient')?.value || '').trim();
+    }
+
+    function getVisitSiteValue(){
+      return String(el('visitSite')?.value || '').trim();
+    }
+
     function canEditVisitClosure(){
       return canEditRegister() && !!activeVisit && activeVisit.status !== 'closed';
     }
@@ -3969,12 +3977,12 @@
       el('itemType').value = '׳©׳׳§׳';
       el('description').value = '';
       el('serialNumber').value = '';
-      el('contractor').value = '';
+      el('contractor').value = getVisitClientValue();
       el('wll').value = '';
       el('registrationDate').value = formatDateInputValue(todayIsoDate());
       el('nextInspection').value = '';
       el('itemStatus').value = '׳×׳§׳™׳';
-      el('siteName').value = '';
+      el('siteName').value = getVisitSiteValue();
       el('notes').value = '';
       fillEngineerAssessmentForm();
       customImageSrc = '';
@@ -4389,12 +4397,12 @@
       el('itemType').value = item.itemType || '׳©׳׳§׳';
       el('description').value = item.description || '';
       el('serialNumber').value = item.serialNumber || '';
-      el('contractor').value = item.contractor || '';
+      el('contractor').value = getVisitClientValue() || item.contractor || '';
       el('wll').value = item.wll || '';
       el('registrationDate').value = formatDateInputValue(getRegistrationDateValue(item));
       el('nextInspection').value = formatDateInputValue(item.nextInspection);
       el('itemStatus').value = item.status || '׳×׳§׳™׳';
-      el('siteName').value = item.siteName || '';
+      el('siteName').value = getVisitSiteValue() || item.siteName || '';
       el('notes').value = item.notes || '';
       fillEngineerAssessmentForm(item);
       customImageSrc = item.imageSrc && !isLibraryImageSrc(item.imageSrc) ? item.imageSrc : '';
@@ -4436,12 +4444,12 @@
         itemType: el('itemType').value,
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
-        contractor: el('contractor').value.trim(),
+        contractor: getVisitClientValue() || el('contractor').value.trim() || existing?.contractor || '',
         wll: sanitizeDecimalInput(el('wll').value),
         registrationDate: normalizeRegistrationDate(el('registrationDate').value) || getRegistrationDateValue(existing),
         nextInspection: normalizeRegistrationDate(el('nextInspection').value),
         status: el('itemStatus').value,
-        siteName: el('siteName').value.trim(),
+        siteName: getVisitSiteValue() || el('siteName').value.trim() || existing?.siteName || '',
         notes: el('notes').value.trim(),
         engineerAssessment,
         imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
