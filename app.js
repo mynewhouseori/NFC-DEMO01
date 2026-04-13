@@ -681,6 +681,19 @@
       el('visitSite').value = visit?.site || '';
       el('visitNotes').value = visit?.notes || '';
       loadVisitSignatureDataUrl(visit?.signatureDataUrl || '');
+      renderVisitSignatureIdentity();
+    }
+
+    function renderVisitSignatureIdentity(){
+      const nameNode = el('visitSignatureEngineerNameText');
+      const roleNode = el('visitSignatureEngineerRoleText');
+      if(!nameNode || !roleNode){
+        return;
+      }
+      const resolvedName = String(el('visitEngineer')?.value || activeVisit?.engineer || '').trim();
+      nameNode.textContent = resolvedName || t('visitSignatureEngineerNameEmpty');
+      nameNode.classList.toggle('muted', !resolvedName);
+      roleNode.textContent = t('visitSignatureEngineerRole');
     }
 
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
@@ -737,6 +750,7 @@
       if(visitEndPanel){
         visitEndPanel.hidden = !activeVisit;
       }
+      renderVisitSignatureIdentity();
       el('visitCloseBtn').disabled = !canEditRegister() || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEditRegister() || !activeVisit;
       el('visitReportBtn').hidden = !canEditRegister();
@@ -2205,6 +2219,7 @@
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
       el('visitClient').placeholder = t('visitClientPlaceholder');
       el('visitSite').placeholder = t('visitSitePlaceholder');
+      renderVisitSignatureIdentity();
       el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
       el('legalOpenBtn').textContent = t('legalOpen');
       el('legalTitleText').textContent = t('legalTitle');
@@ -4667,6 +4682,9 @@
           pendingImageTask = null;
           throw error;
         });
+    });
+    el('visitEngineer').addEventListener('input', () => {
+      renderVisitSignatureIdentity();
     });
     el('tableSearchInput').addEventListener('input', (event) => {
       tableFilters.query = event.target.value || '';

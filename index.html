@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413reportNumber001" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413visitSignatureBlock001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -418,6 +418,10 @@
                 <button class="mini-btn" onclick="clearVisitSignaturePad()" id="visitSignatureClearBtn" type="button"></button>
               </div>
               <canvas id="visitSignaturePad" class="signature-pad" width="640" height="180"></canvas>
+              <div class="visit-signature-identity" aria-live="polite">
+                <div class="visit-signature-name" id="visitSignatureEngineerNameText"></div>
+                <div class="visit-signature-role" id="visitSignatureEngineerRoleText"></div>
+              </div>
             </div>
           </div>
 
@@ -557,7 +561,7 @@
 
   <script>
     (async function bootApp() {
-      const BOOTSTRAP_ASSET_VERSION = '20260413reportNumber001';
+      const BOOTSTRAP_ASSET_VERSION = '20260413visitSignatureBlock001';
       const VERSION_MANIFEST_URL = './version.json';
 
       const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {

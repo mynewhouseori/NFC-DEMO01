@@ -1701,6 +1701,31 @@
       touch-action:none;
       cursor:crosshair;
     }
+
+    .visit-signature-identity {
+      margin-top:12px;
+      padding:12px 14px;
+      border:1px solid rgba(148,163,184,.28);
+      border-radius:14px;
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(248,250,252,.94));
+      text-align:center;
+    }
+
+    .visit-signature-name {
+      font-size:18px;
+      font-weight:800;
+      color:#0f172a;
+      min-height:24px;
+    }
+
+    .visit-signature-role {
+      margin-top:4px;
+      font-size:13px;
+      font-weight:700;
+      color:#475569;
+      letter-spacing:.03em;
+    }
+
     .visit-summary {
       color:#0f172a;
       font-weight:700;
