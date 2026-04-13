@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413visitButtons001" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260413reportNumber001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -230,16 +230,23 @@
               <input id="visitDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
             </div>
             <div>
-              <label for="visitEngineer" id="visitEngineerLabelText"></label>
-              <input id="visitEngineer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+              <label for="engineerReportNumber" id="engineerReportNumberLabelText"></label>
+              <input id="engineerReportNumber" type="text" inputmode="numeric" autocomplete="off" spellcheck="false">
             </div>
           </div>
 
           <div class="visit-grid">
             <div>
+              <label for="visitEngineer" id="visitEngineerLabelText"></label>
+              <input id="visitEngineer" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+            </div>
+            <div>
               <label for="visitClient" id="visitClientLabelText"></label>
               <input id="visitClient" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
             </div>
+          </div>
+
+          <div class="visit-grid">
             <div>
               <label for="visitSite" id="visitSiteLabelText"></label>
               <input id="visitSite" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
@@ -264,19 +271,8 @@
 
           <div class="visit-grid">
             <div>
-              <label for="engineerReportNumber" id="engineerReportNumberLabelText"></label>
-              <input id="engineerReportNumber" type="text" autocomplete="off" spellcheck="false">
-            </div>
-            <div>
               <label for="engineerInspectorName" id="engineerInspectorNameLabelText"></label>
               <input id="engineerInspectorName" type="text" autocomplete="off" spellcheck="false">
-            </div>
-          </div>
-
-          <div class="visit-grid">
-            <div>
-              <label for="engineerInspectionDate" id="engineerInspectionDateLabelText"></label>
-              <input id="engineerInspectionDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
             </div>
             <div>
               <label for="engineerValidityUntil" id="engineerValidityUntilLabelText"></label>
@@ -286,20 +282,27 @@
 
           <div class="visit-grid">
             <div>
-              <label for="engineerManufacturer" id="engineerManufacturerLabelText"></label>
-              <input id="engineerManufacturer" type="text" autocomplete="off" spellcheck="false">
+              <label for="engineerInspectionDate" id="engineerInspectionDateLabelText"></label>
+              <input id="engineerInspectionDate" class="date-text-input" type="text" inputmode="numeric" placeholder="DD/MM/YYYY" autocomplete="off">
             </div>
             <div>
-              <label for="engineerModel" id="engineerModelLabelText"></label>
-              <input id="engineerModel" type="text" autocomplete="off" spellcheck="false">
+              <label for="engineerManufacturer" id="engineerManufacturerLabelText"></label>
+              <input id="engineerManufacturer" type="text" autocomplete="off" spellcheck="false">
             </div>
           </div>
 
           <div class="visit-grid">
             <div>
+              <label for="engineerModel" id="engineerModelLabelText"></label>
+              <input id="engineerModel" type="text" autocomplete="off" spellcheck="false">
+            </div>
+            <div>
               <label for="engineerResult" id="engineerResultLabelText"></label>
               <select id="engineerResult"></select>
             </div>
+          </div>
+
+          <div class="visit-grid">
             <div>
               <label for="engineerFailureReason" id="engineerFailureReasonLabelText"></label>
               <input id="engineerFailureReason" type="text" autocomplete="off" spellcheck="false">
@@ -554,7 +557,7 @@
 
   <script>
     (async function bootApp() {
-      const BOOTSTRAP_ASSET_VERSION = '20260413visitButtons001';
+      const BOOTSTRAP_ASSET_VERSION = '20260413reportNumber001';
       const VERSION_MANIFEST_URL = './version.json';
 
       const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {

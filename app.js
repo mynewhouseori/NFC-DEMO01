@@ -192,7 +192,7 @@
       engineerResultPass: 'תקין',
       engineerResultConditional: 'תקין בכפוף לתיקון',
       engineerResultFail: 'פסול',
-      engineerReportNumberPlaceholder: 'לדוגמה: ENG-2026-014',
+      engineerReportNumberPlaceholder: 'לדוגמה: 00001',
       engineerInspectorNamePlaceholder: 'לדוגמה: מהנדס אורי לוין',
       engineerManufacturerPlaceholder: 'לדוגמה: Crosby',
       engineerModelPlaceholder: 'לדוגמה: G-2130',
@@ -240,7 +240,7 @@
       engineerResultPass: 'Pass',
       engineerResultConditional: 'Conditional',
       engineerResultFail: 'Fail',
-      engineerReportNumberPlaceholder: 'Example: ENG-2026-014',
+      engineerReportNumberPlaceholder: 'Example: 00001',
       engineerInspectorNamePlaceholder: 'Example: Eng. O. Levin',
       engineerManufacturerPlaceholder: 'Example: Crosby',
       engineerModelPlaceholder: 'Example: G-2130',
@@ -288,7 +288,7 @@
       engineerResultPass: 'ناجح',
       engineerResultConditional: 'مشروط',
       engineerResultFail: 'راسب',
-      engineerReportNumberPlaceholder: 'مثال: ENG-2026-014',
+      engineerReportNumberPlaceholder: 'مثال: 00001',
       engineerInspectorNamePlaceholder: 'مثال: م. سامر خليل',
       engineerManufacturerPlaceholder: 'مثال: Crosby',
       engineerModelPlaceholder: 'مثال: G-2130',
@@ -361,6 +361,7 @@
     };
     const APP_VARIANT = window.APP_VARIANT === APP_MODES.engineer ? APP_MODES.engineer : APP_MODES.business;
     const VISIT_STORAGE_KEY = 'nfc_demo_active_visit_v1';
+    const REPORT_COUNTER_STORAGE_KEY = 'nfc_demo_report_counter_v1';
     const tableFilters = {
       query: '',
       status: 'all'
@@ -458,7 +459,7 @@
         return;
       }
       const assessment = getEngineerAssessment(item);
-      el('engineerReportNumber').value = assessment.reportNumber;
+      syncReportNumberField(assessment.reportNumber || activeVisit?.reportNumber || '');
       el('engineerInspectorName').value = assessment.engineerName || activeVisit?.engineer || '';
       el('engineerInspectionDate').value = formatDateInputValue(assessment.inspectionDate || activeVisit?.date || todayIsoDate());
       el('engineerManufacturer').value = assessment.manufacturer;
@@ -475,7 +476,7 @@
       }
       const previous = getEngineerAssessment(existing);
       return {
-        reportNumber: String(el('engineerReportNumber')?.value || previous.reportNumber || '').trim(),
+        reportNumber: normalizeReportNumberValue(el('engineerReportNumber')?.value) || normalizeReportNumberValue(previous.reportNumber) || normalizeReportNumberValue(activeVisit?.reportNumber) || peekNextReportNumber(),
         engineerName: String(el('engineerInspectorName')?.value || activeVisit?.engineer || previous.engineerName || '').trim(),
         inspectionDate: normalizeRegistrationDate(el('engineerInspectionDate')?.value) || previous.inspectionDate || activeVisit?.date || todayIsoDate(),
         manufacturer: String(el('engineerManufacturer')?.value || previous.manufacturer || '').trim(),
@@ -558,6 +559,78 @@
       return `visit-${Date.now()}`;
     }
 
+    function normalizeReportNumberValue(value){
+      const digits = String(value || '').replace(/\D+/g, '');
+      if(!digits){
+        return '';
+      }
+      return digits.slice(-5).padStart(5, '0');
+    }
+
+    function getStoredReportCounter(){
+      try {
+        const raw = localStorage.getItem(REPORT_COUNTER_STORAGE_KEY);
+        const parsed = Number.parseInt(raw || '1', 10);
+        return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+      } catch (error) {
+        pushDebugLine(`Report counter read failed: ${error.message}`);
+        return 1;
+      }
+    }
+
+    function setStoredReportCounter(value){
+      const safeValue = Math.max(1, Number.parseInt(String(value || '1'), 10) || 1);
+      try {
+        localStorage.setItem(REPORT_COUNTER_STORAGE_KEY, String(safeValue));
+      } catch (error) {
+        pushDebugLine(`Report counter save failed: ${error.message}`);
+      }
+      return safeValue;
+    }
+
+    function peekNextReportNumber(){
+      return String(getStoredReportCounter()).padStart(5, '0');
+    }
+
+    function reserveNextReportNumber(currentValue = ''){
+      const normalized = normalizeReportNumberValue(currentValue) || peekNextReportNumber();
+      const numericValue = Number.parseInt(normalized, 10) || 1;
+      const stored = getStoredReportCounter();
+      if(numericValue >= stored){
+        setStoredReportCounter(numericValue + 1);
+      }
+      return normalized;
+    }
+
+    function syncReportNumberField(value = ''){
+      const input = el('engineerReportNumber');
+      if(!input){
+        return '';
+      }
+      const resolved = normalizeReportNumberValue(value) || peekNextReportNumber();
+      input.value = resolved;
+      return resolved;
+    }
+
+    function setupReportNumberField(){
+      const input = el('engineerReportNumber');
+      if(!input || input.dataset.reportNumberBound === '1'){
+        return;
+      }
+      input.dataset.reportNumberBound = '1';
+      input.addEventListener('input', () => {
+        const cursorAtEnd = input.selectionStart === input.value.length;
+        const normalized = normalizeReportNumberValue(input.value);
+        input.value = normalized;
+        if(cursorAtEnd){
+          input.setSelectionRange?.(input.value.length, input.value.length);
+        }
+      });
+      input.addEventListener('blur', () => {
+        syncReportNumberField(input.value);
+      });
+    }
+
     function loadActiveVisit(){
       activeVisit = null;
       try {
@@ -579,6 +652,7 @@
       const engineerName = String(el('visitEngineer')?.value || '').trim();
       return {
         date: normalizeRegistrationDate(el('visitDate')?.value) || todayIsoDate(),
+        reportNumber: normalizeReportNumberValue(el('engineerReportNumber')?.value) || peekNextReportNumber(),
         engineer: engineerName,
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
@@ -601,6 +675,7 @@
 
     function populateVisitForm(visit = null){
       el('visitDate').value = formatDateInputValue(visit?.date || todayIsoDate());
+      syncReportNumberField(visit?.reportNumber || '');
       el('visitEngineer').value = visit?.engineer || '';
       el('visitClient').value = visit?.client || '';
       el('visitSite').value = visit?.site || '';
@@ -3886,10 +3961,14 @@
 
       const now = new Date();
       const startNewVisit = !activeVisit || activeVisit.status === 'closed';
+      const resolvedReportNumber = startNewVisit
+        ? reserveNextReportNumber(draft.reportNumber)
+        : (normalizeReportNumberValue(draft.reportNumber) || normalizeReportNumberValue(activeVisit?.reportNumber) || reserveNextReportNumber());
       activeVisit = {
         id: startNewVisit ? createVisitId() : activeVisit.id,
         status: 'active',
         date: draft.date,
+        reportNumber: resolvedReportNumber,
         engineer: draft.engineer,
         client: draft.client,
         site: draft.site,
@@ -4128,6 +4207,7 @@
             <div class="meta">
               <div class="meta-grid">
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaDate'))}</strong>${escapeHtml(formatDisplayDate(reportVisit.date || '-'))}</div>
+                <div class="meta-row"><strong>${escapeHtml(t('engineerReportNumber'))}</strong>${escapeHtml(reportVisit.reportNumber || '-')}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong>${escapeHtml(reportVisit.engineer || '-')}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaClient'))}</strong>${escapeHtml(reportVisit.client || '-')}</div>
                 <div class="meta-row"><strong>${escapeHtml(t('visitReportMetaSite'))}</strong>${escapeHtml(reportVisit.site || '-')}</div>
@@ -4660,6 +4740,7 @@
       bindTableActionDelegation();
       bindDateTextInputs();
       bindDecimalInputs();
+      setupReportNumberField();
       setupVisitSignaturePad();
       loadActiveVisit();
       populateVisitForm();
