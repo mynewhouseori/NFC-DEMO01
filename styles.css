@@ -1854,6 +1854,17 @@
   justify-content:center;
 }
 
+#reportArchiveLoadBtn {
+  background:linear-gradient(135deg, #14b8a6 0%, #0f766e 100%);
+  border-color:#0f766e;
+  color:#ffffff;
+  box-shadow:var(--button-shadow-green);
+}
+
+#reportArchiveLoadBtn:hover {
+  box-shadow:var(--button-shadow-green-hover);
+}
+
 .report-archive-panel {
   margin-top:16px;
 }
