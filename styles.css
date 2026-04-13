@@ -1589,6 +1589,13 @@
       box-shadow:var(--button-shadow-green);
     }
 
+    .visit-primary-action .mini-btn.ready-to-start {
+      background:linear-gradient(180deg, #10b981 0%, #0f9f73 100%);
+      border-color:#0f9f73;
+      color:#ffffff;
+      box-shadow:0 14px 28px rgba(16,185,129,.24), inset 0 1px 0 rgba(255,255,255,.18);
+    }
+
     .visit-primary-action .mini-btn.active-visit {
       background:#ea580c;
       border-color:#ea580c;
@@ -1601,6 +1608,20 @@
       grid-template-columns:repeat(2, minmax(0, 1fr));
       gap:10px;
       margin-bottom:12px;
+    }
+
+    .visit-actions .mini-btn.ready-to-close {
+      background:linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+      border-color:#c2410c;
+      color:#ffffff;
+      box-shadow:0 14px 28px rgba(234,88,12,.24), inset 0 1px 0 rgba(255,255,255,.16);
+    }
+
+    .visit-actions .mini-btn:disabled {
+      background:#e2e8f0;
+      border-color:#cbd5e1;
+      color:#94a3b8;
+      box-shadow:none;
     }
 
     .signature-canvas-header {

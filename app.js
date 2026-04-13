@@ -643,10 +643,15 @@
         statusText.classList.add('status-ok');
       }
       const visitSaveBtn = el('visitSaveBtn');
+      const visitCloseBtn = el('visitCloseBtn');
       const visitEndPanel = el('visitEndPanel');
       const isActiveVisit = !!activeVisit && activeVisit.status !== 'closed';
       visitSaveBtn.textContent = isActiveVisit ? t('visitSaveActive') : (!activeVisit || activeVisit.status === 'closed' ? t('visitSaveStart') : t('visitSaveUpdate'));
       visitSaveBtn.classList.toggle('active-visit', isActiveVisit);
+      visitSaveBtn.classList.toggle('ready-to-start', !isActiveVisit);
+      if(visitCloseBtn){
+        visitCloseBtn.classList.toggle('ready-to-close', isActiveVisit);
+      }
       if(visitEndPanel){
         visitEndPanel.hidden = !activeVisit;
       }
