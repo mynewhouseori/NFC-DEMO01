@@ -74,7 +74,6 @@
         reportUpcomingLine: '{count} פריטים צפויים לבדיקה במהלך 30 הימים הקרובים.',
         reportMissingDateLine: '{count} פריטים ללא תאריך בדיקה הבא.',
         reportPriorityTable: 'פריטים הדורשים תשומת לב',
-        reportNotes: 'הערות',
         reportUrgency: 'רמת טיפול',
         reportOverdueDays: 'איחור של {days} ימים',
         reportUpcomingDays: 'בעוד {days} ימים',
@@ -95,7 +94,6 @@
         reportUpcomingLine: '{count} items are due for inspection within the next 30 days.',
         reportMissingDateLine: '{count} items are missing a next inspection date.',
         reportPriorityTable: 'Priority Items',
-        reportNotes: 'Notes',
         reportUrgency: 'Action Level',
         reportOverdueDays: 'Overdue by {days} days',
         reportUpcomingDays: 'Due in {days} days',
@@ -116,7 +114,6 @@
         reportUpcomingLine: '{count} معدات مطلوب فحصها خلال 30 يوماً القادمة.',
         reportMissingDateLine: '{count} معدات بدون تاريخ فحص قادم.',
         reportPriorityTable: 'معدات تحتاج إلى متابعة',
-        reportNotes: 'ملاحظات',
         reportUrgency: 'مستوى المعالجة',
         reportOverdueDays: 'متأخر {days} يوماً',
         reportUpcomingDays: 'خلال {days} يوماً',
@@ -3127,12 +3124,11 @@
                 <td>${escapeHtml(translateStatus(item.status))}</td>
                 <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
                 <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
-                <td>${escapeHtml(item.notes || '-')}</td>
                 <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
               </tr>
             `;
           }).join('')
-        : `<tr><td colspan="8">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+        : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
     }
 
     async function renderPresentationReportPage(){
@@ -3213,7 +3209,6 @@
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('registrationDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(rt('reportNotes'))}</th>
                     <th>${escapeHtml(t('reportPriorityStatus'))}</th>
                   </tr>
                 </thead>
@@ -3273,12 +3268,11 @@
                   <td>${escapeHtml(translateStatus(item.status))}</td>
                   <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
                   <td>${escapeHtml(formatReportDate(item.nextInspection))}</td>
-                  <td>${escapeHtml(item.notes || '-')}</td>
                   <td><span class="${badgeClass}">${escapeHtml(urgencyText)}</span></td>
                 </tr>
               `;
             }).join('')
-          : `<tr><td colspan="8">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
+          : `<tr><td colspan="7">${escapeHtml(rt('reportNoUrgentItems'))}</td></tr>`;
 
         const buildReportHtml = (logoSrc) => `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -3357,7 +3351,6 @@
                     <th>${escapeHtml(t('status'))}</th>
                     <th>${escapeHtml(t('registrationDate'))}</th>
                     <th>${escapeHtml(t('nextInspection'))}</th>
-                    <th>${escapeHtml(rt('reportNotes'))}</th>
                     <th>${escapeHtml(rt('reportUrgency'))}</th>
                   </tr>
                 </thead>
