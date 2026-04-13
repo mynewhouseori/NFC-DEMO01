@@ -1714,7 +1714,7 @@
 
 .logs-dashboard-content {
   display:grid;
-  grid-template-columns:minmax(320px, 0.95fr) minmax(400px, 1.35fr);
+  grid-template-columns:minmax(0, 1fr);
   gap:14px;
   align-items:start;
 }
@@ -1725,6 +1725,9 @@
   padding:16px;
   margin-bottom:16px;
   background:linear-gradient(180deg, rgba(248,250,252,.96), rgba(255,255,255,1));
+  width:100%;
+  max-width:1040px;
+  margin-inline:auto;
 }
 
 .status-report-chooser {
