@@ -2117,7 +2117,6 @@
       el('visitSiteLabelText').textContent = t('visitSiteLabel');
       el('visitSignaturePadLabelText').textContent = t('visitSignaturePadLabel');
       el('visitNotesLabelText').textContent = t('visitNotesLabel');
-      el('visitSaveBtn').textContent = t('visitSave');
       el('visitCloseBtn').textContent = t('visitClose');
       el('visitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
@@ -2284,6 +2283,7 @@
         logsSubtitle.textContent = t('logsHistorySubtitle');
       }
       populateReportArchiveSiteOptions(reportArchiveState.visits, reportArchiveState.site || 'all');
+      renderVisitStatus();
 
       updateTypeOptions();
       updateStatusOptions();
