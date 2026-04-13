@@ -1254,24 +1254,37 @@
             <meta charset="UTF-8">
             <title>${escapeHtml(t('visitReportTitle'))}</title>
             <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
-              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-              .logo { width:140px; height:140px; object-fit:contain; }
-              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
-              p { margin:0 0 10px; line-height:1.7; }
-              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
-              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              @page { size:A4 portrait; margin:10mm; }
+              * { box-sizing:border-box; }
+              html, body { margin:0; padding:0; background:#fff; }
+              body { font-family: Arial, sans-serif; color:#0f172a; font-size:12px; line-height:1.45; }
+              .report-shell { width:190mm; max-width:100%; margin:0 auto; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+              .header-copy { flex:1; min-width:0; }
+              .logo { width:96px; height:96px; object-fit:contain; flex:0 0 auto; }
+              h1 { margin:0 0 6px; font-size:24px; color:#0f766e; line-height:1.2; }
+              h2 { margin:0 0 10px; font-size:18px; line-height:1.25; }
+              p { margin:0 0 8px; line-height:1.55; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:14px; margin-bottom:12px; overflow:hidden; break-inside:avoid; page-break-inside:avoid; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px 14px; }
+              .meta-row { min-width:0; }
               .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
-              table { width:100%; border-collapse:collapse; margin-top:12px; }
-              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
-              th { background:#f8fafc; }
-              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
-              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+              table { width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed; font-size:10px; }
+              th, td { border:1px solid #dbe4ea; padding:6px 5px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; word-break:break-word; overflow-wrap:anywhere; }
+              th { background:#f8fafc; font-size:10px; line-height:1.25; }
+              .signature { margin-top:18px; padding-top:14px; border-top:2px solid #cbd5e1; break-inside:avoid; page-break-inside:avoid; }
+              .footer { margin-top:14px; color:#64748b; font-size:11px; }
+              .no-print { margin-bottom:12px; display:flex; gap:10px; flex-wrap:wrap; }
+              @media print {
+                .no-print { display:none !important; }
+                .report-shell { width:auto; max-width:none; }
+              }
             </style>
           </head>
           <body>
+            <div class="report-shell">
             <div class="header">
-              <div>
+              <div class="header-copy">
                 <h1>${escapeHtml(t('visitReportTitle'))}</h1>
                 <p>${escapeHtml(t('visitReportIntro'))}</p>
                 <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
@@ -1349,13 +1362,14 @@
               <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
             </div>
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+            </div>
           </body>
           </html>
         `;
 
         const printableHtml = `<!doctype html>${html}`.replace(
           '<body>',
-          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
+          `<body><div class="no-print"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
         if(!renderReportWindow(reportWindow, printableHtml)){
           el('reportArchiveStatus').textContent = t('reportArchiveLoadError');
@@ -4060,24 +4074,37 @@
             <meta charset="UTF-8">
             <title>${escapeHtml(t('visitReportTitle'))}</title>
             <style>
-              body { font-family: Arial, sans-serif; color:#0f172a; padding:32px; background:#fff; }
-              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; }
-              .logo { width:140px; height:140px; object-fit:contain; }
-              h1 { margin:0 0 8px; font-size:28px; color:#0f766e; }
-              p { margin:0 0 10px; line-height:1.7; }
-              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:18px; margin-bottom:16px; }
-              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px 18px; }
+              @page { size:A4 portrait; margin:10mm; }
+              * { box-sizing:border-box; }
+              html, body { margin:0; padding:0; background:#fff; }
+              body { font-family: Arial, sans-serif; color:#0f172a; font-size:12px; line-height:1.45; }
+              .report-shell { width:190mm; max-width:100%; margin:0 auto; }
+              .header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+              .header-copy { flex:1; min-width:0; }
+              .logo { width:96px; height:96px; object-fit:contain; flex:0 0 auto; }
+              h1 { margin:0 0 6px; font-size:24px; color:#0f766e; line-height:1.2; }
+              h2 { margin:0 0 10px; font-size:18px; line-height:1.25; }
+              p { margin:0 0 8px; line-height:1.55; }
+              .meta, .section { border:1px solid #dbe4ea; border-radius:16px; padding:14px; margin-bottom:12px; overflow:hidden; break-inside:avoid; page-break-inside:avoid; }
+              .meta-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px 14px; }
+              .meta-row { min-width:0; }
               .meta-row strong { display:block; margin-bottom:2px; color:#475569; }
-              table { width:100%; border-collapse:collapse; margin-top:12px; }
-              th, td { border:1px solid #dbe4ea; padding:10px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; }
-              th { background:#f8fafc; }
-              .signature { margin-top:26px; padding-top:18px; border-top:2px solid #cbd5e1; }
-              .footer { margin-top:18px; color:#64748b; font-size:12px; }
+              table { width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed; font-size:10px; }
+              th, td { border:1px solid #dbe4ea; padding:6px 5px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; word-break:break-word; overflow-wrap:anywhere; }
+              th { background:#f8fafc; font-size:10px; line-height:1.25; }
+              .signature { margin-top:18px; padding-top:14px; border-top:2px solid #cbd5e1; break-inside:avoid; page-break-inside:avoid; }
+              .footer { margin-top:14px; color:#64748b; font-size:11px; }
+              .no-print { margin-bottom:12px; display:flex; gap:10px; flex-wrap:wrap; }
+              @media print {
+                .no-print { display:none !important; }
+                .report-shell { width:auto; max-width:none; }
+              }
             </style>
           </head>
           <body>
+            <div class="report-shell">
             <div class="header">
-              <div>
+              <div class="header-copy">
                 <h1>${escapeHtml(t('visitReportTitle'))}</h1>
                 <p>${escapeHtml(t('visitReportIntro'))}</p>
                 <p>${escapeHtml(formatText('visitReportGenerated', { date: generatedAt }))}</p>
@@ -4148,13 +4175,14 @@
             </div>
 
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
+            </div>
           </body>
           </html>
         `;
 
         const printableHtml = `<!doctype html>${html}`.replace(
           '<body>',
-          `<body><div style="margin-bottom:16px;display:flex;gap:10px;flex-wrap:wrap;"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
+          `<body><div class="no-print"><button onclick="window.print()" style="border:none;border-radius:12px;padding:12px 16px;background:#0f766e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;">${escapeHtml(printLabel)}</button></div>`
         );
         renderReportWindow(reportWindow, printableHtml);
         renderVisitStatus();
