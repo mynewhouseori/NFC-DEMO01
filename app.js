@@ -4186,8 +4186,6 @@
               ${reportVisit.signatureDataUrl ? `<p><img src="${reportVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
               ${reportVisit.signature ? `<p>${escapeHtml(reportVisit.signature)}</p>` : ''}
             </div>
-
-            <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
             </div>
           </body>
           </html>
