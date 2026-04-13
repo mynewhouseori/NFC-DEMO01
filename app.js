@@ -582,7 +582,7 @@
         engineer: engineerName,
         client: String(el('visitClient')?.value || '').trim(),
         site: String(el('visitSite')?.value || '').trim(),
-        signature: engineerName,
+        signature: '',
         notes: String(el('visitNotes')?.value || '').trim()
       };
     }
@@ -3893,7 +3893,7 @@
         engineer: draft.engineer,
         client: draft.client,
         site: draft.site,
-        signature: draft.signature || draft.engineer,
+        signature: draft.signature || '',
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit?.signatureDataUrl || '',
         startedAt: startNewVisit ? now.toLocaleString() : activeVisit.startedAt,
@@ -4184,7 +4184,7 @@
             <div class="signature">
               <strong>${escapeHtml(t('visitReportSignature'))}</strong>
               ${reportVisit.signatureDataUrl ? `<p><img src="${reportVisit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
-              <p>${escapeHtml(reportVisit.signature || reportVisit.engineer || '-')}</p>
+              ${reportVisit.signature ? `<p>${escapeHtml(reportVisit.signature)}</p>` : ''}
             </div>
 
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
