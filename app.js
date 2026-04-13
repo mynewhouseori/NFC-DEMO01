@@ -1937,6 +1937,7 @@
       const reportTabButton = el('tabReportBtn');
       const visitPanel = document.querySelector('.visit-panel');
       const visitEndPanel = el('visitEndPanel');
+      const visitEndPlaceholder = el('visitEndPlaceholder');
       const registerTopbar = el('registerScreen')?.querySelector('.topbar');
 
       [
@@ -2009,6 +2010,9 @@
       }
       if(visitEndPanel){
         visitEndPanel.hidden = !activeVisit;
+      }
+      if(visitEndPlaceholder){
+        visitEndPlaceholder.hidden = !!activeVisit || !canEdit;
       }
       if(registerTopbar){
         registerTopbar.classList.toggle('topbar-foreman', registerAccessRole === 'foreman');
@@ -2118,6 +2122,8 @@
       el('visitPanelSubtitleText').textContent = t('visitPanelSubtitle');
       el('visitEndPanelTitleText').textContent = t('visitClose');
       el('visitEndPanelSubtitleText').textContent = t('visitReportIntro');
+      if(el('visitEndPlaceholderTitle')) el('visitEndPlaceholderTitle').textContent = t('visitClose');
+      if(el('visitEndPlaceholderText')) el('visitEndPlaceholderText').textContent = t('visitSummaryEmpty');
       el('visitDateLabelText').textContent = t('visitDateLabel');
       el('visitEngineerLabelText').textContent = t('visitEngineerLabel');
       el('visitClientLabelText').textContent = t('visitClientLabel');

@@ -1039,6 +1039,28 @@
       flex-shrink:0;
     }
 
+    .visit-end-placeholder {
+      margin-top:14px;
+      margin-bottom:14px;
+      border:1px dashed #cbd5e1;
+      border-radius:18px;
+      padding:16px 18px;
+      background:linear-gradient(180deg, rgba(248,250,252,.95), rgba(241,245,249,.95));
+      color:#475569;
+    }
+
+    .visit-end-placeholder-title {
+      font-size:15px;
+      font-weight:800;
+      color:#0f766e;
+      margin-bottom:6px;
+    }
+
+    .visit-end-placeholder-text {
+      font-size:14px;
+      line-height:1.6;
+    }
+
     @media (max-width:700px){
       .row { grid-template-columns:1fr; }
       .register-item-layout { grid-template-columns:1fr; }
