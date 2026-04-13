@@ -559,12 +559,11 @@
     }
 
     function loadActiveVisit(){
+      activeVisit = null;
       try {
-        const raw = localStorage.getItem(VISIT_STORAGE_KEY);
-        activeVisit = raw ? JSON.parse(raw) : null;
+        localStorage.removeItem(VISIT_STORAGE_KEY);
       } catch (error) {
-        pushDebugLine(`Visit storage read failed: ${error.message}`);
-        activeVisit = null;
+        pushDebugLine(`Visit storage reset failed: ${error.message}`);
       }
     }
 
