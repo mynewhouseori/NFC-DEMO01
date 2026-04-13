@@ -1160,6 +1160,19 @@
       return String(el('reportArchiveSiteFilter')?.value || 'all').trim() || 'all';
     }
 
+    function updateReportArchiveButtonState(){
+      const button = el('reportArchiveLoadBtn');
+      if(!button){
+        return;
+      }
+      const hasActiveFilter = !!(
+        String(reportArchiveState.from || '').trim()
+        || String(reportArchiveState.to || '').trim()
+        || (String(reportArchiveState.site || 'all').trim() && String(reportArchiveState.site || 'all').trim() !== 'all')
+      );
+      button.classList.toggle('is-filtered', hasActiveFilter);
+    }
+
     function populateReportArchiveSiteOptions(visits = [], preferredSite = getReportArchiveSiteValue()){
       const select = el('reportArchiveSiteFilter');
       if(!select){
@@ -1369,6 +1382,7 @@
       if(fromDate && toDate && fromDate > toDate){
         status.textContent = t('reportArchiveInvalidRange');
         list.innerHTML = '';
+        updateReportArchiveButtonState();
         return;
       }
 
@@ -1389,6 +1403,7 @@
         reportArchiveState.to = toDate || '';
         reportArchiveState.site = activeSite;
         reportArchiveState.visits = visits;
+        updateReportArchiveButtonState();
         updateLogsDashboardHeadings({
           totalLogs: dataCache.logs.value?.length || 0,
           shownLogs: dataCache.logs.value?.length || 0,
@@ -1445,6 +1460,7 @@
       reportArchiveState.from = '';
       reportArchiveState.to = '';
       reportArchiveState.site = 'all';
+      updateReportArchiveButtonState();
       renderReportArchive();
     }
 
