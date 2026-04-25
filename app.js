@@ -4689,6 +4689,7 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      triggerScanHaptic([40]);
       await ensureScanAudioReady();
 
       if(!('NDEFReader' in window)){
