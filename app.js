@@ -566,6 +566,25 @@
       return scanAudioContext;
     }
 
+    function primeScanAudioContext(){
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtor){
+        return null;
+      }
+
+      if(!scanAudioContext || scanAudioContext.state === 'closed'){
+        scanAudioContext = new AudioCtor();
+      }
+
+      if(scanAudioContext.state === 'suspended'){
+        scanAudioContext.resume().catch((error) => {
+          pushDebugLine(`Scan audio prime failed: ${error.message}`);
+        });
+      }
+
+      return scanAudioContext;
+    }
+
     function triggerScanHaptic(pattern = [30]){
       try {
         if(typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'){
@@ -4689,6 +4708,8 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      primeScanAudioContext();
+      playScanFeedback('success');
       triggerScanHaptic([40]);
       await ensureScanAudioReady();
 
