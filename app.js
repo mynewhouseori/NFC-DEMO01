@@ -4703,6 +4703,8 @@
         await ndef.scan();
         pushDebugLine(`Started NFC scan in ${mode} mode.`);
         statusEl.textContent = t('waitingForNfcTag');
+        playScanFeedback('success');
+        triggerScanHaptic([20]);
 
         ndef.onreadingerror = () => {
           pushDebugLine('NFC tag detected but reading failed.');
