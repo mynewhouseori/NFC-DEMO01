@@ -389,6 +389,7 @@
     let currentAppMode = APP_VARIANT;
     let currentScannedItem = null;
     let scanDemoGalleryMode = false;
+    let scanAudioContext = null;
     let customImageSrc = '';
     let pendingImageTask = null;
     let activeVisit = null;
@@ -542,6 +543,78 @@
       return Object.entries(replacements).reduce((text, [name, value]) => {
         return text.replaceAll(`{${name}}`, String(value));
       }, lt(key));
+    }
+
+    async function ensureScanAudioReady(){
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtor){
+        return null;
+      }
+
+      if(!scanAudioContext || scanAudioContext.state === 'closed'){
+        scanAudioContext = new AudioCtor();
+      }
+
+      if(scanAudioContext.state === 'suspended'){
+        try {
+          await scanAudioContext.resume();
+        } catch (error) {
+          pushDebugLine(`Scan audio resume failed: ${error.message}`);
+        }
+      }
+
+      return scanAudioContext;
+    }
+
+    function triggerScanHaptic(pattern = [30]){
+      try {
+        if(typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function'){
+          navigator.vibrate(pattern);
+        }
+      } catch (error) {
+        pushDebugLine(`Scan haptic failed: ${error.message}`);
+      }
+    }
+
+    function playScanFeedback(kind = 'success'){
+      const ctx = scanAudioContext;
+      if(!ctx){
+        return;
+      }
+
+      const tones = kind === 'error'
+        ? [
+            { frequency: 220, duration: 0.08, offset: 0, gain: 0.08 },
+            { frequency: 180, duration: 0.12, offset: 0.11, gain: 0.07 }
+          ]
+        : kind === 'warning'
+          ? [
+              { frequency: 420, duration: 0.06, offset: 0, gain: 0.07 },
+              { frequency: 320, duration: 0.08, offset: 0.09, gain: 0.06 }
+            ]
+          : [
+              { frequency: 880, duration: 0.05, offset: 0, gain: 0.07 },
+              { frequency: 1320, duration: 0.08, offset: 0.08, gain: 0.06 }
+            ];
+
+      try {
+        const startAt = ctx.currentTime + 0.01;
+        tones.forEach((tone) => {
+          const oscillator = ctx.createOscillator();
+          const gainNode = ctx.createGain();
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(tone.frequency, startAt + tone.offset);
+          gainNode.gain.setValueAtTime(0.0001, startAt + tone.offset);
+          gainNode.gain.exponentialRampToValueAtTime(tone.gain, startAt + tone.offset + 0.01);
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, startAt + tone.offset + tone.duration);
+          oscillator.connect(gainNode);
+          gainNode.connect(ctx.destination);
+          oscillator.start(startAt + tone.offset);
+          oscillator.stop(startAt + tone.offset + tone.duration + 0.02);
+        });
+      } catch (error) {
+        pushDebugLine(`Scan audio playback failed: ${error.message}`);
+      }
     }
 
     function getLocaleTag(){
@@ -4616,10 +4689,12 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      await ensureScanAudioReady();
 
       if(!('NDEFReader' in window)){
         pushDebugLine('Web NFC is not available on this device/browser.');
         statusEl.textContent = t('noWebNfc');
+        playScanFeedback('error');
         return;
       }
 
@@ -4632,6 +4707,8 @@
         ndef.onreadingerror = () => {
           pushDebugLine('NFC tag detected but reading failed.');
           statusEl.textContent = t('scanReadError');
+          playScanFeedback('error');
+          triggerScanHaptic([50, 30, 50]);
         };
 
         ndef.onreading = async ({ serialNumber }) => {
@@ -4651,10 +4728,14 @@
               if(locatedItem){
                 statusEl.textContent = locationSnapshot ? `${t('itemFound')} • ${lt('locationSaved')}` : t('itemFound');
                 fillScanCard(locatedItem);
+                playScanFeedback('success');
+                triggerScanHaptic([35, 20, 35]);
               } else {
                 currentScannedItem = null;
                 populateScanEditForm(null);
                 el('scanResult').classList.remove('active');
+                playScanFeedback('warning');
+                triggerScanHaptic([45]);
                 statusEl.textContent = locationSnapshot ? `${t('itemNotFound')} • ${lt('locationSaved')}` : t('itemNotFound');
               }
             } else {
@@ -4662,9 +4743,13 @@
               if(locatedItem){
                 statusEl.textContent = locationSnapshot ? `${t('existingTag')} • ${lt('locationSaved')}` : t('existingTag');
                 fillRegisterForm(locatedItem);
+                playScanFeedback('success');
+                triggerScanHaptic([35, 20, 35]);
               } else {
                 statusEl.textContent = locationSnapshot ? `${t('newTag')} • ${lt('locationSaved')}` : t('newTag');
                 updateStatusColorSelect();
+                playScanFeedback('warning');
+                triggerScanHaptic([45]);
               }
             }
 
@@ -4672,12 +4757,15 @@
           } catch (e) {
             pushDebugLine(`NFC processing error for ${tagId}: ${e.message}`);
             statusEl.textContent = t('cloudReadError');
+            playScanFeedback('error');
+            triggerScanHaptic([50, 30, 50]);
             console.error(e);
           }
         };
       } catch(err){
         pushDebugLine(`Could not start scan: ${err.message}`);
         statusEl.textContent = t('scanStartError');
+        playScanFeedback('error');
       }
     }
 
