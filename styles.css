@@ -1057,8 +1057,16 @@
     }
 
     .register-image-field {
-      width:104px;
+      width:auto;
+      min-width:104px;
       flex-shrink:0;
+    }
+
+    .register-image-inline {
+      display:flex;
+      align-items:center;
+      justify-content:flex-start;
+      gap:8px;
     }
 
     .register-notes-status-row {
@@ -1071,7 +1079,8 @@
       .register-item-layout { grid-template-columns:1fr; }
       .register-item-media { order:-1; }
       .register-preview-wrap { align-items:flex-end; }
-      .register-image-field { width:92px; }
+      .register-image-field { width:auto; min-width:92px; }
+      .register-image-inline { justify-content:flex-start; }
       .register-notes-status-row { grid-template-columns:1fr; }
 
       .date-input-shell .date-text-input {
@@ -1143,6 +1152,14 @@
 
     .image-btn {
       width:100%;
+    }
+
+    .image-btn-side {
+      width:auto;
+      min-width:0;
+      flex:0 1 auto;
+      white-space:nowrap;
+      align-self:center;
     }
 
     .result-card {
