@@ -4848,6 +4848,9 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      if(mode === 'register'){
+        clearForm();
+      }
       primeScanAudioContext();
       playScanFeedback('success');
       triggerScanHaptic([40]);
