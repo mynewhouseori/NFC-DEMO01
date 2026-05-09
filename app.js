@@ -4927,10 +4927,13 @@
       }
     }
 
-    el('itemType').addEventListener('change', () => {
+    function handleItemTypeChange(){
       selectImageByType();
       updateCustomTypeFieldVisibility();
-    });
+    }
+
+    el('itemType').addEventListener('change', handleItemTypeChange);
+    el('itemType').addEventListener('input', handleItemTypeChange);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
