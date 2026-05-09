@@ -2266,7 +2266,7 @@
       el('saveBtn').disabled = !canEdit;
       el('clearFormBtn').disabled = !canEdit;
       el('captureImageBtn').disabled = !canEdit;
-      el('clearImageBtn').disabled = !canEdit;
+      if(el('clearImageBtn')) el('clearImageBtn').disabled = !canEdit;
       el('visitSaveBtn').disabled = !canEdit;
       el('visitCloseBtn').disabled = !canEdit || !activeVisit || activeVisit.status === 'closed';
       el('visitReportBtn').disabled = !canEdit || !activeVisit;
@@ -2567,7 +2567,7 @@
       }
       el('exportTableBtn').textContent = t('exportExcel');
       el('captureImageBtn').textContent = t('captureImage');
-      el('clearImageBtn').textContent = t('clearImage');
+      if(el('clearImageBtn')) el('clearImageBtn').textContent = t('clearImage');
       el('scanSafetyTitle').textContent = t('scanSafetyTitle');
       el('reportArchiveTitleText').textContent = t('reportArchiveTitle');
       el('reportArchiveSubtitleText').textContent = t('reportArchiveSubtitle');
