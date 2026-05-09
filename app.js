@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js";
+    import { LANG } from "./translations.js?v=20260509wll001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
