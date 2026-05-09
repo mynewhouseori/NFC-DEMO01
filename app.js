@@ -4296,7 +4296,7 @@
       pushDebugLine(`Visit ${activeVisit.id} closed.`);
     }
 
-    function clearForm(){
+    function clearItemForm(){
       el('tagId').value = '';
       el('itemType').value = TYPE_VALUES.other;
       el('customTypeName').value = '';
@@ -4319,6 +4319,14 @@
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
+    }
+
+    function clearForm(){
+      loadActiveVisit();
+      populateVisitForm();
+      clearItemForm();
+      renderVisitStatus(t('visitStatusNoVisit'));
+      updateRegisterAccessUi();
     }
 
     function buildVisitEntries(logs, items){
@@ -4849,7 +4857,7 @@
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
       if(mode === 'register'){
-        clearForm();
+        clearItemForm();
       }
       primeScanAudioContext();
       playScanFeedback('success');
@@ -5047,7 +5055,7 @@
       populateVisitForm();
       setLang(currentLang);
       clearStatuses();
-      clearForm();
+      clearItemForm();
       selectImageByType();
       updateStatusColorSelect();
       updateRegisterAccessUi();
