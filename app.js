@@ -340,6 +340,12 @@
       "אחר": withImageVersion(IMAGE_PATHS.shackle),
       "other": withImageVersion(IMAGE_PATHS.shackle)
     };
+    IMAGE_PATHS.other = './תמונות/LOGO.JPG';
+    IMAGE_LIBRARY[TYPE_VALUES.other] = withImageVersion(IMAGE_PATHS.other);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.other] = withImageVersion(IMAGE_PATHS.other);
+    IMAGE_TYPE_ALIASES['אחר'] = withImageVersion(IMAGE_PATHS.other);
+    IMAGE_TYPE_ALIASES.other = withImageVersion(IMAGE_PATHS.other);
+
     const DEMO_ISRAEL_LOCATIONS = [
       { he: 'נמל אשדוד', en: 'Ashdod Port', ar: 'ميناء أشدود', latitude: 31.80152, longitude: 34.64042 },
       { he: 'נמל חיפה', en: 'Haifa Port', ar: 'ميناء حيفا', latitude: 32.83038, longitude: 34.98854 },
