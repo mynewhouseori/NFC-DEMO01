@@ -1068,6 +1068,7 @@
       align-items:center;
       justify-content:flex-start;
       gap:8px;
+      flex-wrap:nowrap;
     }
 
     .register-notes-status-row {
@@ -1081,7 +1082,10 @@
       .register-item-media { order:-1; }
       .register-preview-wrap { align-items:flex-end; }
       .register-image-field { width:auto; min-width:92px; }
-      .register-image-inline { justify-content:flex-start; }
+      .register-image-inline {
+        justify-content:flex-start;
+        align-items:center;
+      }
       .register-notes-status-row { grid-template-columns:1fr; }
 
       .date-input-shell .date-text-input {
@@ -1156,11 +1160,13 @@
     }
 
     .image-btn-side {
-      width:auto;
-      min-width:0;
+      width:92px;
+      min-width:92px;
       flex:0 1 auto;
-      white-space:nowrap;
+      white-space:normal;
       align-self:center;
+      text-align:center;
+      padding-inline:10px;
     }
 
     .result-card {

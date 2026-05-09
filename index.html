@@ -391,12 +391,10 @@
               <div class="register-image-field">
                 <label id="imageLabel"></label>
                 <div class="register-image-inline">
+                  <button class="mini-btn image-btn image-btn-side" onclick="triggerImagePicker()" id="captureImageBtn"></button>
                   <div class="preview-box"><img id="selectedImagePreview" src="" alt="Preview"></div>
                 </div>
-                <input id="itemImageInput" type="file" accept="image/*" capture="environment" hidden>
-                <div class="image-actions">
-                  <button class="mini-btn image-btn" onclick="triggerImagePicker()" id="captureImageBtn"></button>
-                </div>
+                <input id="itemImageInput" type="file" accept="image/*" hidden>
               </div>
             </div>
           </div>
