@@ -2818,7 +2818,7 @@
         if(saveButton){
           event.preventDefault();
           event.stopPropagation();
-          saveTableRow(saveButton.dataset.tagId || '');
+          saveAllTableChanges();
           return;
         }
 
