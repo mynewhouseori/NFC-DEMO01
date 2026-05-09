@@ -1042,13 +1042,18 @@
     }
 
     .register-preview-wrap {
+      flex-wrap:wrap;
       align-items:flex-start;
       gap:16px;
     }
 
     .register-type-field {
-      flex:1;
+      flex:1 1 220px;
       min-width:0;
+    }
+
+    #customTypeNameWrap {
+      flex-basis:100%;
     }
 
     .register-image-field {
