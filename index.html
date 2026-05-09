@@ -382,7 +382,7 @@
             <div class="preview-wrap register-preview-wrap">
               <div class="register-type-field">
                 <label for="itemType" id="itemTypeLabel"></label>
-                <select id="itemType"></select>
+                <select id="itemType" onchange="handleItemTypeChange()" oninput="handleItemTypeChange()"></select>
               </div>
               <div class="register-type-field register-custom-type-field" id="customTypeNameWrap" hidden>
                 <label for="customTypeName" id="customTypeNameLabel"></label>

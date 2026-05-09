@@ -4938,8 +4938,10 @@
       updateCustomTypeFieldVisibility();
     }
 
+    window.handleItemTypeChange = handleItemTypeChange;
     el('itemType').addEventListener('change', handleItemTypeChange);
     el('itemType').addEventListener('input', handleItemTypeChange);
+    el('itemType').addEventListener('blur', handleItemTypeChange);
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
