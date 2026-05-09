@@ -1953,6 +1953,11 @@
       wrap.hidden = !show;
       wrap.style.display = show ? '' : 'none';
       input.disabled = !show || !canEditRegister();
+      if(show){
+        requestAnimationFrame(() => {
+          wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        });
+      }
       if(!show){
         input.value = '';
       }
