@@ -1087,6 +1087,14 @@
       return IMAGE_TYPE_ALIASES[normalized] || IMAGE_TYPE_ALIASES[normalizedLower] || IMAGE_LIBRARY['׳׳—׳¨'];
     }
 
+    function getCustomTypeNameValue(){
+      return String(el('customTypeName')?.value || '').trim();
+    }
+
+    function isOtherItemType(type){
+      return String(type || '').trim() === TYPE_VALUES.other;
+    }
+
     function getDisplayImageSrc(item){
       const savedImage = item?.imageSrc || '';
       if(savedImage && !isLibraryImageSrc(savedImage)){
@@ -1424,7 +1432,7 @@
           <tr>
             <td>${escapeHtml(entry.tagId || '-')}</td>
             <td>${escapeHtml(entry.actionLabel)}</td>
-            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(getItemTypeLabelFromValues(entry.itemType, entry.customTypeName))}</td>
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
             <td>${escapeHtml(entry.contractor || '-')}</td>
@@ -1920,6 +1928,35 @@
       return type || t('scanItemDefault');
     }
 
+    function getItemTypeLabel(item){
+      if(isOtherItemType(item?.itemType) && String(item?.customTypeName || '').trim()){
+        return String(item.customTypeName || '').trim();
+      }
+      return translateType(item?.itemType);
+    }
+
+    function getItemTypeLabelFromValues(itemType, customTypeName = ''){
+      if(isOtherItemType(itemType) && String(customTypeName || '').trim()){
+        return String(customTypeName || '').trim();
+      }
+      return translateType(itemType);
+    }
+
+    function updateCustomTypeFieldVisibility(){
+      const wrap = el('customTypeNameWrap');
+      const input = el('customTypeName');
+      if(!wrap || !input){
+        return;
+      }
+
+      const show = isOtherItemType(el('itemType')?.value);
+      wrap.hidden = !show;
+      input.disabled = !show || !canEditRegister();
+      if(!show){
+        input.value = '';
+      }
+    }
+
     function getSafetyTipKeys(type){
       if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
       if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
@@ -2013,7 +2050,7 @@
             <div class="result-grid">
               <div class="thumb"><img src="${escapeHtml(getDisplayImageSrc(demoItem))}" alt="Item image"></div>
               <div>
-                <h3>${escapeHtml(translateType(demoItem.itemType))}</h3>
+                <h3>${escapeHtml(getItemTypeLabel(demoItem))}</h3>
                 <div>${escapeHtml(t('contractor'))}: ${escapeHtml(demoItem.contractor || '-')}</div>
                 <div>${escapeHtml(t('siteName'))}: ${escapeHtml(demoItem.siteName || '-')}</div>
                 <div>${escapeHtml(t('tagId'))}: <span class="mono">${escapeHtml(demoItem.tagId || '-')}</span></div>
@@ -2180,6 +2217,7 @@
         'visitSite',
         'tagId',
         'itemType',
+        'customTypeName',
         'description',
         'serialNumber',
         'wll',
@@ -2222,6 +2260,7 @@
       el('visitReportBtn').disabled = !canEdit || !activeVisit;
       el('visitReportBtn').hidden = !canEdit;
       el('scanNewTagBtn').hidden = !canEdit;
+      updateCustomTypeFieldVisibility();
       if(el('saveAllTableChangesBtn')){
         el('saveAllTableChangesBtn').hidden = !canEdit;
         el('saveAllTableChangesBtn').style.display = canEdit ? '' : 'none';
@@ -2442,6 +2481,7 @@
 
       el('tagIdLabel').textContent = t('tagId');
       el('itemTypeLabel').textContent = t('itemType');
+      el('customTypeNameLabel').textContent = t('customTypeName');
       el('imageLabel').textContent = t('image');
       el('descriptionLabel').textContent = t('description');
       el('serialLabel').textContent = t('serial');
@@ -2477,6 +2517,7 @@
 
       el('tagId').placeholder = t('tagPlaceholder');
       el('description').placeholder = t('descriptionPlaceholder');
+      el('customTypeName').placeholder = t('customTypeNamePlaceholder');
       el('serialNumber').placeholder = t('serialPlaceholder');
       if(el('contractor')) el('contractor').placeholder = t('contractorPlaceholder');
       el('wll').placeholder = t('wllPlaceholder');
@@ -2538,6 +2579,7 @@
       updateRegisterAccessUi();
       updateTableFilterOptions();
       selectImageByType();
+      updateCustomTypeFieldVisibility();
       if(scanDemoGalleryMode && dataCache.items.value?.length){
         renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
       }
@@ -2637,7 +2679,7 @@
 
     function getSortValue(item, key){
       if(key === 'status') return translateStatus(item.status);
-      if(key === 'itemType') return translateType(item.itemType);
+      if(key === 'itemType') return getItemTypeLabel(item);
       if(key === 'registrationDate') return getRegistrationDateValue(item);
       if(key === 'previousInspectionDate') return getPreviousInspectionDateValue(item);
       return item?.[key] || '';
@@ -3007,7 +3049,7 @@
         const rows = filteredItems.map((item) => [
           item.tagId || '',
           translateStatus(item.status),
-          translateType(item.itemType),
+          getItemTypeLabel(item),
           item.description || '',
           item.serialNumber || '',
           item.wll || '',
@@ -3367,7 +3409,7 @@
             return `
               <tr class="${rowClass}">
                 <td>${escapeHtml(item.tagId || '-')}</td>
-                <td>${escapeHtml(translateType(item.itemType))}</td>
+                <td>${escapeHtml(getItemTypeLabel(item))}</td>
                 <td>${escapeHtml(item.description || '-')}</td>
                 <td>${escapeHtml(translateStatus(item.status))}</td>
                 <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
@@ -3513,7 +3555,7 @@
               return `
                 <tr class="${rowClass}">
                   <td>${escapeHtml(item.tagId || '-')}</td>
-                  <td>${escapeHtml(translateType(item.itemType))}</td>
+                  <td>${escapeHtml(getItemTypeLabel(item))}</td>
                   <td>${escapeHtml(item.description || '-')}</td>
                   <td>${escapeHtml(translateStatus(item.status))}</td>
                   <td>${escapeHtml(formatReportDate(getRegistrationDateValue(item)))}</td>
@@ -3650,8 +3692,9 @@
 
         const searchFields = [
           item.tagId,
-          translateType(item.itemType),
+          getItemTypeLabel(item),
           item.itemType,
+          item.customTypeName,
           item.description,
           item.serialNumber,
           item.contractor,
@@ -3691,6 +3734,7 @@
         actionType: options.actionType || '',
         itemStatus: item?.status || '',
         itemType: item?.itemType || '',
+        itemCustomTypeName: item?.customTypeName || '',
         itemDescription: item?.description || '',
         itemSerialNumber: item?.serialNumber || '',
         itemContractor: item?.contractor || '',
@@ -3788,7 +3832,8 @@
             : 'log-item log-item-bad';
           const stateText = log.found ? t('logFound') : t('logNotFound');
           const statusText = log.found && effectiveStatus ? translateStatus(effectiveStatus) : '';
-          const typeText = effectiveType ? translateType(effectiveType) : '';
+          const effectiveCustomTypeName = log.itemCustomTypeName || fallbackItem?.customTypeName || '';
+          const typeText = effectiveType ? getItemTypeLabelFromValues(effectiveType, effectiveCustomTypeName) : '';
           const contractorText = log.itemContractor || fallbackItem?.contractor || '';
           const siteText = log.itemSiteName || fallbackItem?.siteName || '';
           const effectiveLocation = log.lastSeenLocation || fallbackItem?.lastSeenLocation || null;
@@ -3889,7 +3934,7 @@
                       ${getStatusOptionsMarkup(draftStatus)}
                     </select>
                   </td>
-                  <td data-label="${t('itemType')}">${translateType(item.itemType)}</td>
+                  <td data-label="${t('itemType')}">${getItemTypeLabel(item)}</td>
                   <td data-label="${t('description')}">${escapeHtml(item.description || '')}</td>
                   <td data-label="${t('serial')}">${escapeHtml(item.serialNumber || '')}</td>
                   <td data-label="${t('contractor')}">${escapeHtml(item.contractor || '')}</td>
@@ -4242,6 +4287,7 @@
     function clearForm(){
       el('tagId').value = '';
       el('itemType').value = '׳©׳׳§׳';
+      el('customTypeName').value = '';
       el('description').value = '';
       el('serialNumber').value = '';
       el('contractor').value = getVisitClientValue();
@@ -4257,6 +4303,7 @@
       pendingImageTask = null;
       el('itemImageInput').value = '';
       selectImageByType();
+      updateCustomTypeFieldVisibility();
       updateStatusColorSelect();
       el('registerStatus').textContent = t('waitingForScan');
       el('saveStatus').textContent = '';
@@ -4286,6 +4333,7 @@
             actionType: log.actionType || 'check',
             actionLabel: isNew ? t('visitActionNew') : t('visitActionChecked'),
             itemType: log.itemType || fallbackItem?.itemType || '',
+            customTypeName: log.itemCustomTypeName || fallbackItem?.customTypeName || '',
             description: log.itemDescription || fallbackItem?.description || '',
             serialNumber: log.itemSerialNumber || fallbackItem?.serialNumber || '',
             wll: log.itemWll || fallbackItem?.wll || '',
@@ -4339,7 +4387,7 @@
           <tr>
             <td>${escapeHtml(entry.tagId || '-')}</td>
             <td>${escapeHtml(entry.actionLabel)}</td>
-            <td>${escapeHtml(translateType(entry.itemType))}</td>
+            <td>${escapeHtml(getItemTypeLabelFromValues(entry.itemType, entry.customTypeName))}</td>
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
@@ -4579,7 +4627,7 @@
       currentScannedItem = item;
       el('scanEditPanel').hidden = true;
       el('scanItemImage').src = getDisplayImageSrc(item);
-      el('scanItemType').textContent = translateType(item.itemType);
+      el('scanItemType').textContent = getItemTypeLabel(item);
       el('scanContractor').textContent = item.contractor || '-';
       el('scanTagId').textContent = item.tagId || '-';
       el('scanDescription').textContent = item.description || '-';
@@ -4667,6 +4715,7 @@
     function fillRegisterForm(item){
       el('tagId').value = item.tagId || '';
       el('itemType').value = item.itemType || '׳©׳׳§׳';
+      el('customTypeName').value = item.customTypeName || '';
       el('description').value = item.description || '';
       el('serialNumber').value = item.serialNumber || '';
       el('contractor').value = getVisitClientValue() || item.contractor || '';
@@ -4682,6 +4731,7 @@
       pendingImageTask = null;
       el('itemImageInput').value = '';
       selectImageByType();
+      updateCustomTypeFieldVisibility();
       updateStatusColorSelect();
     }
 
@@ -4710,11 +4760,18 @@
       }
 
       const existing = await getItemByTag(tagId);
+      const itemTypeValue = el('itemType').value;
+      const customTypeName = isOtherItemType(itemTypeValue) ? getCustomTypeNameValue() : '';
+      if(isOtherItemType(itemTypeValue) && !customTypeName){
+        el('saveStatus').textContent = t('customTypeNameRequired');
+        return;
+      }
       const locationSnapshot = await getCurrentLocationSnapshot();
       const engineerAssessment = isEngineerWorkspace() ? readEngineerAssessment(existing) : (existing?.engineerAssessment || null);
       const item = withCapturedLocation({
         tagId,
-        itemType: el('itemType').value,
+        itemType: itemTypeValue,
+        customTypeName,
         description: el('description').value.trim(),
         serialNumber: el('serialNumber').value.trim(),
         contractor: getVisitClientValue() || el('contractor').value.trim() || existing?.contractor || '',
@@ -4726,7 +4783,7 @@
         siteName: getVisitSiteValue() || el('siteName').value.trim() || existing?.siteName || '',
         notes: el('notes').value.trim(),
         engineerAssessment,
-        imageSrc: customImageSrc || getDefaultImageForType(el('itemType').value),
+        imageSrc: customImageSrc || getDefaultImageForType(itemTypeValue),
         lastSeenLocation: existing?.lastSeenLocation || null,
         lastSeenAt: existing?.lastSeenAt || '',
         createdAt: existing?.createdAt || new Date().toLocaleString(),
@@ -4864,7 +4921,10 @@
       }
     }
 
-    el('itemType').addEventListener('change', selectImageByType);
+    el('itemType').addEventListener('change', () => {
+      selectImageByType();
+      updateCustomTypeFieldVisibility();
+    });
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
