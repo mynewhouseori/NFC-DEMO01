@@ -92,6 +92,10 @@ export const LANG = {
     itemDeleted: '\u05d4\u05e4\u05e8\u05d9\u05d8 \u05e0\u05de\u05d7\u05e7',
     deleteItemConfirm: '\u05dc\u05de\u05d7\u05d5\u05e7 \u05d0\u05ea \u05d4\u05e4\u05e8\u05d9\u05d8 \u05d4\u05d6\u05d4?',
     deleteItemPending: '\u05dc\u05d7\u05e5 \u05e9\u05d5\u05d1 \u05dc\u05de\u05d7\u05d9\u05e7\u05d4',
+    deleteVisit: '\u05de\u05d7\u05e7 \u05d1\u05d9\u05e7\u05d5\u05e8',
+    deleteVisitPending: '\u05dc\u05d7\u05e5 \u05e9\u05d5\u05d1 \u05dc\u05de\u05d7\u05d9\u05e7\u05ea \u05d1\u05d9\u05e7\u05d5\u05e8',
+    visitDeleted: '\u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05e0\u05de\u05d7\u05e7',
+    visitDeleteError: '\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05d4\u05d9\u05d4 \u05dc\u05de\u05d7\u05d5\u05e7 \u05d0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8',
     tagPlaceholder: '\u05d9\u05ea\u05de\u05dc\u05d0 \u05d0\u05d7\u05e8\u05d9 \u05e1\u05e8\u05d9\u05e7\u05d4 \u05d0\u05d5 \u05d9\u05d3\u05e0\u05d9\u05ea',
     descriptionPlaceholder: '\u05dc\u05d3\u05d5\u05d2\u05de\u05d4: Crosby G-2130 Shackle 3/4',
     serialPlaceholder: 'For example: GP-77421',
@@ -324,6 +328,10 @@ export const LANG = {
     itemDeleted: 'Item deleted',
     deleteItemConfirm: 'Delete this item?',
     deleteItemPending: 'Click delete again to confirm',
+    deleteVisit: 'Delete Visit',
+    deleteVisitPending: 'Click again to delete visit',
+    visitDeleted: 'Visit deleted',
+    visitDeleteError: 'Could not delete the visit',
     tagPlaceholder: 'Will be filled after scan or manually',
     descriptionPlaceholder: 'For example: Crosby G-2130 Shackle 3/4',
     serialPlaceholder: 'For example: GP-77421',
@@ -578,6 +586,10 @@ LANG.ar.deleteItem = 'حذف';
 LANG.ar.itemDeleted = 'تم حذف المعدّة';
 LANG.ar.deleteItemConfirm = 'هل تريد حذف هذه المعدّة؟';
 LANG.ar.deleteItemPending = 'اضغط حذف مرة أخرى للتأكيد';
+LANG.ar.deleteVisit = 'حذف الزيارة';
+LANG.ar.deleteVisitPending = 'اضغط مرة أخرى لحذف الزيارة';
+LANG.ar.visitDeleted = 'تم حذف الزيارة';
+LANG.ar.visitDeleteError = 'تعذر حذف الزيارة';
 LANG.ar.legalCopyright = '\u00a9 {year} NFC Safety Demo Cloud Table. \u062c\u0645\u064a\u0639 \u0627\u0644\u062d\u0642\u0648\u0642 \u0645\u062d\u0641\u0648\u0638\u0629.';
 LANG.ar.legalOpen = '\u0627\u0644\u062d\u0642\u0648\u0642 \u0648\u0627\u0644\u0627\u0633\u062a\u062e\u062f\u0627\u0645';
 LANG.ar.legalTitle = '\u062d\u0642\u0648\u0642 \u0627\u0644\u0646\u0634\u0631 \u0648\u0634\u0631\u0648\u0637 \u0627\u0644\u0627\u0633\u062a\u062e\u062f\u0627\u0645';

@@ -395,6 +395,8 @@
     let activeVisit = null;
     let pendingDeleteTagId = '';
     let pendingDeleteResetTimer = null;
+    let pendingDeleteVisitId = '';
+    let pendingDeleteVisitResetTimer = null;
     let visitSignaturePadState = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -1632,6 +1634,7 @@
             </div>
             <div class="report-archive-card-actions">
               <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
+              ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
             </div>
           </article>
         `).join('');
@@ -1651,6 +1654,74 @@
       reportArchiveState.site = 'all';
       updateReportArchiveButtonState();
       renderReportArchive();
+    }
+
+    function resetPendingVisitDelete(){
+      pendingDeleteVisitId = '';
+      if(pendingDeleteVisitResetTimer){
+        clearTimeout(pendingDeleteVisitResetTimer);
+        pendingDeleteVisitResetTimer = null;
+      }
+    }
+
+    async function deleteArchivedVisit(visitId){
+      if(!canEditRegister() || !visitId){
+        return;
+      }
+
+      const status = el('reportArchiveStatus');
+      if(pendingDeleteVisitId !== visitId){
+        pendingDeleteVisitId = visitId;
+        if(status){
+          status.textContent = t('deleteVisitPending');
+        }
+        if(pendingDeleteVisitResetTimer){
+          clearTimeout(pendingDeleteVisitResetTimer);
+        }
+        pendingDeleteVisitResetTimer = setTimeout(() => {
+          resetPendingVisitDelete();
+          if(status){
+            status.textContent = '';
+          }
+          renderReportArchive();
+        }, 4000);
+        renderReportArchive();
+        return;
+      }
+
+      resetPendingVisitDelete();
+      if(status){
+        status.textContent = t('saving');
+      }
+
+      try {
+        const visitLogsQuery = query(collection(db, LOGS_COLLECTION), where('visitId', '==', visitId));
+        const visitLogsSnapshot = await getDocs(visitLogsQuery);
+        for (const visitDoc of visitLogsSnapshot.docs) {
+          await deleteDoc(doc(db, LOGS_COLLECTION, visitDoc.id));
+        }
+
+        invalidateLogsCache();
+
+        if(activeVisit?.id === visitId){
+          activeVisit = null;
+          persistActiveVisit();
+          populateVisitForm();
+          renderVisitStatus();
+          updateRegisterAccessUi();
+        }
+
+        if(status){
+          status.textContent = t('visitDeleted');
+        }
+        await renderReportArchive();
+        await renderScanLogs();
+      } catch (error) {
+        pushDebugLine(`Visit delete error for ${visitId}: ${error.message}`);
+        if(status){
+          status.textContent = t('visitDeleteError');
+        }
+      }
     }
 
     function getCurrentLocationSnapshot(){
@@ -4882,6 +4953,7 @@
     window.renderScanLogs = renderScanLogs;
     window.renderReportArchive = renderReportArchive;
     window.resetReportArchiveFilters = resetReportArchiveFilters;
+    window.deleteArchivedVisit = deleteArchivedVisit;
     window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){
