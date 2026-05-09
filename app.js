@@ -295,7 +295,7 @@
       engineerFailureReasonPlaceholder: 'مثال: تآكل، تشوه، أو علامة مفقودة',
       engineerProfessionalNotesPlaceholder: 'اكتب هنا النتائج والتوصيات والملاحظات المهنية.'
     });
-    const IMAGE_VERSION = '20260403f';
+    const IMAGE_VERSION = '20260509otherLogo001';
     const withImageVersion = (path) => `${path}?v=${IMAGE_VERSION}`;
     const IMAGE_PATHS = {
       shackle: './תמונות/shackle.jpg',
