@@ -1951,6 +1951,7 @@
 
       const show = isOtherItemType(el('itemType')?.value);
       wrap.hidden = !show;
+      wrap.style.display = show ? '' : 'none';
       input.disabled = !show || !canEditRegister();
       if(!show){
         input.value = '';
