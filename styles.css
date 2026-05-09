@@ -1052,8 +1052,8 @@
       min-width:0;
     }
 
-    #customTypeNameWrap {
-      flex-basis:100%;
+    .register-custom-type-field {
+      margin-top:14px;
     }
 
     .register-image-field {
