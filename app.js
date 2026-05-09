@@ -2174,7 +2174,7 @@
     }
 
     function updateTypeOptions(){
-      const current = el('itemType').value || '׳©׳׳§׳';
+      const current = el('itemType').value || TYPE_VALUES.other;
       el('itemType').innerHTML = `
         <option value="׳©׳׳§׳">${t('type_shackle')}</option>
         <option value="׳¨׳¦׳•׳¢׳”">${t('type_strap')}</option>
@@ -4298,7 +4298,7 @@
 
     function clearForm(){
       el('tagId').value = '';
-      el('itemType').value = '׳©׳׳§׳';
+      el('itemType').value = TYPE_VALUES.other;
       el('customTypeName').value = '';
       el('description').value = '';
       el('serialNumber').value = '';
