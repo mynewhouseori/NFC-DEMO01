@@ -938,7 +938,7 @@
           site: visit.site || '',
           signature: visit.signature || '',
           notes: String(closingLog?.itemNotes || '').trim(),
-          signatureDataUrl: activeVisit?.id === visitId ? (activeVisit?.signatureDataUrl || '') : '',
+          signatureDataUrl: activeVisit?.id === visitId ? (activeVisit?.signatureDataUrl || '') : (visit.signatureDataUrl || ''),
           startedAt: visit.startedAt || firstLog?.time || '',
           startedAtIso: firstLog?.sortTime || '',
           endedAt: '',
@@ -1410,6 +1410,7 @@
           client: log.visitClient || '',
           site: log.visitSite || '',
           signature: log.visitSignature || '',
+          signatureDataUrl: log.visitSignatureDataUrl || '',
           startedAt: '',
           endedAt: '',
           sortTime: '',
@@ -1421,6 +1422,7 @@
         existing.client = existing.client || log.visitClient || '';
         existing.site = existing.site || log.visitSite || '';
         existing.signature = existing.signature || log.visitSignature || '';
+        existing.signatureDataUrl = existing.signatureDataUrl || log.visitSignatureDataUrl || '';
         existing.logs.push(log);
 
         const timeValue = String(log.sortTime || log.time || '');
@@ -1654,8 +1656,10 @@
               </table>
             </div>
             <div class="signature">
+              ${visit.engineer ? `<p style="margin:0 0 6px;font-weight:700;">${escapeHtml(visit.engineer)}</p>` : ''}
               <strong>${escapeHtml(t('visitReportSignature'))}</strong>
-              <p>${escapeHtml(visit.signature || visit.engineer || '-')}</p>
+              ${visit.signatureDataUrl ? `<p><img src="${visit.signatureDataUrl}" alt="Signature" style="max-width:280px;max-height:120px;display:block;margin-top:10px;margin-bottom:10px;"></p>` : ''}
+              ${visit.signature ? `<p>${escapeHtml(visit.signature)}</p>` : ''}
             </div>
             <div class="footer">${escapeHtml(t('visitReportFooter'))}</div>
             </div>
@@ -4426,6 +4430,7 @@
           visitClient: closedVisit.client || '',
           visitSite: closedVisit.site || '',
           visitSignature: closedVisit.signature || '',
+          visitSignatureDataUrl: closedVisit.signatureDataUrl || '',
           time: closedVisit.endedAt || new Date().toLocaleString(),
           sortTime: closedVisit.endedAtIso || new Date().toISOString()
         });
