@@ -1531,6 +1531,13 @@
         const generatedAt = formatDisplayDateTime(new Date());
         const printLabel = rt('reportSavePdf');
 
+        const getReportStatusClass = (status) => {
+          const normalized = normalizeStatus(status);
+          if(normalized === 'disabled') return 'report-status-chip report-status-chip-bad';
+          if(normalized === 'review') return 'report-status-chip report-status-chip-warn';
+          return 'report-status-chip report-status-chip-ok';
+        };
+
         const renderRows = (rows) => rows.length ? rows.map((entry) => `
           <tr>
             <td>${escapeHtml(entry.tagId || '-')}</td>
@@ -1541,7 +1548,7 @@
             <td>${escapeHtml(entry.contractor || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
-            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td><span class="${getReportStatusClass(entry.status || '')}">${escapeHtml(translateStatus(entry.status || ''))}</span></td>
             <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
@@ -1572,6 +1579,10 @@
               table { width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed; font-size:10px; }
               th, td { border:1px solid #dbe4ea; padding:6px 5px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; word-break:break-word; overflow-wrap:anywhere; }
               th { background:#f8fafc; font-size:10px; line-height:1.25; }
+              .report-status-chip { display:inline-block; padding:4px 8px; border-radius:999px; font-weight:700; }
+              .report-status-chip-ok { background:#dcfce7; color:#166534; }
+              .report-status-chip-warn { background:#fef3c7; color:#92400e; }
+              .report-status-chip-bad { background:#fee2e2; color:#991b1b; }
               .signature { margin-top:18px; padding-top:14px; border-top:2px solid #cbd5e1; break-inside:avoid; page-break-inside:avoid; }
               .footer { margin-top:14px; color:#64748b; font-size:11px; }
               .no-print { margin-bottom:12px; display:flex; gap:10px; flex-wrap:wrap; }
@@ -4543,6 +4554,13 @@
         const generatedAt = formatDisplayDateTime(new Date());
         const printLabel = rt('reportSavePdf');
 
+        const getReportStatusClass = (status) => {
+          const normalized = normalizeStatus(status);
+          if(normalized === 'disabled') return 'report-status-chip report-status-chip-bad';
+          if(normalized === 'review') return 'report-status-chip report-status-chip-warn';
+          return 'report-status-chip report-status-chip-ok';
+        };
+
         const renderRows = (rows) => rows.length ? rows.map((entry) => `
           <tr>
             <td>${escapeHtml(entry.tagId || '-')}</td>
@@ -4552,7 +4570,7 @@
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
-            <td>${escapeHtml(translateStatus(entry.status || ''))}</td>
+            <td><span class="${getReportStatusClass(entry.status || '')}">${escapeHtml(translateStatus(entry.status || ''))}</span></td>
             <td>${escapeHtml(formatReportDate(entry.previousInspectionDate))}</td>
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
@@ -4583,6 +4601,10 @@
               table { width:100%; border-collapse:collapse; margin-top:10px; table-layout:fixed; font-size:10px; }
               th, td { border:1px solid #dbe4ea; padding:6px 5px; text-align:${currentLang === 'en' ? 'left' : 'right'}; vertical-align:top; word-break:break-word; overflow-wrap:anywhere; }
               th { background:#f8fafc; font-size:10px; line-height:1.25; }
+              .report-status-chip { display:inline-block; padding:4px 8px; border-radius:999px; font-weight:700; }
+              .report-status-chip-ok { background:#dcfce7; color:#166534; }
+              .report-status-chip-warn { background:#fef3c7; color:#92400e; }
+              .report-status-chip-bad { background:#fee2e2; color:#991b1b; }
               .signature { margin-top:18px; padding-top:14px; border-top:2px solid #cbd5e1; break-inside:avoid; page-break-inside:avoid; }
               .footer { margin-top:14px; color:#64748b; font-size:11px; }
               .no-print { margin-bottom:12px; display:flex; gap:10px; flex-wrap:wrap; }
