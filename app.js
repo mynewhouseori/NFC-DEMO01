@@ -386,7 +386,8 @@
       to: '',
       site: 'all',
       visits: [],
-      logsByKey: new Map()
+      logsByKey: new Map(),
+      expandedVisitIds: new Set()
     };
     const pendingTableEdits = new Map();
     let lastSavedTagId = '';
@@ -1534,6 +1535,23 @@
       reportArchiveState.site = nextValue;
     }
 
+    function isVisitArchiveExpanded(visitId){
+      return reportArchiveState.expandedVisitIds.has(String(visitId || '').trim());
+    }
+
+    function toggleVisitArchiveCard(visitId){
+      const normalizedVisitId = String(visitId || '').trim();
+      if(!normalizedVisitId){
+        return;
+      }
+      if(reportArchiveState.expandedVisitIds.has(normalizedVisitId)){
+        reportArchiveState.expandedVisitIds.delete(normalizedVisitId);
+      } else {
+        reportArchiveState.expandedVisitIds.add(normalizedVisitId);
+      }
+      renderReportArchive();
+    }
+
     function getArchiveVisitEntries(visitId, logs, items){
       const previousVisit = activeVisit;
       const previousCache = dataCache.logs.value;
@@ -1767,33 +1785,45 @@
           to: formatDisplayDate(toDate || visits[0]?.date || '')
         });
 
-        list.innerHTML = visits.map((visit) => `
+        list.innerHTML = visits.map((visit) => {
+          const isExpanded = isVisitArchiveExpanded(visit.id);
+          return `
           <article class="report-archive-card">
-            <div class="report-archive-card-top">
-              <div>
-                <div class="report-archive-card-title">${escapeHtml(formatDisplayDate(visit.date || '-'))}</div>
-                <div class="report-archive-subtitle">${escapeHtml(visit.engineer || '-')}</div>
+            <button class="report-archive-summary" type="button" onclick="toggleVisitArchiveCard('${escapeHtml(visit.id)}')" aria-expanded="${isExpanded ? 'true' : 'false'}">
+              <span class="report-archive-summary-cell">
+                <span class="report-archive-summary-label">${escapeHtml(t('visitReportMetaDate'))}</span>
+                <span class="report-archive-summary-value">${escapeHtml(formatDisplayDate(visit.date || '-'))}</span>
+              </span>
+              <span class="report-archive-summary-cell">
+                <span class="report-archive-summary-label">${escapeHtml(t('reportArchiveMetaSite'))}</span>
+                <span class="report-archive-summary-value">${escapeHtml(visit.site || '-')}</span>
+              </span>
+              <span class="report-archive-summary-cell report-archive-summary-status-cell">
+                <span class="report-archive-summary-label">${escapeHtml(t('status'))}</span>
+                <span class="pill ${visit.endedAt ? 'pill-ok' : 'pill-warn'}">${escapeHtml(visit.endedAt ? t('visitStatusClosed') : t('visitStatusActive'))}</span>
+              </span>
+            </button>
+            <div class="report-archive-card-details${isExpanded ? ' is-open' : ''}" ${isExpanded ? '' : 'hidden'}>
+              <div class="report-archive-card-meta">
+                <div><strong>${escapeHtml(t('reportArchiveMetaClient'))}</strong> ${escapeHtml(visit.client || '-')}</div>
+                <div><strong>${escapeHtml(t('visitReportMetaEngineer'))}</strong> ${escapeHtml(visit.engineer || '-')}</div>
+                <div><strong>${escapeHtml(t('reportArchiveMetaItems'))}</strong> ${escapeHtml(visit.itemCount || 0)}</div>
+                <div><strong>${escapeHtml(t('reportArchiveMetaClosed'))}</strong> ${escapeHtml(formatDisplayDateTime(visit.endedAt || visit.startedAt || '-'))}</div>
               </div>
-              <div class="pill ${visit.endedAt ? 'pill-ok' : 'pill-warn'}">${escapeHtml(visit.endedAt ? t('visitStatusClosed') : t('visitStatusActive'))}</div>
-            </div>
-            <div class="report-archive-card-meta">
-              <div><strong>${escapeHtml(t('reportArchiveMetaClient'))}</strong> ${escapeHtml(visit.client || '-')}</div>
-              <div><strong>${escapeHtml(t('reportArchiveMetaSite'))}</strong> ${escapeHtml(visit.site || '-')}</div>
-              <div><strong>${escapeHtml(t('reportArchiveMetaItems'))}</strong> ${escapeHtml(visit.itemCount || 0)}</div>
-              <div><strong>${escapeHtml(t('reportArchiveMetaClosed'))}</strong> ${escapeHtml(formatDisplayDateTime(visit.endedAt || visit.startedAt || '-'))}</div>
-            </div>
-            <div class="report-archive-card-stats">
-              <span class="mini-stat">${escapeHtml(t('visitActionNew'))}: ${escapeHtml(visit.newCount || 0)}</span>
-              <span class="mini-stat">${escapeHtml(t('visitActionChecked'))}: ${escapeHtml(visit.checkedCount || 0)}</span>
-            </div>
-            <div class="report-archive-card-actions">
-              <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
-              ${canEditRegister() ? `<button class="mini-btn" type="button" onclick="loadArchivedVisitForEdit('${escapeHtml(visit.id)}')">${escapeHtml(t('loadVisitForEdit'))}</button>` : ''}
-              ${canEditRegister() && activeVisit && activeVisit.status !== 'closed' ? `<button class="mini-btn" type="button" onclick="resumeActiveVisitFromArchive()">${escapeHtml(t('resumeActiveVisit'))}</button>` : ''}
-              ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
+              <div class="report-archive-card-stats">
+                <span class="mini-stat">${escapeHtml(t('visitActionNew'))}: ${escapeHtml(visit.newCount || 0)}</span>
+                <span class="mini-stat">${escapeHtml(t('visitActionChecked'))}: ${escapeHtml(visit.checkedCount || 0)}</span>
+              </div>
+              <div class="report-archive-card-actions">
+                <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
+                ${canEditRegister() ? `<button class="mini-btn" type="button" onclick="loadArchivedVisitForEdit('${escapeHtml(visit.id)}')">${escapeHtml(t('loadVisitForEdit'))}</button>` : ''}
+                ${canEditRegister() && activeVisit && activeVisit.status !== 'closed' ? `<button class="mini-btn" type="button" onclick="resumeActiveVisitFromArchive()">${escapeHtml(t('resumeActiveVisit'))}</button>` : ''}
+                ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
+              </div>
             </div>
           </article>
-        `).join('');
+        `;
+        }).join('');
       } catch (error) {
         status.textContent = t('reportArchiveLoadError');
         list.innerHTML = `<div class="empty-text">${t('reportArchiveLoadError')}</div>`;
@@ -5300,6 +5330,7 @@
     window.renderScanLogs = renderScanLogs;
     window.renderReportArchive = renderReportArchive;
     window.resetReportArchiveFilters = resetReportArchiveFilters;
+    window.toggleVisitArchiveCard = toggleVisitArchiveCard;
     window.deleteArchivedVisit = deleteArchivedVisit;
     window.loadArchivedVisitForEdit = loadArchivedVisitForEdit;
     window.resumeActiveVisitFromArchive = resumeActiveVisitFromArchive;

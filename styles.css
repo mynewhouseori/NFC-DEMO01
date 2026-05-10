@@ -2119,24 +2119,50 @@
 .report-archive-card {
   border:1px solid #dbe4ea;
   border-radius:16px;
-  padding:14px;
   background:#fff;
   box-shadow:0 8px 20px rgba(15, 23, 42, .04);
+  overflow:hidden;
 }
 
-.report-archive-card-top {
-  display:flex;
-  justify-content:space-between;
+.report-archive-summary {
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:12px;
-  align-items:flex-start;
-  margin-bottom:10px;
-  flex-wrap:wrap;
+  align-items:center;
+  border:none;
+  background:transparent;
+  padding:14px;
+  text-align:inherit;
+  cursor:pointer;
 }
 
-.report-archive-card-title {
+.report-archive-summary-cell {
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  min-width:0;
+}
+
+.report-archive-summary-status-cell {
+  align-items:flex-start;
+}
+
+.report-archive-summary-label {
+  font-size:12px;
+  font-weight:700;
+  color:#64748b;
+}
+
+.report-archive-summary-value {
+  font-size:15px;
   font-weight:800;
   color:#0f172a;
-  margin-bottom:4px;
+}
+
+.report-archive-card-details {
+  border-top:1px solid #e2e8f0;
+  padding:14px;
 }
 
 .report-archive-card-meta {
@@ -2763,6 +2789,13 @@
   color:#475569;
   font-size:12px;
   font-weight:700;
+}
+
+@media (max-width:700px){
+  .report-archive-summary {
+    grid-template-columns:1fr;
+    gap:10px;
+  }
 }
 
 .report-page-inline-value {
