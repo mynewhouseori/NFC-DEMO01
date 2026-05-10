@@ -342,30 +342,31 @@
 }
 
 .home-guide-btn {
-  width:48px;
-  min-width:48px;
+  width:28px;
+  min-width:28px;
   max-width:none;
-  min-height:54px;
-  padding:6px 4px;
-  margin:10px auto 0;
-  border-radius:12px;
+  min-height:28px;
+  height:28px;
+  padding:0;
+  margin:8px auto 0;
+  border-radius:8px;
   display:flex;
   align-items:center;
   justify-content:center;
   background:rgba(255,255,255,.14);
-  border:2px solid rgba(0,0,0,.38);
+  border:1px solid rgba(0,0,0,.34);
   color:#ffffff;
-  box-shadow:0 8px 18px rgba(0,0,0,.18);
+  box-shadow:0 4px 10px rgba(0,0,0,.16);
 }
 
 .home-guide-icon {
   display:grid;
   place-items:center;
-  width:22px;
-  height:22px;
-  border-radius:6px;
+  width:14px;
+  height:14px;
+  border-radius:4px;
   border:1.5px solid rgba(255,255,255,.92);
-  font-size:13px;
+  font-size:9px;
   font-weight:800;
   line-height:1;
   font-family:Georgia, "Times New Roman", serif;
