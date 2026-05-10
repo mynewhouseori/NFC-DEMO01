@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260509wll001";
+    import { LANG } from "./translations.js?v=20260510taglookup001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -403,6 +403,7 @@
     let pendingDeleteResetTimer = null;
     let pendingDeleteVisitId = '';
     let pendingDeleteVisitResetTimer = null;
+    let registerTagLookupToken = 0;
     let visitSignaturePadState = null;
     const debugState = {
       enabled: new URLSearchParams(window.location.search).get('debug') === '1',
@@ -2506,6 +2507,10 @@
 
       el('tagIdLabel').textContent = t('tagId');
       el('itemTypeLabel').textContent = t('itemType');
+      if(el('registerItemSectionTitleText')) el('registerItemSectionTitleText').textContent = t('registerItemSectionTitle');
+      if(el('registerItemSectionSubtitleText')) el('registerItemSectionSubtitleText').textContent = t('registerItemSectionSubtitle');
+      if(el('registerMediaSectionTitleText')) el('registerMediaSectionTitleText').textContent = t('registerMediaSectionTitle');
+      if(el('registerMediaSectionSubtitleText')) el('registerMediaSectionSubtitleText').textContent = t('registerMediaSectionSubtitle');
       el('customTypeNameLabel').textContent = t('customTypeName');
       el('imageLabel').textContent = t('image');
       el('descriptionLabel').textContent = t('description');
@@ -4326,6 +4331,7 @@
 
     function clearItemForm(){
       el('tagId').value = '';
+      el('tagId').dataset.loadedTag = '';
       el('itemType').value = TYPE_VALUES.other;
       el('customTypeName').value = '';
       el('description').value = '';
@@ -4762,6 +4768,7 @@
 
     function fillRegisterForm(item){
       el('tagId').value = item.tagId || '';
+      el('tagId').dataset.loadedTag = item.tagId || '';
       el('itemType').value = item.itemType || '׳©׳׳§׳';
       el('customTypeName').value = item.customTypeName || '';
       el('description').value = item.description || '';
@@ -4781,6 +4788,56 @@
       selectImageByType();
       updateCustomTypeFieldVisibility();
       updateStatusColorSelect();
+    }
+
+    async function tryLoadRegisterItemByTag({ force = false } = {}){
+      if(!canEditRegister()){
+        return;
+      }
+
+      const tagInput = el('tagId');
+      if(!tagInput){
+        return;
+      }
+
+      const tagId = String(tagInput.value || '').trim();
+      const loadedTag = String(tagInput.dataset.loadedTag || '').trim();
+
+      if(!tagId){
+        tagInput.dataset.loadedTag = '';
+        return;
+      }
+
+      if(!force && tagId === loadedTag){
+        return;
+      }
+
+      const lookupToken = ++registerTagLookupToken;
+      el('saveStatus').textContent = t('tagLookupLoading');
+
+      try {
+        const existing = await getItemByTag(tagId);
+        if(lookupToken !== registerTagLookupToken){
+          return;
+        }
+
+        if(existing){
+          fillRegisterForm(existing);
+          el('saveStatus').textContent = t('tagLookupLoaded');
+          return;
+        }
+
+        tagInput.dataset.loadedTag = '';
+        if(el('saveStatus').textContent === t('tagLookupLoading')){
+          el('saveStatus').textContent = '';
+        }
+      } catch (error) {
+        if(lookupToken !== registerTagLookupToken){
+          return;
+        }
+        pushDebugLine(`Register tag lookup error for ${tagId}: ${error.message}`);
+        el('saveStatus').textContent = t('cloudSaveError');
+      }
     }
 
     async function saveItem(){
@@ -4981,6 +5038,17 @@
     el('itemType').addEventListener('change', handleItemTypeChange);
     el('itemType').addEventListener('input', handleItemTypeChange);
     el('itemType').addEventListener('blur', handleItemTypeChange);
+    el('tagId').addEventListener('blur', () => {
+      tryLoadRegisterItemByTag();
+    });
+    el('tagId').addEventListener('keydown', async (event) => {
+      if(event.key !== 'Enter'){
+        return;
+      }
+      event.preventDefault();
+      await tryLoadRegisterItemByTag({ force: true });
+      el('description').focus();
+    });
     el('itemStatus').addEventListener('change', updateStatusColorSelect);
     el('itemImageInput').addEventListener('change', (event) => {
       const file = event.target.files?.[0];
