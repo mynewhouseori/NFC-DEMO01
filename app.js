@@ -735,6 +735,23 @@
     function loadActiveVisit(){
       activeVisit = null;
       try {
+        const raw = localStorage.getItem(VISIT_STORAGE_KEY);
+        if(!raw){
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if(parsed && typeof parsed === 'object'){
+          activeVisit = parsed;
+        }
+      } catch (error) {
+        pushDebugLine(`Visit storage load failed: ${error.message}`);
+        activeVisit = null;
+      }
+    }
+
+    function resetActiveVisit(){
+      activeVisit = null;
+      try {
         localStorage.removeItem(VISIT_STORAGE_KEY);
       } catch (error) {
         pushDebugLine(`Visit storage reset failed: ${error.message}`);
@@ -4358,7 +4375,7 @@
     }
 
     function clearForm(){
-      loadActiveVisit();
+      resetActiveVisit();
       populateVisitForm();
       clearItemForm();
       renderVisitStatus(t('visitStatusNoVisit'));
@@ -5154,7 +5171,7 @@
       setupReportNumberField();
       setupVisitSignaturePad();
       loadActiveVisit();
-      populateVisitForm();
+      populateVisitForm(activeVisit);
       setLang(currentLang);
       clearStatuses();
       clearItemForm();
