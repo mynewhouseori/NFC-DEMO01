@@ -100,6 +100,10 @@ export const LANG = {
     deleteItemPending: '\u05dc\u05d7\u05e5 \u05e9\u05d5\u05d1 \u05dc\u05de\u05d7\u05d9\u05e7\u05d4',
     deleteVisit: '\u05de\u05d7\u05e7 \u05d1\u05d9\u05e7\u05d5\u05e8',
     deleteVisitPending: '\u05dc\u05d7\u05e5 \u05e9\u05d5\u05d1 \u05dc\u05de\u05d7\u05d9\u05e7\u05ea \u05d1\u05d9\u05e7\u05d5\u05e8',
+    loadVisitForEdit: '\u05d8\u05e2\u05df \u05d1\u05d9\u05e7\u05d5\u05e8 \u05d6\u05d4 \u05dc\u05e2\u05e8\u05d9\u05db\u05d4',
+    loadVisitForEditStatus: '\u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05e0\u05d8\u05e2\u05df \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
+    loadVisitForEditUnavailable: '\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05db\u05e8\u05d2\u05e2 \u05dc\u05d8\u05e2\u05d5\u05df \u05d0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
+    loadVisitForEditError: '\u05d0\u05d9\u05e8\u05e2\u05d4 \u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d8\u05e2\u05d9\u05e0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
     resumeActiveVisit: '\u05d7\u05d6\u05d5\u05e8 \u05dc\u05d1\u05d9\u05e7\u05d5\u05e8 \u05d4\u05e4\u05e2\u05d9\u05dc',
     resumeVisitStatus: '\u05d7\u05d6\u05e8\u05ea \u05dc\u05d1\u05d9\u05e7\u05d5\u05e8 \u05d4\u05e4\u05e2\u05d9\u05dc.',
     resumeVisitUnavailable: '\u05d0\u05d9\u05df \u05db\u05e8\u05d2\u05e2 \u05d1\u05d9\u05e7\u05d5\u05e8 \u05e4\u05e2\u05d9\u05dc \u05dc\u05d7\u05d6\u05d5\u05e8 \u05d0\u05dc\u05d9\u05d5.',
@@ -360,6 +364,10 @@ export const LANG = {
     deleteItemPending: 'Click delete again to confirm',
     deleteVisit: 'Delete Visit',
     deleteVisitPending: 'Click again to delete visit',
+    loadVisitForEdit: 'Load This Visit for Editing',
+    loadVisitForEditStatus: 'The visit was loaded for editing.',
+    loadVisitForEditUnavailable: 'This visit cannot be loaded for editing right now.',
+    loadVisitForEditError: 'There was an error loading the visit for editing.',
     resumeActiveVisit: 'Return to Active Visit',
     resumeVisitStatus: 'Returned to the active visit.',
     resumeVisitUnavailable: 'There is no active visit to return to right now.',
@@ -645,6 +653,10 @@ LANG.ar.deleteItemConfirm = 'هل تريد حذف هذه المعدّة؟';
 LANG.ar.deleteItemPending = 'اضغط حذف مرة أخرى للتأكيد';
 LANG.ar.deleteVisit = 'حذف الزيارة';
 LANG.ar.deleteVisitPending = 'اضغط مرة أخرى لحذف الزيارة';
+LANG.ar.loadVisitForEdit = 'تحميل هذه الزيارة للتحرير';
+LANG.ar.loadVisitForEditStatus = 'تم تحميل الزيارة للتحرير.';
+LANG.ar.loadVisitForEditUnavailable = 'لا يمكن تحميل هذه الزيارة للتحرير الآن.';
+LANG.ar.loadVisitForEditError = 'حدث خطأ أثناء تحميل الزيارة للتحرير.';
 LANG.ar.resumeActiveVisit = 'العودة إلى الزيارة النشطة';
 LANG.ar.resumeVisitStatus = 'تمت العودة إلى الزيارة النشطة.';
 LANG.ar.resumeVisitUnavailable = 'لا توجد زيارة نشطة للعودة إليها الآن.';
