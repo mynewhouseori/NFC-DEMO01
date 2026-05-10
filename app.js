@@ -814,6 +814,26 @@
       roleNode.textContent = t('visitSignatureEngineerRole');
     }
 
+    function scrollRegisterScreenToTabs(){
+      const registerScreen = el('registerScreen');
+      if(!registerScreen){
+        return;
+      }
+
+      const tabsCard = registerScreen.querySelector('.tabs')?.closest('.card');
+      const targetTop = Math.max((tabsCard?.offsetTop || 0) - 8, 0);
+
+      registerScreen.scrollTop = targetTop;
+      registerScreen.scrollLeft = 0;
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      window.scrollTo(0, 0);
+
+      requestAnimationFrame(() => {
+        registerScreen.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+      });
+    }
+
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
       if(!activeVisit?.id){
         return [];
@@ -4181,12 +4201,7 @@
       clearStatuses();
 
       if(screenId === 'registerScreen'){
-        const registerScreen = el('registerScreen');
-        if(registerScreen){
-          registerScreen.scrollTop = 0;
-          registerScreen.scrollLeft = 0;
-          requestAnimationFrame(() => registerScreen.scrollTo({ top: 0, left: 0, behavior: 'auto' }));
-        }
+        scrollRegisterScreenToTabs();
         renderVisitStatus();
       }
 
@@ -4305,6 +4320,8 @@
         renderReportArchive();
         renderScanLogs();
       }
+
+      scrollRegisterScreenToTabs();
     }
 
     async function saveAllTableChanges(){
