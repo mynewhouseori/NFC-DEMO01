@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260510homeGuide001" />
+<link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260510wllfree001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -160,7 +160,7 @@
             </div>
             <div>
               <label for="scanEditWll" id="scanEditWllLabel"></label>
-              <input id="scanEditWll" type="text" inputmode="decimal" autocomplete="off" data-decimal-input="1">
+                <input id="scanEditWll" type="text" autocomplete="off">
             </div>
           </div>
           <div class="scan-edit-grid">
@@ -326,7 +326,11 @@
         <input id="siteName" type="hidden">
 
         <div class="register-item-layout">
-          <div class="register-item-main">
+          <div class="register-item-main register-section-card">
+            <div class="register-section-head">
+              <div class="register-section-title" id="registerItemSectionTitleText"></div>
+              <div class="register-section-subtitle" id="registerItemSectionSubtitleText"></div>
+            </div>
             <div class="row">
               <div>
                 <label for="tagId" id="tagIdLabel"></label>
@@ -345,7 +349,7 @@
               </div>
               <div>
                 <label for="wll" id="wllLabel"></label>
-                <input id="wll" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" data-decimal-input="1">
+                <input id="wll" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
               </div>
             </div>
 
@@ -380,7 +384,11 @@
             </div>
           </div>
 
-          <div class="register-item-media">
+          <div class="register-item-media register-section-card">
+            <div class="register-section-head">
+              <div class="register-section-title" id="registerMediaSectionTitleText"></div>
+              <div class="register-section-subtitle" id="registerMediaSectionSubtitleText"></div>
+            </div>
             <div class="preview-wrap register-preview-wrap">
               <div class="register-type-field">
                 <label for="itemType" id="itemTypeLabel"></label>
@@ -597,7 +605,7 @@
 
   <script>
     (async function bootApp() {
-      const BOOTSTRAP_ASSET_VERSION = '20260510homeGuide001';
+      const BOOTSTRAP_ASSET_VERSION = '20260510wllfree001';
       const VERSION_MANIFEST_URL = './version.json';
 
       const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {
