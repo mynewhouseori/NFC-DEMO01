@@ -2497,6 +2497,13 @@
       font-weight:700;
     }
 
+    .table-status-select.status-bad {
+      background:#fee2e2;
+      border-color:#dc2626;
+      color:#991b1b;
+      box-shadow:0 0 0 1px rgba(220,38,38,.08), 0 4px 10px rgba(220,38,38,.12);
+    }
+
     .table-actions-cell {
       display:grid;
       gap:4px;
