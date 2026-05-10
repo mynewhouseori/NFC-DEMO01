@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260510guidecopy001";
+    import { LANG } from "./translations.js?v=20260510resumevisit001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -881,6 +881,21 @@
       return activeVisit;
     }
 
+    function resumeActiveVisitFromArchive(){
+      const status = el('reportArchiveStatus');
+      if(!canEditRegister() || !activeVisit || activeVisit.status === 'closed'){
+        if(status){
+          status.textContent = t('resumeVisitUnavailable');
+        }
+        return;
+      }
+
+      populateVisitForm(activeVisit);
+      renderVisitStatus(t('resumeVisitStatus'));
+      openRegisterTab('registerPane');
+      refreshVisitSignaturePad();
+    }
+
     function getVisitSignatureCanvas(){
       return el('visitSignaturePad');
     }
@@ -1666,6 +1681,7 @@
             </div>
             <div class="report-archive-card-actions">
               <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
+              ${canEditRegister() && activeVisit && activeVisit.status !== 'closed' ? `<button class="mini-btn" type="button" onclick="resumeActiveVisitFromArchive()">${escapeHtml(t('resumeActiveVisit'))}</button>` : ''}
               ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
             </div>
           </article>
@@ -5161,6 +5177,7 @@
     window.renderReportArchive = renderReportArchive;
     window.resetReportArchiveFilters = resetReportArchiveFilters;
     window.deleteArchivedVisit = deleteArchivedVisit;
+    window.resumeActiveVisitFromArchive = resumeActiveVisitFromArchive;
     window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){
