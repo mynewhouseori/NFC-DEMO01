@@ -3481,10 +3481,10 @@
       const preferredRegistrationDate = targetId === 'scanEditNextInspection'
         ? normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
         : normalizeRegistrationDate(el('registrationDate')?.value);
-      return normalizeRegistrationDate(el('visitDate')?.value)
-        || preferredRegistrationDate
+      return preferredRegistrationDate
         || normalizeRegistrationDate(el('registrationDate')?.value)
         || normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
+        || normalizeRegistrationDate(el('visitDate')?.value)
         || todayIsoDate();
     }
 
