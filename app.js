@@ -1611,8 +1611,8 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
@@ -1633,8 +1633,8 @@
                     <th>${escapeHtml(t('itemType'))}</th>
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
+                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
