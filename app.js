@@ -2415,12 +2415,25 @@
       el('visitReportBtn').textContent = t('visitReport');
       el('visitSignatureClearBtn').textContent = t('visitSignatureClear');
       el('visitEngineer').placeholder = t('visitEngineerPlaceholder');
-      el('visitClient').placeholder = t('visitClientPlaceholder');
-      el('visitSite').placeholder = t('visitSitePlaceholder');
-      renderVisitSignatureIdentity();
-      el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
-      el('legalOpenBtn').textContent = t('legalOpen');
-      el('legalTitleText').textContent = t('legalTitle');
+        el('visitClient').placeholder = t('visitClientPlaceholder');
+        el('visitSite').placeholder = t('visitSitePlaceholder');
+        renderVisitSignatureIdentity();
+        el('homeGuideOpenBtn').textContent = t('homeGuideOpen');
+        el('homeGuideTitleText').textContent = t('homeGuideTitle');
+        el('homeGuideCloseBtn').textContent = t('legalClose');
+        el('homeGuideIntroText').textContent = t('homeGuideIntro');
+        el('homeGuidePurposeTitleText').textContent = t('homeGuidePurposeTitle');
+        el('homeGuidePurposeText').textContent = t('homeGuidePurposeText');
+        el('homeGuideStepsTitleText').textContent = t('homeGuideStepsTitle');
+        el('homeGuideStep1Text').textContent = t('homeGuideStep1');
+        el('homeGuideStep2Text').textContent = t('homeGuideStep2');
+        el('homeGuideStep3Text').textContent = t('homeGuideStep3');
+        el('homeGuideStep4Text').textContent = t('homeGuideStep4');
+        el('homeGuideStep5Text').textContent = t('homeGuideStep5');
+        el('homeGuideNoteText').textContent = t('homeGuideNote');
+        el('legalCopyrightText').textContent = formatText('legalCopyright', { year: APP_COPYRIGHT_YEAR });
+        el('legalOpenBtn').textContent = t('legalOpen');
+        el('legalTitleText').textContent = t('legalTitle');
       el('legalCloseBtn').textContent = t('legalClose');
       el('legalIntroText').textContent = t('legalIntro');
       el('legalLine1Text').textContent = t('legalLine1');
@@ -4062,14 +4075,29 @@
       }
     }
 
+    function syncModalOpenState(){
+      const isAnyModalOpen = !el('legalModal').hidden || !el('homeGuideModal').hidden;
+      document.body.classList.toggle('modal-open', isAnyModalOpen);
+    }
+
+    function openHomeGuide(){
+      el('homeGuideModal').hidden = false;
+      syncModalOpenState();
+    }
+
+    function closeHomeGuide(){
+      el('homeGuideModal').hidden = true;
+      syncModalOpenState();
+    }
+
     function openLegalNotice(){
       el('legalModal').hidden = false;
-      document.body.classList.add('modal-open');
+      syncModalOpenState();
     }
 
     function closeLegalNotice(){
       el('legalModal').hidden = true;
-      document.body.classList.remove('modal-open');
+      syncModalOpenState();
     }
 
     function goHome(){
@@ -5000,7 +5028,9 @@
     });
 
     window.addEventListener('keydown', (event) => {
-      if(event.key === 'Escape' && !el('legalModal').hidden){
+      if(event.key === 'Escape' && !el('homeGuideModal').hidden){
+        closeHomeGuide();
+      } else if(event.key === 'Escape' && !el('legalModal').hidden){
         closeLegalNotice();
       }
     });
@@ -5009,6 +5039,8 @@
     window.openScreen = openScreen;
     window.openBusinessModule = openBusinessModule;
     window.openEngineerModule = openEngineerModule;
+    window.openHomeGuide = openHomeGuide;
+    window.closeHomeGuide = closeHomeGuide;
     window.openLegalNotice = openLegalNotice;
     window.closeLegalNotice = closeLegalNotice;
     window.openPasswordScreen = openPasswordScreen;

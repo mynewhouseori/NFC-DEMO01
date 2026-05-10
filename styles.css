@@ -327,19 +327,25 @@
       box-shadow:0 0 0 4px rgba(15,118,110,.28);
     }
 
-    .actions {
-      width:100%;
-      max-width:320px;
-      display:flex;
+.actions {
+  width:100%;
+  max-width:320px;
+  display:flex;
       flex-direction:column;
       gap:14px;
       margin-inline:auto;
       margin-bottom:clamp(58px, 10vh, 110px);
     }
 
-    .home-action-wrap {
-      position:relative;
-    }
+.home-action-wrap {
+  position:relative;
+}
+
+.home-guide-btn {
+  width:100%;
+  max-width:320px;
+  margin:14px auto 0;
+}
 
     .demo-badge-bottom {
       position:absolute;
@@ -498,10 +504,10 @@
       color:#0f172a;
     }
 
-    .legal-note {
-      margin-top:16px;
-      padding:14px 16px;
-      border-radius:16px;
+.legal-note {
+  margin-top:16px;
+  padding:14px 16px;
+  border-radius:16px;
       background:#f8fafc;
       border:1px solid #dbe4ee;
       line-height:1.7;
@@ -936,8 +942,25 @@
       display:block;
       margin:0 0 8px;
       font-weight:700;
-      color:#334155;
-    }
+  color:#334155;
+}
+
+.guide-section {
+  margin-top:16px;
+}
+
+.guide-section h3 {
+  margin:0 0 8px;
+  font-size:18px;
+  line-height:1.4;
+  color:#0f172a;
+}
+
+.guide-section p {
+  margin:0;
+  line-height:1.8;
+  color:#334155;
+}
 
     input, select, textarea {
       width:100%;

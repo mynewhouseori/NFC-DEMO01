@@ -9,7 +9,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260509registrationDateLabel001" />
+  <link id="appStylesheet" rel="stylesheet" href="./styles.css?v=20260510homeGuide001" />
 </head>
 <body>
   <div class="overlay"></div>
@@ -60,6 +60,8 @@
           </button>
         </div>
       </div>
+
+      <button class="secondary-btn home-guide-btn" type="button" onclick="openHomeGuide()" id="homeGuideOpenBtn"></button>
     </div>
 
     <div class="demo-badge-bottom">DEMO</div>
@@ -538,6 +540,32 @@
     </div>
   </div>
 
+  <div id="homeGuideModal" class="legal-modal" hidden>
+    <div class="legal-backdrop" onclick="closeHomeGuide()"></div>
+    <div class="legal-dialog" role="dialog" aria-modal="true" aria-labelledby="homeGuideTitleText">
+      <div class="legal-header">
+        <h2 id="homeGuideTitleText"></h2>
+        <button class="legal-close-btn" onclick="closeHomeGuide()" id="homeGuideCloseBtn" type="button"></button>
+      </div>
+      <p class="legal-intro" id="homeGuideIntroText"></p>
+      <div class="guide-section">
+        <h3 id="homeGuidePurposeTitleText"></h3>
+        <p id="homeGuidePurposeText"></p>
+      </div>
+      <div class="guide-section">
+        <h3 id="homeGuideStepsTitleText"></h3>
+        <ul class="legal-list">
+          <li id="homeGuideStep1Text"></li>
+          <li id="homeGuideStep2Text"></li>
+          <li id="homeGuideStep3Text"></li>
+          <li id="homeGuideStep4Text"></li>
+          <li id="homeGuideStep5Text"></li>
+        </ul>
+      </div>
+      <div class="legal-note" id="homeGuideNoteText"></div>
+    </div>
+  </div>
+
   <aside id="debugPanel" class="debug-panel" aria-live="polite">
     <div class="debug-header">
       <div class="debug-title">Debug Panel</div>
@@ -569,7 +597,7 @@
 
   <script>
     (async function bootApp() {
-      const BOOTSTRAP_ASSET_VERSION = '20260509registrationDateLabel001';
+      const BOOTSTRAP_ASSET_VERSION = '20260510homeGuide001';
       const VERSION_MANIFEST_URL = './version.json';
 
       const appendScript = (src, { module = false, optional = false } = {}) => new Promise((resolve, reject) => {
