@@ -822,16 +822,27 @@
 
       const tabsCard = registerScreen.querySelector('.tabs')?.closest('.card');
       const targetTop = Math.max((tabsCard?.offsetTop || 0) - 8, 0);
+      const jumpToTabs = () => {
+        registerScreen.scrollTop = targetTop;
+        registerScreen.scrollLeft = 0;
+        if(tabsCard?.scrollIntoView){
+          tabsCard.scrollIntoView({ block: 'start', inline: 'nearest', behavior: 'auto' });
+        } else {
+          registerScreen.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+        }
+      };
 
-      registerScreen.scrollTop = targetTop;
+      jumpToTabs();
       registerScreen.scrollLeft = 0;
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
       window.scrollTo(0, 0);
 
       requestAnimationFrame(() => {
-        registerScreen.scrollTo({ top: targetTop, left: 0, behavior: 'auto' });
+        jumpToTabs();
       });
+      setTimeout(jumpToTabs, 80);
+      setTimeout(jumpToTabs, 220);
     }
 
     function getVisitRelevantLogs(logs = dataCache.logs.value || []){
