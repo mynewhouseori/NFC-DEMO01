@@ -4393,7 +4393,7 @@
       }
     }
 
-    function saveVisitSession(){
+    async function saveVisitSession(){
       const draft = getVisitFormData();
       if(!draft.engineer){
         renderVisitStatus(t('visitStatusNeedEngineer'));
@@ -4424,8 +4424,43 @@
       };
       persistActiveVisit();
       populateVisitForm(activeVisit);
+
+      try {
+        await addDoc(collection(db, LOGS_COLLECTION), {
+          tagId: `visit:${activeVisit.id}`,
+          found: true,
+          actionType: startNewVisit ? 'visit_started' : 'visit_saved',
+          itemStatus: '',
+          itemType: '',
+          itemDescription: '',
+          itemSerialNumber: '',
+          itemContractor: '',
+          itemWll: '',
+          itemSiteName: '',
+          itemPreviousInspection: '',
+          itemNextInspection: '',
+          itemNotes: activeVisit.notes || '',
+          lastSeenLocation: null,
+          lastSeenAt: '',
+          visitId: activeVisit.id || '',
+          visitDate: activeVisit.date || '',
+          visitEngineer: activeVisit.engineer || '',
+          visitClient: activeVisit.client || '',
+          visitSite: activeVisit.site || '',
+          visitSignature: activeVisit.signature || '',
+          visitSignatureDataUrl: activeVisit.signatureDataUrl || '',
+          time: activeVisit.updatedAt || new Date().toLocaleString(),
+          sortTime: new Date().toISOString()
+        });
+        invalidateLogsCache();
+      } catch (error) {
+        pushDebugLine(`Visit save log error: ${error.message}`);
+      }
+
       renderVisitStatus(t(startNewVisit ? 'visitStatusStarted' : 'visitStatusUpdated'));
       updateRegisterAccessUi();
+      await renderReportArchive();
+      await renderScanLogs();
       pushDebugLine(`Visit ${activeVisit.id} saved for ${activeVisit.engineer}.`);
     }
 
