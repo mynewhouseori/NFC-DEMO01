@@ -1812,7 +1812,7 @@
               </div>
               <div class="report-archive-card-actions">
                 <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
-                ${canEditRegister() ? `<button class="mini-btn" type="button" onclick="loadArchivedVisitForEdit('${escapeHtml(visit.id)}')">${escapeHtml(t('loadVisitForEdit'))}</button>` : ''}
+                ${canEditRegister() ? `<button class="mini-btn archive-edit-btn" type="button" onclick="loadArchivedVisitForEdit('${escapeHtml(visit.id)}')">${escapeHtml(t('loadVisitForEdit'))}</button>` : ''}
                 ${canEditRegister() && activeVisit && activeVisit.status !== 'closed' ? `<button class="mini-btn" type="button" onclick="resumeActiveVisitFromArchive()">${escapeHtml(t('resumeActiveVisit'))}</button>` : ''}
                 ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
               </div>
