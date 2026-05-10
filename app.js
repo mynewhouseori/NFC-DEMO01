@@ -1790,17 +1790,13 @@
           return `
           <article class="report-archive-card">
             <button class="report-archive-summary" type="button" onclick="toggleVisitArchiveCard('${escapeHtml(visit.id)}')" aria-expanded="${isExpanded ? 'true' : 'false'}">
-              <span class="report-archive-summary-cell">
-                <span class="report-archive-summary-label">${escapeHtml(t('visitReportMetaDate'))}</span>
-                <span class="report-archive-summary-value">${escapeHtml(formatDisplayDate(visit.date || '-'))}</span>
+              <span class="report-archive-summary-main">
+                <span class="report-archive-summary-date">${escapeHtml(formatDisplayDate(visit.date || '-'))}</span>
+                <span class="report-archive-summary-separator">|</span>
+                <span class="report-archive-summary-site">${escapeHtml(visit.site || '-')}</span>
               </span>
-              <span class="report-archive-summary-cell">
-                <span class="report-archive-summary-label">${escapeHtml(t('reportArchiveMetaSite'))}</span>
-                <span class="report-archive-summary-value">${escapeHtml(visit.site || '-')}</span>
-              </span>
-              <span class="report-archive-summary-cell report-archive-summary-status-cell">
-                <span class="report-archive-summary-label">${escapeHtml(t('status'))}</span>
-                <span class="pill ${visit.endedAt ? 'pill-ok' : 'pill-warn'}">${escapeHtml(visit.endedAt ? t('visitStatusClosed') : t('visitStatusActive'))}</span>
+              <span class="report-archive-summary-status">
+                <span class="pill ${visit.endedAt ? 'pill-ok' : 'pill-bad'}">${escapeHtml(visit.endedAt ? t('visitStatusClosed') : t('visitStatusActive'))}</span>
               </span>
             </button>
             <div class="report-archive-card-details${isExpanded ? ' is-open' : ''}" ${isExpanded ? '' : 'hidden'}>
