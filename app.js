@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260510clearformwarning001";
+    import { LANG } from "./translations.js?v=20260510removeresumevisit001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -913,21 +913,6 @@
       return activeVisit;
     }
 
-    function resumeActiveVisitFromArchive(){
-      const status = el('reportArchiveStatus');
-      if(!canEditRegister() || !activeVisit || activeVisit.status === 'closed'){
-        if(status){
-          status.textContent = t('resumeVisitUnavailable');
-        }
-        return;
-      }
-
-      populateVisitForm(activeVisit);
-      renderVisitStatus(t('resumeVisitStatus'));
-      openRegisterTab('registerPane');
-      refreshVisitSignaturePad();
-    }
-
     async function loadArchivedVisitForEdit(visitId){
       const status = el('reportArchiveStatus');
       if(!canEditRegister() || !visitId){
@@ -1813,7 +1798,6 @@
               <div class="report-archive-card-actions">
                 <button class="mini-btn" type="button" onclick="openArchivedVisitReport('${escapeHtml(visit.id)}')">${escapeHtml(t('reportArchiveExport'))}</button>
                 ${canEditRegister() ? `<button class="mini-btn archive-edit-btn" type="button" onclick="loadArchivedVisitForEdit('${escapeHtml(visit.id)}')">${escapeHtml(t('loadVisitForEdit'))}</button>` : ''}
-                ${canEditRegister() && activeVisit && activeVisit.status !== 'closed' ? `<button class="mini-btn" type="button" onclick="resumeActiveVisitFromArchive()">${escapeHtml(t('resumeActiveVisit'))}</button>` : ''}
                 ${canEditRegister() ? `<button class="mini-btn archive-delete-btn ${pendingDeleteVisitId === visit.id ? 'archive-delete-btn-pending' : ''}" type="button" onclick="deleteArchivedVisit('${escapeHtml(visit.id)}')">${escapeHtml(pendingDeleteVisitId === visit.id ? t('deleteVisitPending') : t('deleteVisit'))}</button>` : ''}
               </div>
             </div>
@@ -5329,7 +5313,6 @@
     window.toggleVisitArchiveCard = toggleVisitArchiveCard;
     window.deleteArchivedVisit = deleteArchivedVisit;
     window.loadArchivedVisitForEdit = loadArchivedVisitForEdit;
-    window.resumeActiveVisitFromArchive = resumeActiveVisitFromArchive;
     window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){

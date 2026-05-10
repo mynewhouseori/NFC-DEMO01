@@ -105,9 +105,6 @@ export const LANG = {
     loadVisitForEditStatus: '\u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05e0\u05d8\u05e2\u05df \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
     loadVisitForEditUnavailable: '\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05db\u05e8\u05d2\u05e2 \u05dc\u05d8\u05e2\u05d5\u05df \u05d0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
     loadVisitForEditError: '\u05d0\u05d9\u05e8\u05e2\u05d4 \u05e9\u05d2\u05d9\u05d0\u05d4 \u05d1\u05d8\u05e2\u05d9\u05e0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05dc\u05e2\u05e8\u05d9\u05db\u05d4.',
-    resumeActiveVisit: '\u05d7\u05d6\u05d5\u05e8 \u05dc\u05d1\u05d9\u05e7\u05d5\u05e8 \u05d4\u05e4\u05e2\u05d9\u05dc',
-    resumeVisitStatus: '\u05d7\u05d6\u05e8\u05ea \u05dc\u05d1\u05d9\u05e7\u05d5\u05e8 \u05d4\u05e4\u05e2\u05d9\u05dc.',
-    resumeVisitUnavailable: '\u05d0\u05d9\u05df \u05db\u05e8\u05d2\u05e2 \u05d1\u05d9\u05e7\u05d5\u05e8 \u05e4\u05e2\u05d9\u05dc \u05dc\u05d7\u05d6\u05d5\u05e8 \u05d0\u05dc\u05d9\u05d5.',
     visitDeleted: '\u05d4\u05d1\u05d9\u05e7\u05d5\u05e8 \u05e0\u05de\u05d7\u05e7',
     visitDeleteError: '\u05dc\u05d0 \u05e0\u05d9\u05ea\u05df \u05d4\u05d9\u05d4 \u05dc\u05de\u05d7\u05d5\u05e7 \u05d0\u05ea \u05d4\u05d1\u05d9\u05e7\u05d5\u05e8',
     tagPlaceholder: '\u05d9\u05ea\u05de\u05dc\u05d0 \u05d0\u05d7\u05e8\u05d9 \u05e1\u05e8\u05d9\u05e7\u05d4 \u05d0\u05d5 \u05d9\u05d3\u05e0\u05d9\u05ea',
@@ -370,9 +367,6 @@ export const LANG = {
     loadVisitForEditStatus: 'The visit was loaded for editing.',
     loadVisitForEditUnavailable: 'This visit cannot be loaded for editing right now.',
     loadVisitForEditError: 'There was an error loading the visit for editing.',
-    resumeActiveVisit: 'Return to Active Visit',
-    resumeVisitStatus: 'Returned to the active visit.',
-    resumeVisitUnavailable: 'There is no active visit to return to right now.',
     visitDeleted: 'Visit deleted',
     visitDeleteError: 'Could not delete the visit',
     tagPlaceholder: 'Will be filled after scan or manually',
@@ -660,9 +654,6 @@ LANG.ar.loadVisitForEdit = 'تحميل هذه الزيارة للتحرير';
 LANG.ar.loadVisitForEditStatus = 'تم تحميل الزيارة للتحرير.';
 LANG.ar.loadVisitForEditUnavailable = 'لا يمكن تحميل هذه الزيارة للتحرير الآن.';
 LANG.ar.loadVisitForEditError = 'حدث خطأ أثناء تحميل الزيارة للتحرير.';
-LANG.ar.resumeActiveVisit = 'العودة إلى الزيارة النشطة';
-LANG.ar.resumeVisitStatus = 'تمت العودة إلى الزيارة النشطة.';
-LANG.ar.resumeVisitUnavailable = 'لا توجد زيارة نشطة للعودة إليها الآن.';
 LANG.ar.visitDeleted = 'تم حذف الزيارة';
 LANG.ar.visitDeleteError = 'تعذر حذف الزيارة';
 LANG.ar.legalCopyright = '\u00a9 {year} NFC Safety Demo Cloud Table. \u062c\u0645\u064a\u0639 \u0627\u0644\u062d\u0642\u0648\u0642 \u0645\u062d\u0641\u0648\u0638\u0629.';
