@@ -1443,8 +1443,15 @@
         existing.logs.push(log);
 
         const timeValue = String(log.sortTime || log.time || '');
-        if(!existing.sortTime || timeValue > existing.sortTime){
+        const isNewerVisitSnapshot = !!timeValue && (!existing.sortTime || timeValue > existing.sortTime);
+        if(isNewerVisitSnapshot){
           existing.sortTime = timeValue;
+          existing.date = log.visitDate || existing.date || '';
+          existing.engineer = log.visitEngineer || existing.engineer || '';
+          existing.client = log.visitClient || existing.client || '';
+          existing.site = log.visitSite || existing.site || '';
+          existing.signature = log.visitSignature || existing.signature || '';
+          existing.signatureDataUrl = log.visitSignatureDataUrl || existing.signatureDataUrl || '';
         }
 
         if(log.actionType === 'visit_closed'){
