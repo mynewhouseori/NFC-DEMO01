@@ -3478,10 +3478,16 @@
     }
 
     function getNextInspectionBaseDate(targetId){
+      const preferredPreviousInspectionDate = targetId === 'scanEditNextInspection'
+        ? normalizeRegistrationDate(el('scanEditPreviousInspectionDate')?.value)
+        : normalizeRegistrationDate(el('previousInspectionDate')?.value);
       const preferredRegistrationDate = targetId === 'scanEditNextInspection'
         ? normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
         : normalizeRegistrationDate(el('registrationDate')?.value);
-      return preferredRegistrationDate
+      return preferredPreviousInspectionDate
+        || normalizeRegistrationDate(el('previousInspectionDate')?.value)
+        || normalizeRegistrationDate(el('scanEditPreviousInspectionDate')?.value)
+        || preferredRegistrationDate
         || normalizeRegistrationDate(el('registrationDate')?.value)
         || normalizeRegistrationDate(el('scanEditRegistrationDate')?.value)
         || normalizeRegistrationDate(el('visitDate')?.value)
