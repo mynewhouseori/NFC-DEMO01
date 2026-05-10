@@ -4478,6 +4478,12 @@
       const draft = getVisitFormData();
       const closedVisit = {
         ...activeVisit,
+        date: draft.date,
+        reportNumber: normalizeReportNumberValue(draft.reportNumber) || activeVisit.reportNumber || '',
+        engineer: draft.engineer,
+        client: draft.client,
+        site: draft.site,
+        signature: draft.signature || activeVisit.signature || '',
         notes: draft.notes,
         signatureDataUrl: getVisitSignatureDataUrl() || activeVisit.signatureDataUrl || '',
         status: 'closed',
