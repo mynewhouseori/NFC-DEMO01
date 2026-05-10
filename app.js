@@ -2419,7 +2419,9 @@
         el('visitClient').placeholder = t('visitClientPlaceholder');
         el('visitSite').placeholder = t('visitSitePlaceholder');
         renderVisitSignatureIdentity();
-        el('homeGuideOpenBtn').textContent = t('homeGuideOpen');
+        el('homeGuideOpenBtn').innerHTML = '<span class="home-guide-icon" aria-hidden="true">i</span>';
+        el('homeGuideOpenBtn').setAttribute('aria-label', t('homeGuideOpen'));
+        el('homeGuideOpenBtn').title = t('homeGuideOpen');
         el('homeGuideTitleText').textContent = t('homeGuideTitle');
         el('homeGuideCloseBtn').textContent = t('legalClose');
         el('homeGuideIntroText').textContent = t('homeGuideIntro');

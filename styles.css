@@ -342,9 +342,30 @@
 }
 
 .home-guide-btn {
-  width:100%;
-  max-width:320px;
+  width:46px;
+  min-width:46px;
+  max-width:none;
+  min-height:46px;
+  padding:0;
   margin:14px auto 0;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(226,232,240,.96));
+  color:#0f172a;
+}
+
+.home-guide-icon {
+  display:grid;
+  place-items:center;
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  border:2px solid rgba(15,23,42,.72);
+  font-size:15px;
+  font-weight:800;
+  line-height:1;
+  font-family:Georgia, "Times New Roman", serif;
 }
 
     .demo-badge-bottom {
@@ -1052,16 +1073,44 @@
       margin-bottom:14px;
     }
 
+    .register-section-card {
+      border:1px solid rgba(148,163,184,.22);
+      border-radius:20px;
+      padding:16px;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.92));
+      box-shadow:0 12px 28px rgba(15,23,42,.06);
+    }
+
+    .register-section-head {
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      margin-bottom:14px;
+      padding-bottom:12px;
+      border-bottom:1px solid rgba(203,213,225,.8);
+    }
+
+    .register-section-title {
+      font-size:18px;
+      font-weight:800;
+      color:#0f172a;
+      letter-spacing:-.02em;
+    }
+
+    .register-section-subtitle {
+      font-size:13px;
+      line-height:1.5;
+      color:#64748b;
+    }
+
     .register-item-main .row:last-child {
       margin-bottom:0;
     }
 
     .register-item-media {
-      border:1px solid rgba(148,163,184,.22);
-      border-radius:20px;
-      padding:16px;
-      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(241,245,249,.92));
-      box-shadow:0 12px 28px rgba(15,23,42,.06);
+      background:
+        radial-gradient(circle at top right, rgba(20,184,166,.12), transparent 38%),
+        linear-gradient(180deg, rgba(255,255,255,.98), rgba(241,245,249,.94));
     }
 
     .register-preview-wrap {
@@ -1103,6 +1152,9 @@
       .register-date-row { grid-template-columns:1fr; }
       .register-item-layout { grid-template-columns:1fr; }
       .register-item-media { order:-1; }
+      .register-section-card { padding:14px; }
+      .register-section-head { margin-bottom:12px; padding-bottom:10px; }
+      .register-section-title { font-size:17px; }
       .register-preview-wrap { align-items:flex-end; }
       .register-image-field { width:auto; min-width:92px; }
       .register-image-inline {
