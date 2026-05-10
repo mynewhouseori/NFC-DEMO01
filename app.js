@@ -1545,7 +1545,6 @@
             <td>${escapeHtml(getItemTypeLabelFromValues(entry.itemType, entry.customTypeName))}</td>
             <td>${escapeHtml(entry.description || '-')}</td>
             <td>${escapeHtml(entry.serialNumber || '-')}</td>
-            <td>${escapeHtml(entry.contractor || '-')}</td>
             <td>${escapeHtml(entry.wll || '-')}</td>
             <td>${escapeHtml(entry.siteName || '-')}</td>
             <td><span class="${getReportStatusClass(entry.status || '')}">${escapeHtml(translateStatus(entry.status || ''))}</span></td>
@@ -1553,7 +1552,7 @@
             <td>${escapeHtml(formatReportDate(entry.nextInspection))}</td>
             <td>${escapeHtml(entry.notes || '-')}</td>
           </tr>
-        `).join('') : `<tr><td colspan="12">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
+        `).join('') : `<tr><td colspan="11">${escapeHtml(t('visitReportEmpty'))}</td></tr>`;
 
         const html = `
           <html dir="${currentLang === 'en' ? 'ltr' : 'rtl'}" lang="${escapeHtml(currentLang)}">
@@ -1623,7 +1622,6 @@
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
@@ -1645,7 +1643,6 @@
                     <th>${escapeHtml(t('description'))}</th>
                     <th>${escapeHtml(t('serial'))}</th>
                     <th>${escapeHtml(t('wll'))}</th>
-                    <th>${escapeHtml(t('contractor'))}</th>
                     <th>${escapeHtml(t('siteName'))}</th>
                     <th>${escapeHtml(t('previousInspectionDate'))}</th>
                     <th>${escapeHtml(t('status'))}</th>
