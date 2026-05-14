@@ -2279,6 +2279,7 @@
       shell.hidden = false;
       fallback.hidden = true;
       video.hidden = false;
+      video.loop = true;
       if(resetCounter){
         scanDemoVideoPlayCount = 0;
         scanDemoVideoLastTime = 0;
