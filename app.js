@@ -397,6 +397,8 @@
     let currentScannedItem = null;
     let scanDemoGalleryMode = false;
     let scanDemoVideoDismissed = false;
+    let scanDemoVideoPlayCount = 0;
+    const SCAN_DEMO_VIDEO_MAX_LOOPS = 10;
     let scanAudioContext = null;
     let customImageSrc = '';
     let pendingImageTask = null;
@@ -2215,6 +2217,7 @@
       const video = el('scanDemoVideo');
       const fallback = el('scanDemoVideoFallback');
       scanDemoVideoDismissed = false;
+      scanDemoVideoPlayCount = 0;
       if(shell){
         shell.hidden = true;
       }
@@ -2236,6 +2239,7 @@
       const shell = el('scanDemoVideoShell');
       const video = el('scanDemoVideo');
       scanDemoVideoDismissed = true;
+      scanDemoVideoPlayCount = 0;
       if(shell){
         shell.hidden = true;
       }
@@ -2258,6 +2262,7 @@
       shell.hidden = false;
       fallback.hidden = true;
       video.hidden = false;
+      scanDemoVideoPlayCount = 0;
 
       try {
         video.currentTime = 0;
@@ -2290,7 +2295,25 @@
       });
       video.addEventListener('stalled', showScanDemoVideoFallback);
       video.addEventListener('ended', () => {
-        pushDebugLine('Demo video playback ended. Hiding frame.');
+        scanDemoVideoPlayCount += 1;
+        if(scanDemoVideoPlayCount < SCAN_DEMO_VIDEO_MAX_LOOPS && !scanDemoVideoDismissed){
+          try {
+            video.currentTime = 0;
+            const replayAttempt = video.play();
+            if(replayAttempt && typeof replayAttempt.catch === 'function'){
+              replayAttempt.catch((error) => {
+                pushDebugLine(`Demo video replay blocked or unavailable: ${error.message}`);
+                showScanDemoVideoFallback();
+              });
+            }
+            return;
+          } catch (error) {
+            pushDebugLine(`Demo video replay failed: ${error.message}`);
+            showScanDemoVideoFallback();
+            return;
+          }
+        }
+        pushDebugLine('Demo video playback ended after max loops. Hiding frame.');
         stopScanDemoVideo();
       });
     }
