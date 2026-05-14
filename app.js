@@ -398,6 +398,7 @@
     let scanDemoGalleryMode = false;
     let scanDemoVideoDismissed = false;
     let scanDemoVideoPlayCount = 0;
+    let scanDemoVideoLastTime = 0;
     const SCAN_DEMO_VIDEO_MAX_LOOPS = 10;
     let scanDemoVideoStopTimer = null;
     let scanAudioContext = null;
@@ -2208,6 +2209,7 @@
         clearTimeout(scanDemoVideoStopTimer);
         scanDemoVideoStopTimer = null;
       }
+      scanDemoVideoLastTime = 0;
       if(video){
         video.pause();
         video.hidden = true;
@@ -2223,6 +2225,7 @@
       const fallback = el('scanDemoVideoFallback');
       scanDemoVideoDismissed = false;
       scanDemoVideoPlayCount = 0;
+      scanDemoVideoLastTime = 0;
       if(scanDemoVideoStopTimer){
         clearTimeout(scanDemoVideoStopTimer);
         scanDemoVideoStopTimer = null;
@@ -2249,6 +2252,7 @@
       const video = el('scanDemoVideo');
       scanDemoVideoDismissed = true;
       scanDemoVideoPlayCount = 0;
+      scanDemoVideoLastTime = 0;
       if(scanDemoVideoStopTimer){
         clearTimeout(scanDemoVideoStopTimer);
         scanDemoVideoStopTimer = null;
@@ -2277,6 +2281,7 @@
       video.hidden = false;
       if(resetCounter){
         scanDemoVideoPlayCount = 0;
+        scanDemoVideoLastTime = 0;
         if(scanDemoVideoStopTimer){
           clearTimeout(scanDemoVideoStopTimer);
           scanDemoVideoStopTimer = null;
@@ -2327,6 +2332,21 @@
       video.addEventListener('stalled', showScanDemoVideoFallback);
       video.addEventListener('loadedmetadata', () => {
         video.loop = true;
+      });
+      video.addEventListener('timeupdate', () => {
+        if(scanDemoVideoDismissed){
+          return;
+        }
+        const currentTime = Number(video.currentTime || 0);
+        if(scanDemoVideoLastTime > 0.5 && currentTime + 0.35 < scanDemoVideoLastTime){
+          scanDemoVideoPlayCount += 1;
+          if(scanDemoVideoPlayCount >= SCAN_DEMO_VIDEO_MAX_LOOPS){
+            pushDebugLine('Demo video playback reached loop limit from media progress. Hiding frame.');
+            stopScanDemoVideo();
+            return;
+          }
+        }
+        scanDemoVideoLastTime = currentTime;
       });
     }
 
