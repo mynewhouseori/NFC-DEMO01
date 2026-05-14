@@ -399,6 +399,7 @@
     let scanDemoVideoDismissed = false;
     let scanDemoVideoPlayCount = 0;
     const SCAN_DEMO_VIDEO_MAX_LOOPS = 10;
+    let scanDemoVideoStopTimer = null;
     let scanAudioContext = null;
     let customImageSrc = '';
     let pendingImageTask = null;
@@ -2203,6 +2204,10 @@
     function showScanDemoVideoFallback(){
       const video = el('scanDemoVideo');
       const fallback = el('scanDemoVideoFallback');
+      if(scanDemoVideoStopTimer){
+        clearTimeout(scanDemoVideoStopTimer);
+        scanDemoVideoStopTimer = null;
+      }
       if(video){
         video.pause();
         video.hidden = true;
@@ -2218,6 +2223,10 @@
       const fallback = el('scanDemoVideoFallback');
       scanDemoVideoDismissed = false;
       scanDemoVideoPlayCount = 0;
+      if(scanDemoVideoStopTimer){
+        clearTimeout(scanDemoVideoStopTimer);
+        scanDemoVideoStopTimer = null;
+      }
       if(shell){
         shell.hidden = true;
       }
@@ -2240,6 +2249,10 @@
       const video = el('scanDemoVideo');
       scanDemoVideoDismissed = true;
       scanDemoVideoPlayCount = 0;
+      if(scanDemoVideoStopTimer){
+        clearTimeout(scanDemoVideoStopTimer);
+        scanDemoVideoStopTimer = null;
+      }
       if(shell){
         shell.hidden = true;
       }
@@ -2264,6 +2277,10 @@
       video.hidden = false;
       if(resetCounter){
         scanDemoVideoPlayCount = 0;
+        if(scanDemoVideoStopTimer){
+          clearTimeout(scanDemoVideoStopTimer);
+          scanDemoVideoStopTimer = null;
+        }
       }
 
       try {
@@ -2280,6 +2297,16 @@
           pushDebugLine(`Demo video autoplay blocked or unavailable: ${error.message}`);
           showScanDemoVideoFallback();
         });
+      }
+
+      if(resetCounter){
+        const durationSeconds = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 8;
+        const stopDelayMs = Math.max(1000, Math.ceil(durationSeconds * SCAN_DEMO_VIDEO_MAX_LOOPS * 1000));
+        scanDemoVideoStopTimer = setTimeout(() => {
+          if(scanDemoVideoDismissed) return;
+          pushDebugLine('Demo video playback reached loop limit. Hiding frame.');
+          stopScanDemoVideo();
+        }, stopDelayMs);
       }
     }
 
@@ -2298,27 +2325,8 @@
         showScanDemoVideoFallback();
       });
       video.addEventListener('stalled', showScanDemoVideoFallback);
-      video.addEventListener('ended', () => {
-        scanDemoVideoPlayCount += 1;
-        if(scanDemoVideoPlayCount < SCAN_DEMO_VIDEO_MAX_LOOPS && !scanDemoVideoDismissed){
-          try {
-            video.currentTime = 0;
-            const replayAttempt = video.play();
-            if(replayAttempt && typeof replayAttempt.catch === 'function'){
-              replayAttempt.catch((error) => {
-                pushDebugLine(`Demo video replay blocked or unavailable: ${error.message}`);
-                showScanDemoVideoFallback();
-              });
-            }
-            return;
-          } catch (error) {
-            pushDebugLine(`Demo video replay failed: ${error.message}`);
-            showScanDemoVideoFallback();
-            return;
-          }
-        }
-        pushDebugLine('Demo video playback ended after max loops. Hiding frame.');
-        stopScanDemoVideo();
+      video.addEventListener('loadedmetadata', () => {
+        video.loop = true;
       });
     }
 
