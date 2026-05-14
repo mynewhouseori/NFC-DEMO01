@@ -1282,19 +1282,13 @@
       width:min(280px, 100%);
       border-radius:18px;
       border:1px solid rgba(15, 23, 42, .12);
-      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(241,245,249,.96) 100%);
+      background:#0f172a;
       box-shadow:0 16px 34px rgba(15, 23, 42, .12);
       overflow:hidden;
     }
 
     .scan-demo-video-topbar {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:10px 12px;
-      background:linear-gradient(90deg, rgba(15,118,110,.95) 0%, rgba(13,148,136,.92) 100%);
-      color:#f8fafc;
+      display:none;
     }
 
     .scan-demo-video-title {
@@ -1332,31 +1326,15 @@
     }
 
     .scan-demo-video-fallback {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:10px;
-      min-height:158px;
-      padding:14px;
-      text-align:center;
-      background:
-        radial-gradient(circle at top, rgba(56,189,248,.18), transparent 52%),
-        linear-gradient(180deg, #f8fafc 0%, #ecfeff 100%);
+      display:none;
     }
 
     .scan-demo-video-fallback img {
-      width:82px;
-      height:82px;
-      object-fit:contain;
-      animation:scan-demo-pulse 3.8s ease-in-out infinite;
+      display:none;
     }
 
     .scan-demo-video-fallback-text {
-      color:#0f172a;
-      font-size:13px;
-      font-weight:700;
-      line-height:1.45;
+      display:none;
     }
 
     @keyframes scan-demo-pulse {
