@@ -2252,7 +2252,7 @@
       }
     }
 
-    function showScanDemoVideo(){
+    function showScanDemoVideo({ resetCounter = true } = {}){
       const shell = el('scanDemoVideoShell');
       const video = el('scanDemoVideo');
       const fallback = el('scanDemoVideoFallback');
@@ -2262,10 +2262,14 @@
       shell.hidden = false;
       fallback.hidden = true;
       video.hidden = false;
-      scanDemoVideoPlayCount = 0;
+      if(resetCounter){
+        scanDemoVideoPlayCount = 0;
+      }
 
       try {
-        video.currentTime = 0;
+        if(resetCounter){
+          video.currentTime = 0;
+        }
       } catch (error) {
         pushDebugLine(`Demo video reset failed: ${error.message}`);
       }
@@ -2322,9 +2326,10 @@
       return Boolean(String(value || '').trim());
     }
 
-    function renderScanDemoGallery(items){
+    function renderScanDemoGallery(items, { preserveVideoState = false } = {}){
       const gallery = el('scanDemoGallery');
       const total = items.length;
+      const galleryWasActive = gallery.classList.contains('active');
 
       gallery.innerHTML = items.map((item, index) => {
         const demoItem = {
@@ -2369,7 +2374,9 @@
       scanDemoGalleryMode = true;
       scanDemoVideoDismissed = false;
       gallery.classList.add('active');
-      showScanDemoVideo();
+      if(!preserveVideoState || !galleryWasActive){
+        showScanDemoVideo({ resetCounter: !galleryWasActive });
+      }
       el('scanResult').classList.remove('active');
       populateScanEditForm(null);
     }
@@ -2899,7 +2906,10 @@
       selectImageByType();
       updateCustomTypeFieldVisibility();
       if(scanDemoGalleryMode && dataCache.items.value?.length){
-        renderScanDemoGallery([...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')));
+        renderScanDemoGallery(
+          [...dataCache.items.value].sort((a, b) => (a.tagId || '').localeCompare(b.tagId || '')),
+          { preserveVideoState: true }
+        );
       }
       refreshRegisterPaneContent();
       refreshDebugPanel();
