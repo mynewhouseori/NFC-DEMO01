@@ -1272,6 +1272,98 @@
       flex-direction:column;
     }
 
+    .scan-demo-video-shell {
+      display:flex;
+      justify-content:flex-end;
+      margin-top:14px;
+    }
+
+    .scan-demo-video-frame {
+      width:min(280px, 100%);
+      border-radius:18px;
+      border:1px solid rgba(15, 23, 42, .12);
+      background:linear-gradient(180deg, rgba(255,255,255,.98) 0%, rgba(241,245,249,.96) 100%);
+      box-shadow:0 16px 34px rgba(15, 23, 42, .12);
+      overflow:hidden;
+    }
+
+    .scan-demo-video-topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 12px;
+      background:linear-gradient(90deg, rgba(15,118,110,.95) 0%, rgba(13,148,136,.92) 100%);
+      color:#f8fafc;
+    }
+
+    .scan-demo-video-title {
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+
+    .scan-demo-video-close {
+      width:28px;
+      height:28px;
+      border:none;
+      border-radius:999px;
+      background:rgba(255,255,255,.16);
+      color:#fff;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer;
+      display:grid;
+      place-items:center;
+      transition:background-color .2s ease, transform .2s ease;
+    }
+
+    .scan-demo-video-close:hover {
+      background:rgba(255,255,255,.28);
+      transform:scale(1.05);
+    }
+
+    .scan-demo-video {
+      display:block;
+      width:100%;
+      aspect-ratio:16 / 9;
+      background:#0f172a;
+      object-fit:cover;
+    }
+
+    .scan-demo-video-fallback {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      min-height:158px;
+      padding:14px;
+      text-align:center;
+      background:
+        radial-gradient(circle at top, rgba(56,189,248,.18), transparent 52%),
+        linear-gradient(180deg, #f8fafc 0%, #ecfeff 100%);
+    }
+
+    .scan-demo-video-fallback img {
+      width:82px;
+      height:82px;
+      object-fit:contain;
+      animation:scan-demo-pulse 3.8s ease-in-out infinite;
+    }
+
+    .scan-demo-video-fallback-text {
+      color:#0f172a;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.45;
+    }
+
+    @keyframes scan-demo-pulse {
+      0%, 100% { transform:scale(1); }
+      50% { transform:scale(1.06); }
+    }
+
     .scan-demo-gallery.active {
       display:flex;
     }
@@ -1596,6 +1688,8 @@
       .scan-edit-grid { grid-template-columns:1fr; }
       .role-login-grid { grid-template-columns:1fr; }
       .date-quick-btn { font-size:11px; }
+      .scan-demo-video-shell { justify-content:center; }
+      .scan-demo-video-frame { width:min(240px, 100%); }
     }
 
     .mono {

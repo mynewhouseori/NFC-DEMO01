@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260510removeresumevisit001";
+    import { LANG } from "./translations.js?v=20260514demoScanVideo001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -396,6 +396,7 @@
     let currentAppMode = APP_VARIANT;
     let currentScannedItem = null;
     let scanDemoGalleryMode = false;
+    let scanDemoVideoDismissed = false;
     let scanAudioContext = null;
     let customImageSrc = '';
     let pendingImageTask = null;
@@ -2194,6 +2195,100 @@
       scanDemoGalleryMode = false;
       el('scanDemoGallery').classList.remove('active');
       el('scanDemoGallery').innerHTML = '';
+      stopScanDemoVideo();
+    }
+
+    function showScanDemoVideoFallback(){
+      const video = el('scanDemoVideo');
+      const fallback = el('scanDemoVideoFallback');
+      if(video){
+        video.pause();
+        video.hidden = true;
+      }
+      if(fallback){
+        fallback.hidden = false;
+      }
+    }
+
+    function stopScanDemoVideo(){
+      const shell = el('scanDemoVideoShell');
+      const video = el('scanDemoVideo');
+      const fallback = el('scanDemoVideoFallback');
+      scanDemoVideoDismissed = false;
+      if(shell){
+        shell.hidden = true;
+      }
+      if(video){
+        try {
+          video.pause();
+          video.currentTime = 0;
+          video.hidden = false;
+        } catch (error) {
+          pushDebugLine(`Demo video stop failed: ${error.message}`);
+        }
+      }
+      if(fallback){
+        fallback.hidden = true;
+      }
+    }
+
+    function closeScanDemoVideo(){
+      const shell = el('scanDemoVideoShell');
+      const video = el('scanDemoVideo');
+      scanDemoVideoDismissed = true;
+      if(shell){
+        shell.hidden = true;
+      }
+      if(video){
+        try {
+          video.pause();
+        } catch (error) {
+          pushDebugLine(`Demo video pause failed: ${error.message}`);
+        }
+      }
+    }
+
+    function showScanDemoVideo(){
+      const shell = el('scanDemoVideoShell');
+      const video = el('scanDemoVideo');
+      const fallback = el('scanDemoVideoFallback');
+      if(!shell || !video || scanDemoVideoDismissed){
+        return;
+      }
+      shell.hidden = false;
+      fallback.hidden = true;
+      video.hidden = false;
+
+      try {
+        video.currentTime = 0;
+      } catch (error) {
+        pushDebugLine(`Demo video reset failed: ${error.message}`);
+      }
+
+      const playAttempt = video.play();
+      if(playAttempt && typeof playAttempt.catch === 'function'){
+        playAttempt.catch((error) => {
+          pushDebugLine(`Demo video autoplay blocked or unavailable: ${error.message}`);
+          showScanDemoVideoFallback();
+        });
+      }
+    }
+
+    function setupScanDemoVideo(){
+      const video = el('scanDemoVideo');
+      if(!video || video.dataset.bound === '1'){
+        return;
+      }
+      video.dataset.bound = '1';
+      video.addEventListener('loadeddata', () => {
+        el('scanDemoVideoFallback').hidden = true;
+        video.hidden = false;
+      });
+      video.addEventListener('error', () => {
+        pushDebugLine('Demo video file was not found. Showing fallback frame.');
+        showScanDemoVideoFallback();
+      });
+      video.addEventListener('stalled', showScanDemoVideoFallback);
     }
 
     function hasVisibleNote(value){
@@ -2245,7 +2340,9 @@
       }).join('');
 
       scanDemoGalleryMode = true;
+      scanDemoVideoDismissed = false;
       gallery.classList.add('active');
+      showScanDemoVideo();
       el('scanResult').classList.remove('active');
       populateScanEditForm(null);
     }
@@ -2632,6 +2729,10 @@
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
       el('demoScanBtn').textContent = t('demoScan');
+      el('scanDemoVideoTitle').textContent = t('demoVideoTitle');
+      el('scanDemoVideoCloseBtn').setAttribute('aria-label', t('closeVideo'));
+      el('scanDemoVideoCloseBtn').title = t('closeVideo');
+      el('scanDemoVideoFallbackText').textContent = t('demoVideoFallback');
       el('scanEditTitle').textContent = t('scanEditTitle');
       el('scanEditTagIdLabel').textContent = t('tagId');
       el('scanEditItemTypeLabel').textContent = t('itemType');
@@ -5158,6 +5259,9 @@
 
     async function startScan(mode){
       const statusEl = mode === 'scan' ? el('scanStatus') : el('registerStatus');
+      if(mode === 'scan'){
+        hideScanDemoGallery();
+      }
       if(mode === 'register'){
         clearItemForm();
       }
@@ -5353,6 +5457,7 @@
     window.renderPresentationReportPage = renderPresentationReportPage;
     window.exportPresentationReport = exportPresentationReport;
     window.demoScan = demoScan;
+    window.closeScanDemoVideo = closeScanDemoVideo;
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
     window.renderScanLogs = renderScanLogs;
@@ -5370,6 +5475,7 @@
       bindDecimalInputs();
       setupReportNumberField();
       setupVisitSignaturePad();
+      setupScanDemoVideo();
       loadActiveVisit();
       populateVisitForm(activeVisit);
       setLang(currentLang);

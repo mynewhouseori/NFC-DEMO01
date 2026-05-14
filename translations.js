@@ -38,6 +38,9 @@ export const LANG = {
     scanTitle: '\u05d1\u05d3\u05d9\u05e7\u05ea \u05e6\u05d9\u05d5\u05d3',
     scanNow: '\u05e1\u05e8\u05d5\u05e7 \u05e2\u05db\u05e9\u05d9\u05d5',
     demoScan: '\u05d4\u05d3\u05de\u05d9\u05d9\u05ea \u05e1\u05e8\u05d9\u05e7\u05d4',
+    demoVideoTitle: '\u05e1\u05e8\u05d8\u05d5\u05df \u05d4\u05d3\u05d2\u05de\u05d4 \u05e7\u05e6\u05e8',
+    demoVideoFallback: '\u05db\u05d0\u05df \u05d9\u05d5\u05e4\u05d9\u05e2 \u05e1\u05e8\u05d8\u05d5\u05df \u05d4\u05d3\u05de\u05d9\u05d9\u05ea \u05d4\u05e1\u05e8\u05d9\u05e7\u05d4 \u05db\u05e9\u05e0\u05d5\u05e1\u05d9\u05e3 \u05e7\u05d5\u05d1\u05e5 demo-scan-intro.mp4 \u05dc\u05ea\u05d9\u05e7\u05d9\u05d9\u05ea media.',
+    closeVideo: '\u05e1\u05d2\u05d5\u05e8 \u05e1\u05e8\u05d8\u05d5\u05df',
     registerTitle: '\u05e7\u05dc\u05d9\u05d8\u05ea \u05e6\u05d9\u05d5\u05d3',
     tabRegister: '\u05e7\u05dc\u05d9\u05d8\u05d4',
     tabTable: '\u05d8\u05d1\u05dc\u05d4',
@@ -280,6 +283,9 @@ export const LANG = {
     scanTitle: 'Equipment Check',
     scanNow: 'Scan Now',
     demoScan: 'Demo Scan',
+    demoVideoTitle: 'Short Demo Video',
+    demoVideoFallback: 'The demo scan video will appear here after adding demo-scan-intro.mp4 to the media folder.',
+    closeVideo: 'Close video',
     registerTitle: 'Register Equipment',
     tabRegister: 'Register',
     tabTable: 'Table',
@@ -728,6 +734,12 @@ Object.assign(LANG.ar, {
   visitReportGenerated: 'تم إنشاء التقرير بتاريخ {date}',
   visitReportFooter: 'تم إنشاء هذا التقرير من سجل زيارة المهندس في التطبيق.'
 });
+Object.assign(LANG.ar, {
+  demoVideoTitle: 'فيديو توضيحي قصير',
+  demoVideoFallback: 'سيظهر فيديو محاكاة المسح هنا بعد إضافة الملف demo-scan-intro.mp4 إلى مجلد media.',
+  closeVideo: 'إغلاق الفيديو'
+});
+
 Object.assign(LANG.he, {
   reportArchiveTitle: 'ארכיון דוחות לפי תאריך',
   reportArchiveSubtitle: 'בחר טווח תאריכים כדי למשוך ביקורים שמורים ולפתוח את הדוח של כל ביקור.',
