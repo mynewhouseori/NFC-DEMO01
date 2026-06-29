@@ -2616,7 +2616,7 @@
       })[0] || null;
     }
 
-    function updateStatusOptions(){
+    function updateStatusOptionsLegacyOld(){
       const current = el('itemStatus').value || '׳×׳§׳™׳';
       el('itemStatus').innerHTML = `
         <option value="׳×׳§׳™׳">${t('status_ok')}</option>
@@ -2627,7 +2627,7 @@
       updateStatusColorSelect();
     }
 
-    function updateTypeOptions(){
+    function updateTypeOptionsLegacyOld2(){
       const current = el('itemType').value || TYPE_VALUES.other;
       el('itemType').innerHTML = `
         <option value="׳©׳׳§׳">${t('type_shackle')}</option>
