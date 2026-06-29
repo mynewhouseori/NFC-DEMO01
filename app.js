@@ -512,6 +512,12 @@
       }, t(key));
     }
 
+    function formatCloudError(error){
+      const code = error?.code ? `${error.code}: ` : '';
+      const message = error?.message || String(error || '');
+      return `${t('cloudSaveError')}: ${code}${message}`;
+    }
+
     function capitalize(value){
       const text = String(value || '');
       return text ? `${text.charAt(0).toUpperCase()}${text.slice(1)}` : '';
@@ -2425,6 +2431,42 @@
       return String(tagId || '').trim().toLowerCase();
     }
 
+    function readTextFromNdefRecord(record){
+      if(!record?.data){
+        return '';
+      }
+
+      try {
+        const bytes = new Uint8Array(record.data.buffer, record.data.byteOffset, record.data.byteLength);
+        if(record.recordType === 'text'){
+          const status = bytes[0] || 0;
+          const languageCodeLength = status & 0x3f;
+          const isUtf16 = Boolean(status & 0x80);
+          const textBytes = bytes.slice(1 + languageCodeLength);
+          return new TextDecoder(isUtf16 ? 'utf-16' : 'utf-8').decode(textBytes).trim();
+        }
+
+        if(record.recordType === 'url' || record.mediaType?.startsWith('text/')){
+          return new TextDecoder('utf-8').decode(bytes).trim();
+        }
+      } catch (error) {
+        pushDebugLine(`NDEF text decode failed: ${error.message}`);
+      }
+
+      return '';
+    }
+
+    function getTagIdFromNdefMessage(message){
+      const records = Array.from(message?.records || []);
+      for(const record of records){
+        const text = readTextFromNdefRecord(record);
+        if(text){
+          return text;
+        }
+      }
+      return '';
+    }
+
     function toTimeValue(value){
       if(!value) return 0;
       if(typeof value?.toDate === 'function'){
@@ -4160,6 +4202,9 @@
 
     async function renderScanLogs(){
       const container = el('logsList');
+      if(!container){
+        return;
+      }
       ensureLogsDashboardShell();
       container.innerHTML = `<div class="empty-text">Loading...</div>`;
 
@@ -4240,6 +4285,9 @@
 
     async function renderItemsTable(){
       const container = el('itemsTableContainer');
+      if(!container){
+        return;
+      }
       container.innerHTML = `<div class="empty-text">Loading...</div>`;
 
       try {
@@ -5293,7 +5341,7 @@
         await renderReportArchive();
       } catch (e) {
         pushDebugLine(`Save error for ${tagId}: ${e.message}`);
-        el('saveStatus').textContent = t('cloudSaveError');
+        el('saveStatus').textContent = formatCloudError(e);
         console.error(e);
       }
     }
@@ -5358,8 +5406,8 @@
           triggerScanHaptic([50, 30, 50]);
         };
 
-        ndef.onreading = async ({ serialNumber }) => {
-          const tagId = String(serialNumber || '').trim() || 'NFC-UNKNOWN';
+        ndef.onreading = async ({ message, serialNumber }) => {
+          const tagId = getTagIdFromNdefMessage(message) || String(serialNumber || '').trim() || 'NFC-UNKNOWN';
           pushDebugLine(`NFC read tag ${tagId} in ${mode} mode.`);
 
           try {

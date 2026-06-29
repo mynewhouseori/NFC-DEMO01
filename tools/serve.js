@@ -4,7 +4,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const root = process.cwd();
-const host = '127.0.0.1';
+const host = process.env.HOST || '0.0.0.0';
 const port = Number(process.env.PORT || 4173);
 const shouldOpen = process.argv.includes('--open');
 
@@ -55,13 +55,14 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port, host, () => {
-  const url = `http://${host}:${port}/`;
-  const debugUrl = `${url}?debug=1`;
-  console.log(`Preview running at ${url}`);
+  const localUrl = `http://127.0.0.1:${port}/`;
+  const debugUrl = `${localUrl}?debug=1`;
+  console.log(`Preview running at ${localUrl}`);
+  console.log(`Network access enabled on port ${port}.`);
   console.log(`Debug view: ${debugUrl}`);
   console.log('Use Ctrl+C to stop.');
 
   if (shouldOpen) {
-    openBrowser(url);
+    openBrowser(localUrl);
   }
 });
