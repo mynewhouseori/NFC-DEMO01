@@ -628,6 +628,8 @@
 
   <script>
     window.openScreen = window.openScreen || function(id) {
+      const home = document.getElementById('homeScreen');
+      if (home) home.style.display = 'none';
       document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
       const target = document.getElementById(id);
       if (target) target.classList.add('active');
@@ -635,7 +637,7 @@
     window.goHome = window.goHome || function() {
       document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
       const home = document.getElementById('homeScreen');
-      if (home) home.classList.add('active');
+      if (home) home.style.display = 'flex';
     };
     window.openPasswordScreen = window.openPasswordScreen || function() {
       window.openScreen('passwordScreen');
