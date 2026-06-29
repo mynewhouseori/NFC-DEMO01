@@ -59,6 +59,24 @@
       review: [STATUS_VALUES.review, 'לבדיקה', 'needs review', 'review', 'בבדיקה', 'بحاجة إلى فحص'],
       disabled: [STATUS_VALUES.disabled, 'מושבת', 'disabled', 'out of service', 'معطّل']
     };
+    Object.assign(TYPE_VALUES, {
+      shackle: '\u05e9\u05d0\u05e7\u05dc',
+      strap: '\u05e8\u05e6\u05d5\u05e2\u05d4',
+      chain: '\u05e9\u05e8\u05e9\u05e8\u05ea',
+      ring: '\u05d8\u05d1\u05e2\u05ea',
+      hook: '\u05d5\u05d5',
+      fire: '\u05de\u05d8\u05e3 \u05db\u05d9\u05d1\u05d5\u05d9 \u05d0\u05e9',
+      aircomp: '\u05de\u05d3\u05d7\u05e1 \u05d0\u05d5\u05d9\u05e8',
+      other: '\u05d0\u05d7\u05e8'
+    });
+    Object.assign(STATUS_VALUES, {
+      ok: '\u05ea\u05e7\u05d9\u05df',
+      review: '\u05dc\u05d1\u05d3\u05d9\u05e7\u05d4',
+      disabled: '\u05de\u05d5\u05e9\u05d1\u05ea'
+    });
+    STATUS_VARIANTS.ok.unshift(STATUS_VALUES.ok);
+    STATUS_VARIANTS.review.unshift(STATUS_VALUES.review);
+    STATUS_VARIANTS.disabled.unshift(STATUS_VALUES.disabled);
     const REPORT_TEXT = {
       he: {
         exportReport: 'דוח מצב',
@@ -306,6 +324,15 @@
       fire: './תמונות/fire.jpg',
       aircomp: './תמונות/aircomp.jpg'
     };
+    Object.assign(IMAGE_PATHS, {
+      shackle: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/shackle.jpg',
+      strap: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/strap.jpg',
+      chain: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/chain.jpg',
+      ring: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/ring.jpg',
+      hook: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/hook.jpg',
+      fire: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/fire.jpg',
+      aircomp: './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/aircomp.jpg'
+    });
     const IMAGE_LIBRARY = {
       "׳©׳׳§׳": withImageVersion(IMAGE_PATHS.shackle),
       "׳¨׳¦׳•׳¢׳”": withImageVersion(IMAGE_PATHS.strap),
@@ -341,6 +368,21 @@
       "other": withImageVersion(IMAGE_PATHS.shackle)
     };
     IMAGE_PATHS.other = './תמונות/LOGO.JPG';
+    IMAGE_PATHS.other = './\u05ea\u05de\u05d5\u05e0\u05d5\u05ea/LOGO.JPG';
+    IMAGE_LIBRARY[TYPE_VALUES.shackle] = withImageVersion(IMAGE_PATHS.shackle);
+    IMAGE_LIBRARY[TYPE_VALUES.strap] = withImageVersion(IMAGE_PATHS.strap);
+    IMAGE_LIBRARY[TYPE_VALUES.chain] = withImageVersion(IMAGE_PATHS.chain);
+    IMAGE_LIBRARY[TYPE_VALUES.ring] = withImageVersion(IMAGE_PATHS.ring);
+    IMAGE_LIBRARY[TYPE_VALUES.hook] = withImageVersion(IMAGE_PATHS.hook);
+    IMAGE_LIBRARY[TYPE_VALUES.fire] = withImageVersion(IMAGE_PATHS.fire);
+    IMAGE_LIBRARY[TYPE_VALUES.aircomp] = withImageVersion(IMAGE_PATHS.aircomp);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.shackle] = withImageVersion(IMAGE_PATHS.shackle);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.strap] = withImageVersion(IMAGE_PATHS.strap);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.chain] = withImageVersion(IMAGE_PATHS.chain);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.ring] = withImageVersion(IMAGE_PATHS.ring);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.hook] = withImageVersion(IMAGE_PATHS.hook);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.fire] = withImageVersion(IMAGE_PATHS.fire);
+    IMAGE_TYPE_ALIASES[TYPE_VALUES.aircomp] = withImageVersion(IMAGE_PATHS.aircomp);
     IMAGE_LIBRARY[TYPE_VALUES.other] = withImageVersion(IMAGE_PATHS.other);
     IMAGE_TYPE_ALIASES[TYPE_VALUES.other] = withImageVersion(IMAGE_PATHS.other);
     IMAGE_TYPE_ALIASES['אחר'] = withImageVersion(IMAGE_PATHS.other);
@@ -1228,6 +1270,9 @@
 
     function getDisplayImageSrc(item){
       const savedImage = item?.imageSrc || '';
+      if(String(savedImage).includes('????') || String(savedImage).includes('%3F%3F%3F%3F')){
+        return getDefaultImageForType(item?.itemType);
+      }
       if(savedImage && !isLibraryImageSrc(savedImage)){
         return savedImage;
       }
@@ -2093,6 +2138,14 @@
     }
 
     function translateType(type){
+      if(type === TYPE_VALUES.shackle) return t('type_shackle');
+      if(type === TYPE_VALUES.strap) return t('type_strap');
+      if(type === TYPE_VALUES.chain) return t('type_chain');
+      if(type === TYPE_VALUES.ring) return t('type_ring');
+      if(type === TYPE_VALUES.hook) return t('type_hook');
+      if(type === TYPE_VALUES.fire) return t('type_fire');
+      if(type === TYPE_VALUES.aircomp) return t('type_aircomp');
+      if(type === TYPE_VALUES.other) return t('type_other');
       if(type === '׳©׳׳§׳') return t('type_shackle');
       if(type === '׳¨׳¦׳•׳¢׳”') return t('type_strap');
       if(type === '׳©׳¨׳©׳¨׳×') return t('type_chain');
@@ -2140,6 +2193,13 @@
     }
 
     function getSafetyTipKeys(type){
+      if(type === TYPE_VALUES.shackle) return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
+      if(type === TYPE_VALUES.strap) return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
+      if(type === TYPE_VALUES.chain) return ['safety_chain_1', 'safety_chain_2', 'safety_chain_3'];
+      if(type === TYPE_VALUES.ring) return ['safety_ring_1', 'safety_ring_2', 'safety_ring_3'];
+      if(type === TYPE_VALUES.hook) return ['safety_hook_1', 'safety_hook_2', 'safety_hook_3'];
+      if(type === TYPE_VALUES.fire) return ['safety_fire_1', 'safety_fire_2', 'safety_fire_3'];
+      if(type === TYPE_VALUES.aircomp) return ['safety_aircomp_1', 'safety_aircomp_2', 'safety_aircomp_3'];
       if(type === '׳©׳׳§׳') return ['safety_shackle_1', 'safety_shackle_2', 'safety_shackle_3'];
       if(type === '׳¨׳¦׳•׳¢׳”') return ['safety_strap_1', 'safety_strap_2', 'safety_strap_3'];
       if(type === '׳©׳¨׳©׳¨׳×') return ['safety_chain_1', 'safety_chain_2', 'safety_chain_3'];
@@ -2556,6 +2616,32 @@
       el('scanEditStatus').innerHTML = el('itemStatus').innerHTML;
       el('scanEditItemType').value = currentType;
       el('scanEditStatus').value = currentStatus;
+    }
+
+    function updateStatusOptions(){
+      const current = normalizeStatus(el('itemStatus').value) ? el('itemStatus').value : STATUS_VALUES.ok;
+      el('itemStatus').innerHTML = `
+        <option value="${STATUS_VALUES.ok}">${t('status_ok')}</option>
+        <option value="${STATUS_VALUES.review}">${t('status_review')}</option>
+        <option value="${STATUS_VALUES.disabled}">${t('status_disabled')}</option>
+      `;
+      el('itemStatus').value = current;
+      updateStatusColorSelect();
+    }
+
+    function updateTypeOptions(){
+      const current = el('itemType').value || TYPE_VALUES.other;
+      el('itemType').innerHTML = `
+        <option value="${TYPE_VALUES.shackle}">${t('type_shackle')}</option>
+        <option value="${TYPE_VALUES.strap}">${t('type_strap')}</option>
+        <option value="${TYPE_VALUES.chain}">${t('type_chain')}</option>
+        <option value="${TYPE_VALUES.ring}">${t('type_ring')}</option>
+        <option value="${TYPE_VALUES.hook}">${t('type_hook')}</option>
+        <option value="${TYPE_VALUES.fire}">${t('type_fire')}</option>
+        <option value="${TYPE_VALUES.aircomp}">${t('type_aircomp')}</option>
+        <option value="${TYPE_VALUES.other}">${t('type_other')}</option>
+      `;
+      el('itemType').value = current;
     }
 
     function canEditRegister(){
@@ -5099,11 +5185,11 @@
       const select = el('itemStatus');
       select.classList.remove('status-ok','status-warn','status-bad');
 
-      if(select.value === '׳×׳§׳™׳'){
+      if(normalizeStatus(select.value) === 'ok'){
         select.classList.add('status-ok');
-      } else if(select.value === '׳׳‘׳“׳™׳§׳”'){
+      } else if(normalizeStatus(select.value) === 'review'){
         select.classList.add('status-warn');
-      } else if(select.value === '׳׳•׳©׳‘׳×'){
+      } else if(normalizeStatus(select.value) === 'disabled'){
         select.classList.add('status-bad');
       }
     }
