@@ -463,6 +463,39 @@
       return LANG[currentLang][key] || key;
     }
 
+    const HOME_FALLBACK_COPY = {
+      he: {
+        homeKicker: '\u05d3\u05de\u05d5 \u05dc\u05e0\u05d9\u05d4\u05d5\u05dc \u05e6\u05d9\u05d5\u05d3 NFC',
+        homeTitle: '\u05d1\u05d3\u05d9\u05e7\u05d4, \u05e8\u05d9\u05e9\u05d5\u05dd \u05d5\u05de\u05e2\u05e7\u05d1 \u05e6\u05d9\u05d5\u05d3',
+        homeSubtitle: '\u05e1\u05e8\u05d9\u05e7\u05ea NFC, \u05e7\u05dc\u05d9\u05d8\u05ea \u05e6\u05d9\u05d5\u05d3 \u05d5\u05d1\u05d3\u05d9\u05e7\u05d4 \u05de\u05d4\u05d9\u05e8\u05d4 \u05d1\u05e9\u05d8\u05d7.',
+        homeCheck: '\u05d1\u05d3\u05d9\u05e7\u05ea \u05e6\u05d9\u05d5\u05d3',
+        homeRegister: '\u05ea\u05e1\u05e7\u05d9\u05e8 \u05d1\u05d3\u05d9\u05e7\u05d4'
+      },
+      en: {
+        homeKicker: 'NFC equipment demo',
+        homeTitle: 'Equipment Check and Registration',
+        homeSubtitle: 'Scan NFC tags, register equipment, and review items in the field.',
+        homeCheck: 'Equipment Check',
+        homeRegister: 'Inspection Report'
+      },
+      ar: {
+        homeKicker: 'NFC equipment demo',
+        homeTitle: 'فحص وتسجيل المعدات',
+        homeSubtitle: 'امسح وسوم NFC وسجل المعدات وراجعها في الموقع.',
+        homeCheck: 'فحص المعدات',
+        homeRegister: 'تقرير فحص'
+      }
+    };
+
+    function applyHomeFallbackCopy(){
+      const copy = HOME_FALLBACK_COPY[currentLang] || HOME_FALLBACK_COPY.he;
+      if(el('homeKickerText')) el('homeKickerText').textContent = copy.homeKicker;
+      if(el('homeTitleText')) el('homeTitleText').textContent = copy.homeTitle;
+      if(el('homeSubtitleText')) el('homeSubtitleText').textContent = copy.homeSubtitle;
+      if(el('homeCheckText')) el('homeCheckText').textContent = copy.homeCheck;
+      if(el('homeRegisterText')) el('homeRegisterText').textContent = copy.homeRegister;
+    }
+
     function isEngineerWorkspace(){
       return currentAppMode === APP_MODES.engineer;
     }
@@ -2807,6 +2840,7 @@
       localStorage.setItem('lang', lang);
       document.documentElement.lang = lang;
       document.documentElement.dir = LANG[lang].dir;
+      applyHomeFallbackCopy();
       pushDebugLine(`Language set to ${lang}.`);
       document.querySelectorAll('.flag-btn').forEach((button) => {
         button.classList.toggle('active', button.dataset.lang === lang);
@@ -5669,6 +5703,7 @@
     window.openArchivedVisitReport = openArchivedVisitReport;
 
     async function bootApp(){
+      applyHomeFallbackCopy();
       ensureScanLocationRow();
       bindTableActionDelegation();
       bindDateTextInputs();
