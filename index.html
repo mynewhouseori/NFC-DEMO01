@@ -627,6 +627,31 @@
   </aside>
 
   <script>
+    window.openScreen = window.openScreen || function(id) {
+      document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
+      const target = document.getElementById(id);
+      if (target) target.classList.add('active');
+    };
+    window.goHome = window.goHome || function() {
+      document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
+      const home = document.getElementById('homeScreen');
+      if (home) home.classList.add('active');
+    };
+    window.openPasswordScreen = window.openPasswordScreen || function() {
+      window.openScreen('passwordScreen');
+    };
+    window.setLang = window.setLang || function(lang) {
+      document.documentElement.lang = lang || 'he';
+      document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
+    };
+    window.startScan = window.startScan || function() {
+      const status = document.getElementById('scanStatus');
+      if (status) status.textContent = 'האפליקציה עדיין נטענת. רענן את הדף ונסה שוב.';
+    };
+    window.demoScan = window.demoScan || function() {
+      const status = document.getElementById('scanStatus');
+      if (status) status.textContent = 'האפליקציה עדיין נטענת. רענן את הדף ונסה שוב.';
+    };
     (async function bootApp() {
       const BOOTSTRAP_ASSET_VERSION = '20260514demoScanVideo002';
       const VERSION_MANIFEST_URL = './version.json';
