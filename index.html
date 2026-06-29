@@ -45,9 +45,9 @@
 
     <div class="home-content">
       <div class="home-hero">
-        <div class="home-kicker" id="homeKickerText"></div>
-        <h1 class="home-title" id="homeTitleText"></h1>
-        <p class="home-subtitle" id="homeSubtitleText"></p>
+          <div class="home-kicker" id="homeKickerText">דמו לניהול ציוד NFC</div>
+          <h1 class="home-title" id="homeTitleText">בדיקה, רישום ומעקב ציוד</h1>
+          <p class="home-subtitle" id="homeSubtitleText">סריקת NFC, קליטת ציוד ובדיקה מהירה בשטח.</p>
       </div>
 
       <div class="actions">
@@ -55,7 +55,7 @@
           <button class="btn btn-check" id="homeCheckBtn" onclick="openScreen('scanScreen')">
             <span class="btn-inner">
               <span class="icon">&#x1F50D;</span>
-              <span id="homeCheckText" class="home-action-label"></span>
+              <span id="homeCheckText" class="home-action-label">בדיקת ציוד</span>
             </span>
           </button>
         </div>
@@ -63,7 +63,7 @@
           <button class="btn btn-register" id="homeRegisterBtn" onclick="openPasswordScreen()">
             <span class="btn-inner">
               <span class="icon">&#x270E;</span>
-              <span id="homeRegisterText" class="home-action-label"></span>
+              <span id="homeRegisterText" class="home-action-label">תסקיר בדיקה</span>
             </span>
           </button>
         </div>
@@ -683,7 +683,15 @@
 
       await appendScript(`./config.demo.js?v=${encodeURIComponent(assetVersion)}`);
       await appendScript(`./config.local.js?v=${encodeURIComponent(assetVersion)}`, { optional: true });
-      await appendScript(`./app.js?v=${encodeURIComponent(assetVersion)}`, { module: true });
+      try {
+        await appendScript(`./app.js?v=${encodeURIComponent(assetVersion)}`, { module: true });
+      } catch (error) {
+        console.error('App script failed to load.', error);
+        const checkText = document.getElementById('homeCheckText');
+        const registerText = document.getElementById('homeRegisterText');
+        if (checkText && !checkText.textContent.trim()) checkText.textContent = 'בדיקת ציוד';
+        if (registerText && !registerText.textContent.trim()) registerText.textContent = 'תסקיר בדיקה';
+      }
     })();
   </script>
 </body>
