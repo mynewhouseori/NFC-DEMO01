@@ -13,7 +13,7 @@
       orderBy,
       limit
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { LANG } from "./translations.js?v=20260514demoScanVideo002";
+    import { LANG } from "./translations.js?v=20260629removeDemoScan001";
 
     const SETTINGS = window.APP_CONFIG || window.DEFAULT_APP_CONFIG;
 
@@ -2296,8 +2296,11 @@
 
     function hideScanDemoGallery(){
       scanDemoGalleryMode = false;
-      el('scanDemoGallery').classList.remove('active');
-      el('scanDemoGallery').innerHTML = '';
+      const gallery = el('scanDemoGallery');
+      if(gallery){
+        gallery.classList.remove('active');
+        gallery.innerHTML = '';
+      }
       stopScanDemoVideo();
     }
 
@@ -2456,6 +2459,9 @@
 
     function renderScanDemoGallery(items, { preserveVideoState = false } = {}){
       const gallery = el('scanDemoGallery');
+      if(!gallery){
+        return;
+      }
       const total = items.length;
       const galleryWasActive = gallery.classList.contains('active');
 
@@ -2953,11 +2959,13 @@
       el('scanBackBtn').textContent = t('back');
       el('scanScreenTitle').textContent = t('scanTitle');
       el('scanNowBtn').textContent = t('scanNow');
-      el('demoScanBtn').textContent = t('demoScan');
-      el('scanDemoVideoTitle').textContent = t('demoVideoTitle');
-      el('scanDemoVideoCloseBtn').setAttribute('aria-label', t('closeVideo'));
-      el('scanDemoVideoCloseBtn').title = t('closeVideo');
-      el('scanDemoVideoFallbackText').textContent = t('demoVideoFallback');
+      if(el('demoScanBtn')) el('demoScanBtn').textContent = t('demoScan');
+      if(el('scanDemoVideoTitle')) el('scanDemoVideoTitle').textContent = t('demoVideoTitle');
+      if(el('scanDemoVideoCloseBtn')){
+        el('scanDemoVideoCloseBtn').setAttribute('aria-label', t('closeVideo'));
+        el('scanDemoVideoCloseBtn').title = t('closeVideo');
+      }
+      if(el('scanDemoVideoFallbackText')) el('scanDemoVideoFallbackText').textContent = t('demoVideoFallback');
       el('scanEditTitle').textContent = t('scanEditTitle');
       el('scanEditTagIdLabel').textContent = t('tagId');
       el('scanEditItemTypeLabel').textContent = t('itemType');
@@ -5163,8 +5171,6 @@
       const langParam = params.get('lang');
       const screenParam = params.get('screen');
       const tabParam = params.get('tab');
-      const demoParam = params.get('demo');
-
       if (langParam && LANG[langParam]) {
         setLang(langParam);
       }
@@ -5176,9 +5182,6 @@
 
       if (screenParam === 'scan') {
         openScreen('scanScreen');
-        if(demoParam === '1'){
-          await demoScan();
-        }
         return;
       }
 
@@ -5690,8 +5693,6 @@
     window.saveAllTableChanges = saveAllTableChanges;
     window.renderPresentationReportPage = renderPresentationReportPage;
     window.exportPresentationReport = exportPresentationReport;
-    window.demoScan = demoScan;
-    window.closeScanDemoVideo = closeScanDemoVideo;
     window.startScan = startScan;
     window.renderItemsTable = renderItemsTable;
     window.renderScanLogs = renderScanLogs;
