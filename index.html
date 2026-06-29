@@ -627,33 +627,46 @@
   </aside>
 
   <script>
-    window.openScreen = window.openScreen || function(id) {
+    window.__fallbackOpenScreen = function(id) {
       const home = document.getElementById('homeScreen');
       if (home) home.style.display = 'none';
       document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
       const target = document.getElementById(id);
       if (target) target.classList.add('active');
     };
-    window.goHome = window.goHome || function() {
+    window.__fallbackGoHome = function() {
       document.querySelectorAll('.screen').forEach((screen) => screen.classList.remove('active'));
       const home = document.getElementById('homeScreen');
       if (home) home.style.display = 'flex';
     };
-    window.openPasswordScreen = window.openPasswordScreen || function() {
-      window.openScreen('passwordScreen');
+    window.__fallbackLoadingStatus = function() {
+      const status = document.getElementById('scanStatus');
+      if (status) status.textContent = 'האפליקציה עדיין נטענת. רענן את הדף ונסה שוב.';
     };
-    window.setLang = window.setLang || function(lang) {
+    window.openScreen = window.__fallbackOpenScreen;
+    window.goHome = window.__fallbackGoHome;
+    window.openPasswordScreen = function() {
+      window.__fallbackOpenScreen('passwordScreen');
+    };
+    window.setLang = function(lang) {
       document.documentElement.lang = lang || 'he';
       document.documentElement.dir = lang === 'en' ? 'ltr' : 'rtl';
     };
-    window.startScan = window.startScan || function() {
-      const status = document.getElementById('scanStatus');
-      if (status) status.textContent = 'האפליקציה עדיין נטענת. רענן את הדף ונסה שוב.';
-    };
-    window.demoScan = window.demoScan || function() {
-      const status = document.getElementById('scanStatus');
-      if (status) status.textContent = 'האפליקציה עדיין נטענת. רענן את הדף ונסה שוב.';
-    };
+    window.startScan = window.__fallbackLoadingStatus;
+    window.demoScan = window.__fallbackLoadingStatus;
+    window.addEventListener('error', (event) => {
+      const status = document.getElementById('scanStatus') || document.getElementById('passwordStatus');
+      if (status && !window.startScan?.toString().includes('Started NFC scan')) {
+        status.textContent = `שגיאת טעינה: ${event.message || 'לא ידוע'}`;
+      }
+    });
+    window.addEventListener('unhandledrejection', (event) => {
+      const status = document.getElementById('scanStatus') || document.getElementById('passwordStatus');
+      const reason = event.reason?.message || String(event.reason || 'לא ידוע');
+      if (status && !window.startScan?.toString().includes('Started NFC scan')) {
+        status.textContent = `שגיאת טעינה: ${reason}`;
+      }
+    });
     (async function bootApp() {
       const BOOTSTRAP_ASSET_VERSION = '20260514demoScanVideo002';
       const VERSION_MANIFEST_URL = './version.json';
